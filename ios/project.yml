@@ -22,7 +22,7 @@ targets:
         KAKAO_APP_KEY: "633176f4920468978f1c055f77f9ef5f"  # 카카오 개발자 콘솔의 네이티브 앱 키를 여기에 입력
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
-        NSLocationWhenInUseUsageDescription: 지도에서 내 위치 주변의 분실물 보관 거점을 보여주기 위해 위치를 사용해요.
+        NSLocationWhenInUseUsageDescription: 지도에 현재 위치와 바라보는 방향을 표시하고 내 위치로 지도를 이동하기 위해 사용해요.
     settings:
       base:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
