@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+        A18000000000000000000001 /* UserLocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18000000000000000000002 /* UserLocationService.swift */; };
+        A18000000000000000000003 /* UserLocationMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18000000000000000000004 /* UserLocationMath.swift */; };
 		3F37CE322734D466EF679B0A /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167AB2FB5772FA754F4D351D /* Models.swift */; };
 		6345E3CA1B8866006C34F451 /* SheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 597ED81F0302CB4D4B2A46D4 /* SheetView.swift */; };
 		689967753C20DF3AF16687D3 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0002B9E7C0B2A55E705C4A1F /* HomeView.swift */; };
@@ -25,6 +27,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+        A18000000000000000000002 /* UserLocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLocationService.swift; sourceTree = "<group>"; };
+        A18000000000000000000004 /* UserLocationMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLocationMath.swift; sourceTree = "<group>"; };
 		0002B9E7C0B2A55E705C4A1F /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		167AB2FB5772FA754F4D351D /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		2D19537DD6F6D6939F565D17 /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
@@ -73,7 +77,9 @@
 				C71793D2BDEBBE0B4104048F /* DiningView.swift */,
 				0002B9E7C0B2A55E705C4A1F /* HomeView.swift */,
 				D9E64762475D71D84F1E2F12 /* Info.plist */,
-				6E2D883C39979A1D67886B1C /* KakaoMapView.swift */,
+                6E2D883C39979A1D67886B1C /* KakaoMapView.swift */,
+                A18000000000000000000002 /* UserLocationService.swift */,
+                A18000000000000000000004 /* UserLocationMath.swift */,
 				167AB2FB5772FA754F4D351D /* Models.swift */,
 				597ED81F0302CB4D4B2A46D4 /* SheetView.swift */,
 				2D19537DD6F6D6939F565D17 /* Store.swift */,
@@ -178,7 +184,9 @@
 				95050154E215ADABB568BC2E /* DiningData.swift in Sources */,
 				779E06E3A38A5A81A408FE83 /* DiningView.swift in Sources */,
 				689967753C20DF3AF16687D3 /* HomeView.swift in Sources */,
-				8969D7A83AF52727A43AC987 /* KakaoMapView.swift in Sources */,
+                8969D7A83AF52727A43AC987 /* KakaoMapView.swift in Sources */,
+                A18000000000000000000001 /* UserLocationService.swift in Sources */,
+                A18000000000000000000003 /* UserLocationMath.swift in Sources */,
 				B00100000000000000000001 /* CampusBuildings.swift in Sources */,
 				3F37CE322734D466EF679B0A /* Models.swift in Sources */,
 				6345E3CA1B8866006C34F451 /* SheetView.swift in Sources */,
