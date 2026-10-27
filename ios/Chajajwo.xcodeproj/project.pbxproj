@@ -1,0 +1,391 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		3F37CE322734D466EF679B0A /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167AB2FB5772FA754F4D351D /* Models.swift */; };
+		6345E3CA1B8866006C34F451 /* SheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 597ED81F0302CB4D4B2A46D4 /* SheetView.swift */; };
+		689967753C20DF3AF16687D3 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0002B9E7C0B2A55E705C4A1F /* HomeView.swift */; };
+		779E06E3A38A5A81A408FE83 /* DiningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C71793D2BDEBBE0B4104048F /* DiningView.swift */; };
+		8480E099E329F7E2735F8EC5 /* meals.json in Resources */ = {isa = PBXBuildFile; fileRef = 99839F37C55FF9AC8F108599 /* meals.json */; };
+		B00100000000000000000001 /* CampusBuildings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00100000000000000000002 /* CampusBuildings.swift */; };
+		B00100000000000000000003 /* campus_buildings.json in Resources */ = {isa = PBXBuildFile; fileRef = B00100000000000000000004 /* campus_buildings.json */; };
+		8969D7A83AF52727A43AC987 /* KakaoMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E2D883C39979A1D67886B1C /* KakaoMapView.swift */; };
+		93C05C931C68DE277C07B217 /* Tabs.swift in Sources */ = {isa = PBXBuildFile; fileRef = B445B1C3F9C3315DE62A7DF8 /* Tabs.swift */; };
+		95050154E215ADABB568BC2E /* DiningData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F752E28546F71532B695A3B0 /* DiningData.swift */; };
+		A5924269FCA14622A346BE08 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D19537DD6F6D6939F565D17 /* Store.swift */; };
+		D409AED59FA48D6510BA861E /* KakaoMapsSDK-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 3927C225706CCD20B36883FA /* KakaoMapsSDK-SPM */; };
+		D6A967127FDF55C2285BBF86 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8448DF90FAA152C7BBC65918 /* Components.swift */; };
+		D6EA8F33B06C15C424DE6C37 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E6FD255F2ECB57ABE416FCDD /* Assets.xcassets */; };
+		F91F2A6C09D8B8C144B1BC8B /* ChajajwoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37F690BF5CA084C0DAD6C3B /* ChajajwoApp.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0002B9E7C0B2A55E705C4A1F /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		167AB2FB5772FA754F4D351D /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		2D19537DD6F6D6939F565D17 /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
+		597ED81F0302CB4D4B2A46D4 /* SheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetView.swift; sourceTree = "<group>"; };
+		6E2D883C39979A1D67886B1C /* KakaoMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KakaoMapView.swift; sourceTree = "<group>"; };
+		8448DF90FAA152C7BBC65918 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
+		86C82520DD181A83C5A81347 /* Chajajwo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chajajwo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B00100000000000000000002 /* CampusBuildings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CampusBuildings.swift; sourceTree = "<group>"; };
+		B00100000000000000000004 /* campus_buildings.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = campus_buildings.json; sourceTree = "<group>"; };
+		99839F37C55FF9AC8F108599 /* meals.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = meals.json; sourceTree = "<group>"; };
+		B445B1C3F9C3315DE62A7DF8 /* Tabs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tabs.swift; sourceTree = "<group>"; };
+		C37F690BF5CA084C0DAD6C3B /* ChajajwoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChajajwoApp.swift; sourceTree = "<group>"; };
+		C71793D2BDEBBE0B4104048F /* DiningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiningView.swift; sourceTree = "<group>"; };
+		D9E64762475D71D84F1E2F12 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		E6FD255F2ECB57ABE416FCDD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F752E28546F71532B695A3B0 /* DiningData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiningData.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		927E6669E0247482E56DC9C9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D409AED59FA48D6510BA861E /* KakaoMapsSDK-SPM in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		287919BDF084C35295606D06 = {
+			isa = PBXGroup;
+			children = (
+				9F502B7EFA45CE888CCCCFB4 /* Chajajwo */,
+				EC5C160B3E376A3E4DD218BF /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		9F502B7EFA45CE888CCCCFB4 /* Chajajwo */ = {
+			isa = PBXGroup;
+			children = (
+				E6FD255F2ECB57ABE416FCDD /* Assets.xcassets */,
+				C37F690BF5CA084C0DAD6C3B /* ChajajwoApp.swift */,
+				8448DF90FAA152C7BBC65918 /* Components.swift */,
+				F752E28546F71532B695A3B0 /* DiningData.swift */,
+				C71793D2BDEBBE0B4104048F /* DiningView.swift */,
+				0002B9E7C0B2A55E705C4A1F /* HomeView.swift */,
+				D9E64762475D71D84F1E2F12 /* Info.plist */,
+				6E2D883C39979A1D67886B1C /* KakaoMapView.swift */,
+				167AB2FB5772FA754F4D351D /* Models.swift */,
+				597ED81F0302CB4D4B2A46D4 /* SheetView.swift */,
+				2D19537DD6F6D6939F565D17 /* Store.swift */,
+				B445B1C3F9C3315DE62A7DF8 /* Tabs.swift */,
+				B00100000000000000000002 /* CampusBuildings.swift */,
+				B170C4CA0C4A29170071756F /* Resources */,
+			);
+			path = Chajajwo;
+			sourceTree = "<group>";
+		};
+		B170C4CA0C4A29170071756F /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				99839F37C55FF9AC8F108599 /* meals.json */,
+				B00100000000000000000004 /* campus_buildings.json */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		EC5C160B3E376A3E4DD218BF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				86C82520DD181A83C5A81347 /* Chajajwo.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		07F4424508D760E5ED271734 /* Chajajwo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E6CDB9AE162C49379520D8CF /* Build configuration list for PBXNativeTarget "Chajajwo" */;
+			buildPhases = (
+				1CFE01DD74A21B8C317890FF /* Sources */,
+				0D7FEB9881B26378A5D191AF /* Resources */,
+				927E6669E0247482E56DC9C9 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Chajajwo;
+			packageProductDependencies = (
+				3927C225706CCD20B36883FA /* KakaoMapsSDK-SPM */,
+			);
+			productName = Chajajwo;
+			productReference = 86C82520DD181A83C5A81347 /* Chajajwo.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		25D2D66A469F8BFB085EE6DF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+			};
+			buildConfigurationList = 4EB2041409BFF8FEAD0CAE21 /* Build configuration list for PBXProject "Chajajwo" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 287919BDF084C35295606D06;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				962CEA9471C08E946D839DFD /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = EC5C160B3E376A3E4DD218BF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				07F4424508D760E5ED271734 /* Chajajwo */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		0D7FEB9881B26378A5D191AF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D6EA8F33B06C15C424DE6C37 /* Assets.xcassets in Resources */,
+				8480E099E329F7E2735F8EC5 /* meals.json in Resources */,
+				B00100000000000000000003 /* campus_buildings.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1CFE01DD74A21B8C317890FF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F91F2A6C09D8B8C144B1BC8B /* ChajajwoApp.swift in Sources */,
+				D6A967127FDF55C2285BBF86 /* Components.swift in Sources */,
+				95050154E215ADABB568BC2E /* DiningData.swift in Sources */,
+				779E06E3A38A5A81A408FE83 /* DiningView.swift in Sources */,
+				689967753C20DF3AF16687D3 /* HomeView.swift in Sources */,
+				8969D7A83AF52727A43AC987 /* KakaoMapView.swift in Sources */,
+				B00100000000000000000001 /* CampusBuildings.swift in Sources */,
+				3F37CE322734D466EF679B0A /* Models.swift in Sources */,
+				6345E3CA1B8866006C34F451 /* SheetView.swift in Sources */,
+				A5924269FCA14622A346BE08 /* Store.swift in Sources */,
+				93C05C931C68DE277C07B217 /* Tabs.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		474CCC09FE5ED9F69E4513A0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = UZ3883JFZS;
+				INFOPLIST_FILE = Chajajwo/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.chargajoe.chajajwo;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		5A24CC3F1A575CA2FBAE6C02 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = UZ3883JFZS;
+				INFOPLIST_FILE = Chajajwo/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.chargajoe.chajajwo;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		702268E451055751C396BDCD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		72B1D8CC31A9DD76497500E3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4EB2041409BFF8FEAD0CAE21 /* Build configuration list for PBXProject "Chajajwo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				72B1D8CC31A9DD76497500E3 /* Debug */,
+				702268E451055751C396BDCD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E6CDB9AE162C49379520D8CF /* Build configuration list for PBXNativeTarget "Chajajwo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				474CCC09FE5ED9F69E4513A0 /* Debug */,
+				5A24CC3F1A575CA2FBAE6C02 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		962CEA9471C08E946D839DFD /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kakao-mapsSDK/KakaoMapsSDK-SPM.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.9.4;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3927C225706CCD20B36883FA /* KakaoMapsSDK-SPM */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 962CEA9471C08E946D839DFD /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */;
+			productName = "KakaoMapsSDK-SPM";
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 25D2D66A469F8BFB085EE6DF /* Project object */;
+}

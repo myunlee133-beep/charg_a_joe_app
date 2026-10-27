@@ -1,0 +1,280 @@
+import SwiftUI
+import KakaoMapsSDK
+
+/// 카카오맵 위에 거점 핀(POI)을 올리는 SwiftUI 래퍼.
+struct KakaoMapView: UIViewRepresentable {
+    let places: [Place]            // 지금 필터에 맞는 장소
+    let counts: [String: Int]      // 거점별 보관 건수
+    let selected: String
+    let sheetOpen: Bool            // 하단 카드가 펼쳐졌는지
+    let focusedBuilding: CampusBuilding?  // Search-selected campus building
+    let focusSerial: Int                  // Increment to re-focus even for the same ID
+    let onSelect: (String) -> Void
+
+    static func initSDK() {
+        let key = Bundle.main.object(forInfoDictionaryKey: "KAKAO_APP_KEY") as? String ?? ""
+        SDKInitializer.InitSDK(appKey: key)
+    }
+
+    func makeUIView(context: Context) -> KMViewContainer {
+        let container = KMViewContainer()
+        context.coordinator.createController(container)
+        return container
+    }
+
+    func updateUIView(_ uiView: KMViewContainer, context: Context) {
+        context.coordinator.parent = self
+        context.coordinator.refresh()
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+
+    @MainActor final class Coordinator: NSObject, MapControllerDelegate, KakaoMapEventDelegate {
+        var parent: KakaoMapView
+        private var controller: KMController?
+        private var pois: [String: Poi] = [:]
+        private var appliedStyle: [String: String] = [:]
+        private var addedStyles: Set<String> = []
+        private var lastSelected: String?
+        private var lastSheetOpen = false
+        private var buildingPois: [String: Poi] = [:]
+        private var lastBuildingID: String?
+        private var lastFocusSerial = -1
+        private let layerID = "places"
+        private let viewName = "mapview"
+        /// 이 지도 레벨보다 멀리서 볼 때는 핀을 모두 숨긴다(기본 화면은 레벨 14).
+        private static let minPinLevel = 14
+        private var pinsVisible = false
+
+        init(_ parent: KakaoMapView) { self.parent = parent }
+
+        @objc func dismissKeyboard() {
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        }
+
+        func createController(_ container: KMViewContainer) {
+            let c = KMController(viewContainer: container)
+            c.delegate = self
+            controller = c
+            c.prepareEngine()
+        }
+
+        // MARK: MapControllerDelegate
+        func authenticationSucceeded() {
+            // ponytail: 탭을 벗어나도 엔진은 계속 돌아감. 배터리가 문제되면 pause/resetEngine 연결.
+            if controller?.isEngineActive == false { controller?.activateEngine() }
+        }
+        func authenticationFailed(_ errorCode: Int, desc: String) {
+            print("카카오맵 인증 실패 \(errorCode): \(desc)") // 키 오류는 재시도해도 소용없어서 재시도 안 함
+        }
+
+        func addViews() {
+            // 위쪽 검색창·아래쪽 시트에 가려지지 않게 학생회관 일대를 중심에 둔다.
+            let info = MapviewInfo(viewName: viewName, viewInfoName: "map",
+                                   defaultPosition: MapPoint(longitude: 126.9520, latitude: 37.4590), defaultLevel: 16)
+            controller?.addView(info)
+        }
+        func addViewSucceeded(_ viewName: String, viewInfoName: String) {
+            guard let map = controller?.getView(viewName) as? KakaoMap else { return }
+            map.eventDelegate = self
+            let manager = map.getLabelManager()
+            _ = manager.addLabelLayer(option: LabelLayerOptions(layerID: layerID, competitionType: .none,
+                                                                competitionUnit: .symbolFirst, orderType: .rank, zOrder: 20000)) // 지도 기본 글자(zOrder ~10000)보다 위에 그려야 이름표가 안 가려진다
+            manager.getLabelLayer(layerID: layerID)?.setClickable(true) // 레이어에서도 켜야 핀 탭 이벤트가 온다
+            refresh()
+        }
+        func addViewFailed(_ viewName: String, viewInfoName: String) { print("카카오맵 뷰 추가 실패") }
+        func containerDidResized(_ size: CGSize) {
+            (controller?.getView(viewName) as? KakaoMap)?.viewRect = CGRect(origin: .zero, size: size)
+        }
+        func viewWillDestroyed(_ view: ViewBase) {}
+        func cameraDidStopped(kakaoMap: KakaoMap, by: MoveBy) { refresh() }
+
+        // MARK: 핀 갱신
+        func refresh() {
+            guard let map = controller?.getView(viewName) as? KakaoMap else { return }
+            let manager = map.getLabelManager()
+            guard let layer = manager.getLabelLayer(layerID: layerID) else { return }
+            let visible = Set(parent.places.map(\.id))
+            pinsVisible = map.zoomLevel >= Self.minPinLevel
+
+            if lastSheetOpen != parent.sheetOpen {
+                // 카드가 화면 아래쪽 대부분을 덮으므로, 열려 있을 땐 지도 아래쪽 여백을 줘서 중심을 위로 올린다.
+                if parent.sheetOpen { map.setMargins(UIEdgeInsets(top: 0, left: 0, bottom: 190, right: 0)) } else { map.resetMargins() }
+                lastSheetOpen = parent.sheetOpen
+            }
+
+            for p in Place.all {
+                let count = parent.counts[p.id] ?? 0
+                let isSel = parent.selected == p.id
+                let styleID = p.type == .food ? "food-\(p.id)-\(isSel)" : "\(p.type)-\(count)-\(isSel)"
+                if !addedStyles.contains(styleID) {
+                    manager.addPoiStyle(Self.poiStyle(id: styleID, type: p.type, count: count, selected: isSel, name: p.name))
+                    addedStyles.insert(styleID)
+                }
+                // 식당 이름은 아이콘 이미지 안에 그려 넣는다(지도 글자를 가리려면 불투명 배경이 필요).
+                let texts = isSel && p.type != .food ? [PoiText(text: p.name, styleIndex: 0)] : []
+
+                if pois[p.id] == nil {
+                    let opt = PoiOptions(styleID: styleID, poiID: p.id)
+                    opt.rank = isSel ? 100 : 0
+                    opt.clickable = true
+                    for t in texts { opt.addText(t) }
+                    guard let poi = layer.addPoi(option: opt, at: MapPoint(longitude: p.lng, latitude: p.lat)) else { continue }
+                    pois[p.id] = poi
+                    appliedStyle[p.id] = styleID
+                } else if appliedStyle[p.id] != styleID {
+                    pois[p.id]?.changeTextAndStyle(texts: texts, styleID: styleID)
+                    appliedStyle[p.id] = styleID
+                }
+                pinsVisible && visible.contains(p.id) ? pois[p.id]?.show() : pois[p.id]?.hide()
+            }
+
+            // Reuse the existing label manager/scene: do not create a second Kakao map.
+            if lastBuildingID != parent.focusedBuilding?.id {
+                if let previous = lastBuildingID { buildingPois[previous]?.hide() }
+                if let building = parent.focusedBuilding {
+                    let styleID = "campus-building-focus"
+                    if !addedStyles.contains(styleID) {
+                        manager.addPoiStyle(Self.buildingPoiStyle(id: styleID))
+                        addedStyles.insert(styleID)
+                    }
+                    if buildingPois[building.id] == nil {
+                        let opt = PoiOptions(styleID: styleID, poiID: "campus-\(building.id)")
+                        opt.rank = 200
+                        opt.clickable = false // Search selection handled in SwiftUI.
+                        let poi = layer.addPoi(option: opt, at: MapPoint(longitude: building.longitude, latitude: building.latitude))
+                        buildingPois[building.id] = poi
+                    }
+                    buildingPois[building.id]?.show()
+                }
+                lastBuildingID = parent.focusedBuilding?.id
+            }
+            if let building = parent.focusedBuilding, parent.focusSerial != lastFocusSerial {
+                let target = MapPoint(longitude: building.longitude, latitude: building.latitude)
+                let update = CameraUpdate.make(target: target, zoomLevel: 17, mapView: map)
+                map.animateCamera(cameraUpdate: update,
+                                  options: CameraAnimationOptions(autoElevation: false, consecutive: false, durationInMillis: 500))
+                lastFocusSerial = parent.focusSerial
+            }
+
+            if lastSelected != parent.selected {
+                if lastSelected != nil, let p = Place.byID[parent.selected] {
+                    let update = CameraUpdate.make(target: MapPoint(longitude: p.lng, latitude: p.lat), mapView: map)
+                    map.animateCamera(cameraUpdate: update, options: CameraAnimationOptions(autoElevation: false, consecutive: false, durationInMillis: 500))
+                }
+                lastSelected = parent.selected
+            }
+        }
+
+        // ponytail: SDK의 핀 클릭 판정이 우리 핀에 안 먹어서, 탭 좌표를 지도 좌표로 바꿔 가장 가까운 핀을 직접 고른다.
+        func kakaoMapDidTapped(kakaoMap: KakaoMap, point: CGPoint) {
+            dismissKeyboard() // 지도를 누르면 키보드 내림. 제스처를 따로 얹으면 SDK 탭이 안 먹어서 SDK 콜백에서 처리한다.
+            guard pinsVisible else { return }
+            // 점 중심이 앵커라서 탭한 지점을 그대로 기준으로 삼고, 반경은 화면 22pt 만큼의 거리.
+            let probe = kakaoMap.getPosition(CGPoint(x: point.x, y: point.y)).wgsCoord
+            let edge = kakaoMap.getPosition(CGPoint(x: point.x + 22, y: point.y)).wgsCoord
+            let k = cos(probe.latitude * .pi / 180)
+            func dist(_ a: (Double, Double), _ b: (Double, Double)) -> Double { hypot(a.0 - b.0, (a.1 - b.1) * k) }
+            let radius = dist((probe.latitude, probe.longitude), (edge.latitude, edge.longitude))
+            let hit = parent.places
+                .map { ($0.id, dist((probe.latitude, probe.longitude), ($0.lat, $0.lng))) }
+                .filter { $0.1 <= radius }
+                .min { $0.1 < $1.1 }
+            if let hit { parent.onSelect(hit.0) }
+        }
+
+        // MARK: 핀 이미지
+        static func buildingPoiStyle(id: String) -> PoiStyle {
+            let renderer = ImageRenderer(content: CampusBuildingPin())
+            renderer.scale = 2
+            let icon = PoiIconStyle(symbol: renderer.uiImage, anchorPoint: CGPoint(x: 0.5, y: 1.0))
+            let text = PoiTextStyle(textLineStyles: [
+                PoiTextLineStyle(textStyle: TextStyle(fontSize: 26, fontColor: .black, strokeThickness: 4, strokeColor: .white)),
+            ])
+            text.textLayouts = [.right]
+            return PoiStyle(styleID: id, styles: [PerLevelPoiStyle(iconStyle: icon, textStyle: text, level: 0)])
+        }
+
+        static func poiStyle(id: String, type: PlaceType, count: Int, selected: Bool, name: String) -> PoiStyle {
+            let text = PoiTextStyle(textLineStyles: [
+                PoiTextLineStyle(textStyle: TextStyle(fontSize: 24, fontColor: .black, strokeThickness: 4, strokeColor: .white)),
+            ])
+            text.textLayouts = [.right]
+            func icon(label: String?) -> PoiIconStyle {
+                // 이름표가 붙어도 점 중심(앵커)이 좌표에 오도록, 이름표 없는 점의 높이 비율로 앵커를 잡는다.
+                let pinHeight = render(PinIcon(type: type, count: count, selected: selected, label: nil)).size.height
+                let image = render(PinIcon(type: type, count: count, selected: selected, label: label))
+                return PoiIconStyle(symbol: image, anchorPoint: CGPoint(x: 0.5, y: pinHeight / 2 / image.size.height))
+            }
+            let plain = icon(label: nil)
+            // 식당 이름은 점이 보이는 레벨(14~)부터 보인다. 선택된 핀은 항상 보인다.
+            if type == .food {
+                let named = icon(label: name)
+                return PoiStyle(styleID: id, styles: selected
+                    ? [PerLevelPoiStyle(iconStyle: named, level: 0)]
+                    : [PerLevelPoiStyle(iconStyle: plain, level: 0), PerLevelPoiStyle(iconStyle: named, level: 14)])
+            }
+            return PoiStyle(styleID: id, styles: [PerLevelPoiStyle(iconStyle: plain, textStyle: text, level: 0)])
+        }
+
+        private static func render(_ content: PinIcon) -> UIImage {
+            let renderer = ImageRenderer(content: content)
+            renderer.scale = 2
+            return renderer.uiImage ?? UIImage()
+        }
+    }
+}
+
+/// 지도 핀 이미지(SwiftUI로 그려 UIImage로 변환).
+struct PinIcon: View {
+    let type: PlaceType
+    let count: Int
+    let selected: Bool
+    var label: String? = nil
+
+    var body: some View {
+        VStack(spacing: 0) {
+            pin
+            if let label {
+                Text(label).font(.system(size: 11, weight: .bold)).foregroundStyle(Color(hex: 0x1b2328))
+                    .lineLimit(1).fixedSize()
+                    .padding(.horizontal, 7).padding(.vertical, 3)
+                    .background(.white, in: Capsule())
+                    .overlay(Capsule().stroke(type.color.opacity(0.5), lineWidth: 1))
+                    .padding(.top, 2).padding(.bottom, 2)
+            }
+        }
+    }
+
+    private var pin: some View {
+        Circle().fill(type.color)
+            .frame(width: 11, height: 11)
+            .shadow(color: .black.opacity(0.25), radius: 1.5, y: 1)
+            .overlay(alignment: .topTrailing) {
+                if count > 0 {
+                    Text("\(count)").font(.system(size: 9, weight: .bold)).foregroundStyle(.white)
+                        .padding(.horizontal, 4).frame(minWidth: 14, minHeight: 14)
+                        .background(Color(hex: 0x1b2328), in: Capsule()).offset(x: 7, y: -6)
+                }
+            }
+            .padding(10)
+    }
+}
+
+/// Dedicated marker for a building searched in the top search bar.
+private struct CampusBuildingPin: View {
+    var body: some View {
+        VStack(spacing: -3) {
+            Image(systemName: "building.2.fill")
+                .font(.system(size: 14, weight: .bold))
+                .foregroundStyle(.white)
+                .frame(width: 33, height: 33)
+                .background(Color.cjTeal, in: Circle())
+                .overlay(Circle().stroke(Color.white, lineWidth: 3))
+            Image(systemName: "arrowtriangle.down.fill")
+                .font(.system(size: 8)).foregroundStyle(Color.cjTeal)
+        }
+        .padding(9)
+    }
+}

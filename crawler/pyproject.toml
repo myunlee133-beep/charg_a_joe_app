@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chajwo-independent-meal-crawler"
+version = "0.3.2"
+description = "Independent SNU public cafeteria HTML crawler for Chajwo"
+requires-python = ">=3.10"
+dependencies = ["requests>=2.31,<3", "beautifulsoup4>=4.12,<5", "tzdata>=2025.2; platform_system == 'Windows'"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10", "pandas>=2,<3", "jupyter>=1,<2", "nbclient>=0.10,<1"]
+postgres = ["psycopg[binary]>=3.2,<4"]
+
+[project.scripts]
+chajwo-meals = "chajwo_meals.cli:main"
+chajwo-meals-csv = "chajwo_meals.csv_runner:main"
+chajwo-meals-db = "chajwo_meals.db_runner:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.setuptools.package-data]
+chajwo_meals = ["data/*.csv"]
+

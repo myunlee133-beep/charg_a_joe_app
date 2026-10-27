@@ -1,0 +1,137 @@
+﻿restaurant,building_number,building_name,floor,category,menu_name,price_variant,price_won,price_raw,price_status,source_url,observed_on,note
+버거운버거,101동,아시아연구소,1층 113호,실속세트,한입떡복이 세트,기본,16700,"16,700원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,실속세트,한입떡말이 세트,기본,6900,"6,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,실속세트,한입베이크 세트,기본,12000,"12,000원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,실속세트,한입강정 세트,기본,11100,"11,100원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,실속세트,싱글통다리 세트,기본,12000,"12,000원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,실속세트,커플통다리 세트,기본,19400,"19,400원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,실속세트,한입치킨 세트,기본,17100,"17,100원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,버거,한입버거운시그니처버거,첫 번째 표기,9900,"9,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,한입버거운시그니처버거,두 번째 표기,12400,"12,400원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,버거운치킨버거,첫 번째 표기,5200,"5,200원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,버거운치킨버거,두 번째 표기,7700,"7,700원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,양념치킨버거,첫 번째 표기,5600,"5,600원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,양념치킨버거,두 번째 표기,8100,"8,100원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,핫치킨버거,첫 번째 표기,5600,"5,600원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,핫치킨버거,두 번째 표기,8100,"8,100원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,스노우치킨버거,첫 번째 표기,5600,"5,600원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,스노우치킨버거,두 번째 표기,8100,"8,100원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,딥치즈치킨버거,첫 번째 표기,5700,"5,700원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,딥치즈치킨버거,두 번째 표기,8200,"8,200원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,화이트어니언치킨버거,첫 번째 표기,5900,"5,900 (원 생략)",needs_review,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문 첫 가격에 원 단위 미표기. 매장 확인 권장
+버거운버거,101동,아시아연구소,1층 113호,버거,화이트어니언치킨버거,두 번째 표기,8400,"8,400원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,데리마요치킨버거,첫 번째 표기,5600,"5,600원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,데리마요치킨버거,두 번째 표기,8100,"8,100원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,칠리마요치킨버거,첫 번째 표기,5800,"5,800원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,칠리마요치킨버거,두 번째 표기,8300,"8,300원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,칠리크런치버거,첫 번째 표기,7100,"7,100원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,칠리크런치버거,두 번째 표기,9600,"9,600원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,에그마요휠렛버거,첫 번째 표기,6100,"6,100원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,에그마요휠렛버거,두 번째 표기,8600,"8,600원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,육즙가득비프버거,첫 번째 표기,6300,"6,300원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,육즙가득비프버거,두 번째 표기,8800,"8,800원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,비프해쉬버거,첫 번째 표기,7300,"7,300원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,비프해쉬버거,두 번째 표기,9800,"9,800원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,더블비프버거,첫 번째 표기,9500,"9,500원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,더블비프버거,두 번째 표기,12000,"12,000원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,클래식치즈버거,첫 번째 표기,5900,"5,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,클래식치즈버거,두 번째 표기,8400,"8,400원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,투움바더블새우버거,첫 번째 표기,7400,"7,400원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,투움바더블새우버거,두 번째 표기,9900,"9,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,투움바비프새우버거,첫 번째 표기,8700,"8,700원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,투움바비프새우버거,두 번째 표기,11200,"11,200원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,통모짜치즈버거,첫 번째 표기,8400,"8,400원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,통모짜치즈버거,두 번째 표기,10900,"10,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,불닭통모짜치즈버거,첫 번째 표기,8400,"8,400원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,불닭통모짜치즈버거,두 번째 표기,10900,"10,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,통새우버거,첫 번째 표기,5900,"5,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,통새우버거,두 번째 표기,8400,"8,400원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,더블통새우버거,첫 번째 표기,7700,"7,700원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,더블통새우버거,두 번째 표기,10200,"10,200원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,불고기버거,첫 번째 표기,4400,"4,400원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,불고기버거,두 번째 표기,6900,"6,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,더블불고기버거,첫 번째 표기,6400,"6,400원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,더블불고기버거,두 번째 표기,8900,"8,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,불새버거,첫 번째 표기,6600,"6,600원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,버거,불새버거,두 번째 표기,9100,"9,100원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문에 두 가격이 병기되어 있으나 옵션 명칭은 명시되지 않음
+버거운버거,101동,아시아연구소,1층 113호,베이크,달콤비프치즈베이크,첫 번째 표기,6000,"6,000원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,"원문 두 가격 표기, 옵션 명칭 미표기"
+버거운버거,101동,아시아연구소,1층 113호,베이크,달콤비프치즈베이크,두 번째 표기,8500,"8,500원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,"원문 두 가격 표기, 옵션 명칭 미표기"
+버거운버거,101동,아시아연구소,1층 113호,베이크,쉬림프치즈베이크,첫 번째 표기,5900,5.900원,needs_review,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,원문은 5.900원 표기. 구분기호 오타 가능성 확인 필요
+버거운버거,101동,아시아연구소,1층 113호,베이크,쉬림프치즈베이크,두 번째 표기,8400,"8,400원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,"원문 두 가격 표기, 옵션 명칭 미표기"
+버거운버거,101동,아시아연구소,1층 113호,베이크,소시지치즈베이크,첫 번째 표기,5400,"5,400원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,"원문 두 가격 표기, 옵션 명칭 미표기"
+버거운버거,101동,아시아연구소,1층 113호,베이크,소시지치즈베이크,두 번째 표기,7900,"7,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,"원문 두 가격 표기, 옵션 명칭 미표기"
+버거운버거,101동,아시아연구소,1층 113호,베이크,매콤치킨치즈베이크,첫 번째 표기,5400,"5,400원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,"원문 두 가격 표기, 옵션 명칭 미표기"
+버거운버거,101동,아시아연구소,1층 113호,베이크,매콤치킨치즈베이크,두 번째 표기,7900,"7,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,"원문 두 가격 표기, 옵션 명칭 미표기"
+버거운버거,101동,아시아연구소,1층 113호,베이크,콘치즈베이크,첫 번째 표기,5300,"5,300원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,"원문 두 가격 표기, 옵션 명칭 미표기"
+버거운버거,101동,아시아연구소,1층 113호,베이크,콘치즈베이크,두 번째 표기,7800,"7,800원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,"원문 두 가격 표기, 옵션 명칭 미표기"
+버거운버거,101동,아시아연구소,1층 113호,베이크,풀치즈베이크,첫 번째 표기,4900,"4,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,"원문 두 가격 표기, 옵션 명칭 미표기"
+버거운버거,101동,아시아연구소,1층 113호,베이크,풀치즈베이크,두 번째 표기,7400,"7,400원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,"원문 두 가격 표기, 옵션 명칭 미표기"
+버거운버거,101동,아시아연구소,1층 113호,베이크,휠렛불갈비치즈베이크,첫 번째 표기,6000,"6,000원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,"원문 두 가격 표기, 옵션 명칭 미표기"
+버거운버거,101동,아시아연구소,1층 113호,베이크,휠렛불갈비치즈베이크,두 번째 표기,8500,"8,500원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,"원문 두 가격 표기, 옵션 명칭 미표기"
+버거운버거,101동,아시아연구소,1층 113호,베이크,베이컨에그치즈베이크,첫 번째 표기,5900,"5,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,"원문 두 가격 표기, 옵션 명칭 미표기"
+버거운버거,101동,아시아연구소,1층 113호,베이크,베이컨에그치즈베이크,두 번째 표기,8300,"8,300원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,"원문 두 가격 표기, 옵션 명칭 미표기"
+버거운버거,101동,아시아연구소,1층 113호,치킨,후라이드치킨,기본,10900,"10,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,치킨,양념치킨,기본,11900,"11,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,치킨,매운양념치킨,기본,12900,"12,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,치킨,스노우치킨,기본,11900,"11,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,치킨,소이마요치킨,기본,11900,"11,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,치킨,핫소마요치킨,기본,12900,"12,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,치킨,칠리마요치킨,기본,12900,"12,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,치킨,후라이드통다리,기본,5900,"5,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,치킨,자메이카통다리,기본,6100,"6,100원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,강정,케이준순살강정,소,5000,"5,000원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,강정,케이준순살강정,중,10000,"10,000원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,강정,허니치즈강정,소,5500,"5,500원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,강정,허니치즈강정,중,11000,"11,000원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,강정,화이트어니언강정,소,5500,"5,500원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,강정,화이트어니언강정,중,11000,"11,000원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,강정,불닭레드핫강정,소,5500,"5,500원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,강정,불닭레드핫강정,중,11000,"11,000원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,사이드,칠리스치즈스틱,1조각,3400,"3,400원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,사이드,칠리스치즈스틱,2조각,6500,"6,500원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,사이드,버팔로스틱,2조각,2900,"2,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,사이드,버팔로스틱,4조각,5800,"5,800원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,사이드,버팔로스틱,10조각,13900,"13,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,사이드,눈꽃치즈떡볶이,기본,4900,"4,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,사이드,투움바떡볶이,기본,4900,"4,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,사이드,밀크치즈볼,5조각,4500,"4,500원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,사이드,치즈스틱,2조각,2100,"2,100원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,사이드,치즈스틱,4조각,4000,"4,000원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,사이드,양념감자,소,2100,"2,100원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,사이드,양념감자,중,3600,"3,600원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,사이드,팝콘볼박스,기본,7000,"7,000원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,사이드,팝콘볼,기본,3000,"3,000원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,사이드,매콤김소떡,기본,4600,"4,600원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,사이드,치킨너겟,4조각,2100,"2,100원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,사이드,치킨너겟,10조각,5200,"5,200원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,사이드,김말이,10조각,3000,"3,000원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,샐러드,쉬림프샐러드,기본,6500,"6,500원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,샐러드,에그베이컨샐러드,기본,5500,"5,500원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,샐러드,닭가슴살샐러드,기본,5500,"5,500원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,샐러드,치킨샐러드,기본,5500,"5,500원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,샐러드,콘샐러드,기본,2100,"2,100원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,음료,탄산음료,M,1900,"1,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,음료,탄산음료,L,2400,"2,400원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,음료,아메리카노,HOT,2000,"2,000원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,음료,아메리카노,ICE,2500,"2,500원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+버거운버거,101동,아시아연구소,1층 113호,음료,제주청귤/청포도에이드,기본,2500,"2,500원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+공대간이식당,30-2동,공대간이식당,,메뉴,짜장면,기본,4500,"4,500원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+공대간이식당,30-2동,공대간이식당,,메뉴,짬뽕,기본,4500,"4,500원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+공대간이식당,30-2동,공대간이식당,,메뉴,고기소보로 볶음밥,기본,4500,"4,500원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+공대간이식당,30-2동,공대간이식당,,메뉴,곱빼기메뉴,기본,5000,"5,000원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+공대간이식당,30-2동,공대간이식당,,메뉴,콤비메뉴,기본,5900,"5,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+공대간이식당,30-2동,공대간이식당,,메뉴,순두부짬뽕,기본,6300,"6,300원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+공대간이식당,30-2동,공대간이식당,,메뉴,부대짬뽕,기본,6800,"6,800원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+공대간이식당,30-2동,공대간이식당,,메뉴,돈가스비빔면,기본,7000,"7,000원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+공대간이식당,30-2동,공대간이식당,,메뉴,탄탄비빔면,기본,7000,"7,000원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+공대간이식당,30-2동,공대간이식당,,메뉴,중화제육덮밥,기본,7000,"7,000원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+공대간이식당,30-2동,공대간이식당,,메뉴,마라탕,기본,7700,"7,700원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+공대간이식당,30-2동,공대간이식당,,메뉴,호구세트,기본,8300,"8,3000원",trailing_zero_corrected,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,"원문 8,3000원에서 비정상 천 단위 구분 끝자리 0 한 개 제거 -> 8,300원; 사용자 확인값 8,300원 (2026-10-22)"
+공대간이식당,30-2동,공대간이식당,,메뉴,치킨탕수육 (大),기본,8900,"8,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+공대간이식당,30-2동,공대간이식당,,메뉴,우삼겹짬뽕,기본,9900,"9,900원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+공대간이식당,30-2동,공대간이식당,,사이드,공기밥,기본,700,700원,published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+공대간이식당,30-2동,공대간이식당,,사이드,탄산음료,기본,1500,"1,500원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+공대간이식당,30-2동,공대간이식당,,사이드,계란후라이,기본,1000,"1,000원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+공대간이식당,30-2동,공대간이식당,,사이드,찐만두,기본,2500,"2,500원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+공대간이식당,30-2동,공대간이식당,,사이드,찹쌀 팥 도나쓰,기본,2800,"2,800원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,
+공대간이식당,30-2동,공대간이식당,,사이드,미니탕수육,기본,4000,"4,000원",published_price,https://snuco.snu.ac.kr/foodmenu/,2026-10-22,

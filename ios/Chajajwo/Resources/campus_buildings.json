@@ -1,0 +1,2010 @@
+[
+  {
+    "id": "snu-1",
+    "number": "1",
+    "name": "인문관1",
+    "latitude": 37.46027,
+    "longitude": 126.95234,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-10",
+    "number": "10",
+    "name": "사범관2",
+    "latitude": 37.46031,
+    "longitude": 126.95536,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-11",
+    "number": "10-1",
+    "name": "사범대교육정보관",
+    "latitude": 37.45996,
+    "longitude": 126.95592,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-112",
+    "number": "100",
+    "name": "버들골 풍산마당",
+    "latitude": 37.4584786551623,
+    "longitude": 126.955227154786,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-113",
+    "number": "101",
+    "name": "아시아연구소",
+    "latitude": 37.46328,
+    "longitude": 126.95015,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-114",
+    "number": "102",
+    "name": "정보화본부",
+    "latitude": 37.45962,
+    "longitude": 126.94927,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-115",
+    "number": "103",
+    "name": "규장각한국학연구원",
+    "latitude": 37.46226,
+    "longitude": 126.95028,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-116",
+    "number": "104",
+    "name": "반도체공동연구소",
+    "latitude": 37.45477,
+    "longitude": 126.95301,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-117",
+    "number": "104-1",
+    "name": "반도체교육관",
+    "latitude": 37.45509,
+    "longitude": 126.95345,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-118",
+    "number": "104-2",
+    "name": "반도체연구소화공약품창고",
+    "latitude": 37.45537,
+    "longitude": 126.95329,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-119",
+    "number": "104-3",
+    "name": "반도체연구소수소창고",
+    "latitude": 37.45543,
+    "longitude": 126.95329,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-120",
+    "number": "105",
+    "name": "유전공학연구소",
+    "latitude": 37.45432,
+    "longitude": 126.95364,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-121",
+    "number": "105-1",
+    "name": "창업보육센터및유전공학연구소",
+    "latitude": 37.45446,
+    "longitude": 126.95353,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-122",
+    "number": "105-2",
+    "name": "유전공학연구소 신관",
+    "latitude": 37.4540404461522,
+    "longitude": 126.95336213875,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-123",
+    "number": "106",
+    "name": "수영장",
+    "latitude": 37.45331,
+    "longitude": 126.95514,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-124",
+    "number": "107-1",
+    "name": "방가로1",
+    "latitude": 37.45501,
+    "longitude": 126.95586,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-125",
+    "number": "107-2",
+    "name": "방가로2",
+    "latitude": 37.4547,
+    "longitude": 126.95598,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-126",
+    "number": "107-3",
+    "name": "방가로3",
+    "latitude": 37.45434,
+    "longitude": 126.95574,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-127",
+    "number": "109",
+    "name": "자하연식당",
+    "latitude": 37.46098,
+    "longitude": 126.95252,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-12",
+    "number": "11",
+    "name": "사범관3",
+    "latitude": 37.45979,
+    "longitude": 126.9552,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-128",
+    "number": "110",
+    "name": "간이식당1",
+    "latitude": 37.45738,
+    "longitude": 126.9551,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-129",
+    "number": "111",
+    "name": "사범대학 간이식당",
+    "latitude": 37.45922,
+    "longitude": 126.95518,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-130",
+    "number": "113",
+    "name": "동원생활관",
+    "latitude": 37.46504,
+    "longitude": 126.95175,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-131",
+    "number": "115",
+    "name": "정문수위실",
+    "latitude": 37.466303292757,
+    "longitude": 126.948129302133,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-132",
+    "number": "117",
+    "name": "양수장",
+    "latitude": 37.46663,
+    "longitude": 126.95375,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-13",
+    "number": "12",
+    "name": "사범교육협력센터",
+    "latitude": 37.45962,
+    "longitude": 126.95479,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-133",
+    "number": "120",
+    "name": "위험물저장고",
+    "latitude": 37.45376,
+    "longitude": 126.95388,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-134",
+    "number": "121",
+    "name": "공관",
+    "latitude": 37.46683,
+    "longitude": 126.95738,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-135",
+    "number": "122-1",
+    "name": "교수아파트1",
+    "latitude": 37.46709,
+    "longitude": 126.95717,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-136",
+    "number": "122-2",
+    "name": "교수아파트2",
+    "latitude": 37.4673,
+    "longitude": 126.95755,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-137",
+    "number": "122-3",
+    "name": "교수아파트3",
+    "latitude": 37.46742,
+    "longitude": 126.95716,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-138",
+    "number": "122-4",
+    "name": "교수아파트4",
+    "latitude": 37.46796,
+    "longitude": 126.95721,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-139",
+    "number": "122-5",
+    "name": "교수아파트5",
+    "latitude": 37.46819,
+    "longitude": 126.95697,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-140",
+    "number": "122-6",
+    "name": "교수아파트6",
+    "latitude": 37.46846,
+    "longitude": 126.95742,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-141",
+    "number": "122-7",
+    "name": "교수아파트7",
+    "latitude": 37.46857,
+    "longitude": 126.95705,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-142",
+    "number": "125",
+    "name": "호암교수회관",
+    "latitude": 37.46792,
+    "longitude": 126.95896,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-143",
+    "number": "125-1",
+    "name": "컨벤션센타",
+    "latitude": 37.46804,
+    "longitude": 126.95987,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-144",
+    "number": "125-2",
+    "name": "게스트하우스",
+    "latitude": 37.46768,
+    "longitude": 126.9602,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-145",
+    "number": "126",
+    "name": "호암동관",
+    "latitude": 37.46763,
+    "longitude": 126.95945,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-146",
+    "number": "127",
+    "name": "호암서관",
+    "latitude": 37.46735,
+    "longitude": 126.95891,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-147",
+    "number": "127-1",
+    "name": "호암교수회관관리실",
+    "latitude": 37.46768,
+    "longitude": 126.95831,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-148",
+    "number": "128",
+    "name": "호암창고",
+    "latitude": 37.46812,
+    "longitude": 126.95926,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-149",
+    "number": "129",
+    "name": "수리과학연구동",
+    "latitude": 37.4578,
+    "longitude": 126.94948,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-14",
+    "number": "13",
+    "name": "과학교육관",
+    "latitude": 37.45927,
+    "longitude": 126.95389,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-150",
+    "number": "130",
+    "name": "기초전력연구소",
+    "latitude": 37.45429,
+    "longitude": 126.95079,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-151",
+    "number": "131",
+    "name": "신소재공동연구소",
+    "latitude": 37.45359,
+    "longitude": 126.95085,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-152",
+    "number": "132",
+    "name": "뉴미디어통신공동연구소",
+    "latitude": 37.45487,
+    "longitude": 126.95407,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-153",
+    "number": "133",
+    "name": "자동화연구소",
+    "latitude": 37.45439,
+    "longitude": 126.95043,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-154",
+    "number": "135",
+    "name": "에너지신기술연구동",
+    "latitude": 37.45439,
+    "longitude": 126.95227,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-155",
+    "number": "137",
+    "name": "언어교육원",
+    "latitude": 37.46677,
+    "longitude": 126.95326,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-156",
+    "number": "137-1",
+    "name": "CJ어학관",
+    "latitude": 37.4664,
+    "longitude": 126.95328,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-157",
+    "number": "137-2",
+    "name": "대림국제관",
+    "latitude": 37.46647,
+    "longitude": 126.95385,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-158",
+    "number": "138",
+    "name": "컴퓨터연구소",
+    "latitude": 37.45581,
+    "longitude": 126.95474,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-159",
+    "number": "139",
+    "name": "공동기기원",
+    "latitude": 37.45551,
+    "longitude": 126.95427,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-160",
+    "number": "139-1",
+    "name": "정전가속기동",
+    "latitude": 37.4553,
+    "longitude": 126.95429,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-15",
+    "number": "14",
+    "name": "인문관7",
+    "latitude": 37.46093,
+    "longitude": 126.95499,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-161",
+    "number": "140",
+    "name": "국제대학원",
+    "latitude": 37.46427,
+    "longitude": 126.95487,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-162",
+    "number": "140-1",
+    "name": "국제대학원2",
+    "latitude": 37.46406,
+    "longitude": 126.9546,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-163",
+    "number": "140-2",
+    "name": "국제회의동",
+    "latitude": 37.46448,
+    "longitude": 126.95497,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-164",
+    "number": "141",
+    "name": "약학관4",
+    "latitude": 37.4557,
+    "longitude": 126.95376,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-165",
+    "number": "142",
+    "name": "약학관5",
+    "latitude": 37.45663,
+    "longitude": 126.9537,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-166",
+    "number": "143",
+    "name": "약대신약개발연구센터",
+    "latitude": 37.45828,
+    "longitude": 126.95308,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-167",
+    "number": "144",
+    "name": "후문수위실",
+    "latitude": 37.46466,
+    "longitude": 126.95774,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-168",
+    "number": "149",
+    "name": "종합운동장본부석",
+    "latitude": 37.46447,
+    "longitude": 126.9507,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-16",
+    "number": "15",
+    "name": "법학관1",
+    "latitude": 37.46233,
+    "longitude": 126.95174,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-17",
+    "number": "15-1",
+    "name": "법학강의동",
+    "latitude": 37.46241,
+    "longitude": 126.95126,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-169",
+    "number": "150",
+    "name": "명예교수연구동",
+    "latitude": 37.46704,
+    "longitude": 126.95031,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-170",
+    "number": "151",
+    "name": "미술관",
+    "latitude": 37.4665,
+    "longitude": 126.94969,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-171",
+    "number": "152",
+    "name": "CJ인터내셔널센터",
+    "latitude": 37.46624,
+    "longitude": 126.95132,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-172",
+    "number": "152-1",
+    "name": "롯데국제교육관",
+    "latitude": 37.46657,
+    "longitude": 126.95119,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-173",
+    "number": "153",
+    "name": "우정원 글로벌사회공헌센터",
+    "latitude": 37.46642,
+    "longitude": 126.95217,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-18",
+    "number": "16",
+    "name": "사회과학관",
+    "latitude": 37.46353,
+    "longitude": 126.95092,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-19",
+    "number": "16-1",
+    "name": "신양학술정보관Ⅲ",
+    "latitude": 37.46271,
+    "longitude": 126.951,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-20",
+    "number": "17",
+    "name": "법학관2",
+    "latitude": 37.46284,
+    "longitude": 126.95187,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-21",
+    "number": "18",
+    "name": "자연과학관1",
+    "latitude": 37.45678,
+    "longitude": 126.95277,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-22",
+    "number": "19",
+    "name": "자연과학관2",
+    "latitude": 37.45618,
+    "longitude": 126.95277,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-2",
+    "number": "2",
+    "name": "인문관2",
+    "latitude": 37.46038,
+    "longitude": 126.95295,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-23",
+    "number": "20",
+    "name": "약학관3",
+    "latitude": 37.45869,
+    "longitude": 126.95289,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-174",
+    "number": "200",
+    "name": "농업생명과학대학",
+    "latitude": 37.45769,
+    "longitude": 126.94868,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-175",
+    "number": "201",
+    "name": "농업생명과학대학환경관",
+    "latitude": 37.45687,
+    "longitude": 126.94852,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-176",
+    "number": "203",
+    "name": "SPC농생명과학 및 기초과학연구동",
+    "latitude": 37.45834,
+    "longitude": 126.94836,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-177",
+    "number": "207",
+    "name": "야외조각실습장1",
+    "latitude": 37.4640933271623,
+    "longitude": 126.95294896735,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-24",
+    "number": "21",
+    "name": "약학관1",
+    "latitude": 37.45784,
+    "longitude": 126.95223,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-25",
+    "number": "21-1",
+    "name": "약대시약창고",
+    "latitude": 37.45741,
+    "longitude": 126.95174,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-26",
+    "number": "22",
+    "name": "자연과학관4",
+    "latitude": 37.45792,
+    "longitude": 126.95096,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-178",
+    "number": "220",
+    "name": "종합교육연구동",
+    "latitude": 37.46451,
+    "longitude": 126.95424,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-179",
+    "number": "221",
+    "name": "보건대학원",
+    "latitude": 37.46489,
+    "longitude": 126.95469,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-180",
+    "number": "222",
+    "name": "생활과학대학",
+    "latitude": 37.46437,
+    "longitude": 126.95318,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-254",
+    "number": "223",
+    "name": "관악 223동[우석경제관]",
+    "latitude": 37.465509,
+    "longitude": 126.955673,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-27",
+    "number": "23",
+    "name": "자연과학관5",
+    "latitude": 37.4586,
+    "longitude": 126.95105,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-28",
+    "number": "24",
+    "name": "자연과학관6",
+    "latitude": 37.45942,
+    "longitude": 126.94989,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-29",
+    "number": "25",
+    "name": "자연과학관7",
+    "latitude": 37.45856,
+    "longitude": 126.94988,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-30",
+    "number": "25-1",
+    "name": "자연대강의및실험연구동",
+    "latitude": 37.45897,
+    "longitude": 126.94941,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-181",
+    "number": "250",
+    "name": "인문관연결동(1동-2동)",
+    "latitude": 37.46038,
+    "longitude": 126.95265,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-182",
+    "number": "251",
+    "name": "사회관연결동(6동-7동)",
+    "latitude": 37.46059,
+    "longitude": 126.95462,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-183",
+    "number": "252",
+    "name": "교육관연결동(10동-11동)",
+    "latitude": 37.4601,
+    "longitude": 126.95543,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-184",
+    "number": "253",
+    "name": "화학관연결동(22동-23동)",
+    "latitude": 37.45839,
+    "longitude": 126.95118,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-185",
+    "number": "254",
+    "name": "물리관연결동(25동-27동)",
+    "latitude": 37.45844,
+    "longitude": 126.94999,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-186",
+    "number": "255",
+    "name": "예능관연결동(51동-52동)",
+    "latitude": 37.46356,
+    "longitude": 126.9529,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-31",
+    "number": "26",
+    "name": "자연과학관8",
+    "latitude": 37.45881,
+    "longitude": 126.95036,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-32",
+    "number": "27",
+    "name": "자연과학관9",
+    "latitude": 37.45805,
+    "longitude": 126.95001,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-33",
+    "number": "28",
+    "name": "자연대(대형)",
+    "latitude": 37.45762,
+    "longitude": 126.95039,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-34",
+    "number": "29",
+    "name": "약학관2",
+    "latitude": 37.4561,
+    "longitude": 126.95368,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-3",
+    "number": "3",
+    "name": "인문관3",
+    "latitude": 37.46071,
+    "longitude": 126.95355,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-35",
+    "number": "30",
+    "name": "공학관1",
+    "latitude": 37.45686,
+    "longitude": 126.95085,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-36",
+    "number": "30-1",
+    "name": "위험물옥내저장소",
+    "latitude": 37.45659,
+    "longitude": 126.95068,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-37",
+    "number": "30-2",
+    "name": "공대간이식당",
+    "latitude": 37.45727,
+    "longitude": 126.95079,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-256",
+    "number": "300",
+    "name": "관악 300동[유회진 학술정보관]",
+    "latitude": 37.45095,
+    "longitude": 126.9527,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-187",
+    "number": "301",
+    "name": "제1공학관",
+    "latitude": 37.45016,
+    "longitude": 126.95259,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-188",
+    "number": "302",
+    "name": "제2공학관",
+    "latitude": 37.44887,
+    "longitude": 126.95265,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-189",
+    "number": "302-1",
+    "name": "공대위험물저장창고",
+    "latitude": 37.44899,
+    "longitude": 126.95289,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-38",
+    "number": "31",
+    "name": "공학관2",
+    "latitude": 37.45702,
+    "longitude": 126.95002,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-39",
+    "number": "31-1",
+    "name": "가속기제작실",
+    "latitude": 37.45723,
+    "longitude": 126.94998,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-190",
+    "number": "310",
+    "name": "엔지니어하우스",
+    "latitude": 37.44862,
+    "longitude": 126.95102,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-191",
+    "number": "311",
+    "name": "화학공정신기술연구소",
+    "latitude": 37.44889,
+    "longitude": 126.95179,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-192",
+    "number": "312",
+    "name": "정밀기계연구소실험연구동",
+    "latitude": 37.45091,
+    "longitude": 126.95188,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-193",
+    "number": "313",
+    "name": "정밀기계공동연구소",
+    "latitude": 37.45123,
+    "longitude": 126.95197,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-194",
+    "number": "314",
+    "name": "차세대자동차신기술연구소",
+    "latitude": 37.45178,
+    "longitude": 126.95243,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-195",
+    "number": "316",
+    "name": "대형구조실험동",
+    "latitude": 37.44738,
+    "longitude": 126.95031,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-40",
+    "number": "32",
+    "name": "공학관3",
+    "latitude": 37.45648,
+    "longitude": 126.95009,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-41",
+    "number": "32-1",
+    "name": "해동학술문화관",
+    "latitude": 37.45619,
+    "longitude": 126.94976,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-42",
+    "number": "33",
+    "name": "공학관4",
+    "latitude": 37.45625,
+    "longitude": 126.95084,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-196",
+    "number": "330",
+    "name": "제2파워플랜트",
+    "latitude": 37.44985,
+    "longitude": 126.95026,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-197",
+    "number": "331",
+    "name": "차량정비고",
+    "latitude": 37.44937,
+    "longitude": 126.95014,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-198",
+    "number": "332",
+    "name": "다목적차량보관소",
+    "latitude": 37.44964,
+    "longitude": 126.95006,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-43",
+    "number": "34",
+    "name": "공학관5",
+    "latitude": 37.45609,
+    "longitude": 126.95149,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-44",
+    "number": "35",
+    "name": "공학관6",
+    "latitude": 37.45665,
+    "longitude": 126.95211,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-45",
+    "number": "36",
+    "name": "공학관7",
+    "latitude": 37.45554,
+    "longitude": 126.95146,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-46",
+    "number": "37",
+    "name": "공학관8",
+    "latitude": 37.45572,
+    "longitude": 126.95075,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-47",
+    "number": "38",
+    "name": "글로벌공학교육센터",
+    "latitude": 37.4549,
+    "longitude": 126.95062,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-48",
+    "number": "39",
+    "name": "대학원연구동(1단계)",
+    "latitude": 37.45465,
+    "longitude": 126.95157,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-4",
+    "number": "4",
+    "name": "신양인문학술정보관",
+    "latitude": 37.46089,
+    "longitude": 126.95326,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-49",
+    "number": "40",
+    "name": "풍동실험동1",
+    "latitude": 37.45425,
+    "longitude": 126.95158,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-50",
+    "number": "41",
+    "name": "선체구조실험동",
+    "latitude": 37.45563,
+    "longitude": 126.95264,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-51",
+    "number": "42",
+    "name": "선형수조실험동",
+    "latitude": 37.4553,
+    "longitude": 126.95254,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-52",
+    "number": "42-1",
+    "name": "슬로싱실험동",
+    "latitude": 37.45495,
+    "longitude": 126.95232,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-53",
+    "number": "43",
+    "name": "데이터사이언스대학원 및 공과대학 강의동 1",
+    "latitude": 37.45722,
+    "longitude": 126.95173,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-54",
+    "number": "43-1",
+    "name": "이공계멀티미디어강의동",
+    "latitude": 37.45667,
+    "longitude": 126.95145,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-255",
+    "number": "43-2",
+    "name": "관악 43-2동[데이터사이언스대학원 및 공과대학 강의동 2]",
+    "latitude": 37.45701,
+    "longitude": 126.95126,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-55",
+    "number": "44",
+    "name": "풍동실험동2",
+    "latitude": 37.45478,
+    "longitude": 126.95209,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-56",
+    "number": "44-1",
+    "name": "신양학술정보관",
+    "latitude": 37.4552,
+    "longitude": 126.95206,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-57",
+    "number": "45",
+    "name": "천문대(신)",
+    "latitude": 37.45395,
+    "longitude": 126.95276,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-58",
+    "number": "46",
+    "name": "천문관측소",
+    "latitude": 37.45706,
+    "longitude": 126.95427,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-59",
+    "number": "47",
+    "name": "기상관측소",
+    "latitude": 37.45285,
+    "longitude": 126.95018,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-60",
+    "number": "48",
+    "name": "지진관측소",
+    "latitude": 37.45394,
+    "longitude": 126.95421,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-61",
+    "number": "48-1",
+    "name": "전파천문대",
+    "latitude": 37.4546,
+    "longitude": 126.95525,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-62",
+    "number": "49",
+    "name": "예술관연구동",
+    "latitude": 37.46344,
+    "longitude": 126.95425,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-5",
+    "number": "5",
+    "name": "인문관4",
+    "latitude": 37.4606,
+    "longitude": 126.95393,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-63",
+    "number": "50",
+    "name": "예술관(미대)1",
+    "latitude": 37.46304,
+    "longitude": 126.95234,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-199",
+    "number": "500",
+    "name": "대학원연구동(2단계)",
+    "latitude": 37.4592190840394,
+    "longitude": 126.948120067187,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-200",
+    "number": "506",
+    "name": "자연대 생명과학부 시약보관창고",
+    "latitude": 37.46009,
+    "longitude": 126.94822,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-64",
+    "number": "51",
+    "name": "예술관(미대)2",
+    "latitude": 37.46354,
+    "longitude": 126.95268,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-65",
+    "number": "52",
+    "name": "예술관(미대)3",
+    "latitude": 37.46352,
+    "longitude": 126.95319,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-66",
+    "number": "52-1",
+    "name": "미대교양실습동",
+    "latitude": 37.46394,
+    "longitude": 126.9534,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-67",
+    "number": "52-2",
+    "name": "야외조각실습장2",
+    "latitude": 37.46404,
+    "longitude": 126.95294,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-68",
+    "number": "53",
+    "name": "예술관(음대)1",
+    "latitude": 37.46304,
+    "longitude": 126.95344,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-69",
+    "number": "54",
+    "name": "예술관(음대)2",
+    "latitude": 37.4626,
+    "longitude": 126.95335,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-70",
+    "number": "55",
+    "name": "예술관(음대)3",
+    "latitude": 37.46248,
+    "longitude": 126.95287,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-71",
+    "number": "56",
+    "name": "자연과학관10",
+    "latitude": 37.4577,
+    "longitude": 126.9514,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-259",
+    "number": "56-1",
+    "name": "관악 56-1동[김철수물리관]",
+    "latitude": 37.458209,
+    "longitude": 126.951594,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-72",
+    "number": "57",
+    "name": "행정대학원",
+    "latitude": 37.46559,
+    "longitude": 126.95314,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-73",
+    "number": "57-1",
+    "name": "행정대학원",
+    "latitude": 37.46519,
+    "longitude": 126.95373,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-74",
+    "number": "58",
+    "name": "SK경영관",
+    "latitude": 37.46568,
+    "longitude": 126.95203,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-75",
+    "number": "59",
+    "name": "LG경영관(경영연구관및산학협동관)",
+    "latitude": 37.46496,
+    "longitude": 126.95295,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-251",
+    "number": "59-1",
+    "name": "관악 59-1동[매니지먼트센터]",
+    "latitude": 37.464916,
+    "longitude": 126.952318,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-6",
+    "number": "6",
+    "name": "인문관5",
+    "latitude": 37.46073,
+    "longitude": 126.95452,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-76",
+    "number": "60",
+    "name": "행정관",
+    "latitude": 37.46002,
+    "longitude": 126.95129,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-77",
+    "number": "61",
+    "name": "기초교육원",
+    "latitude": 37.45985,
+    "longitude": 126.95376,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-78",
+    "number": "62",
+    "name": "중앙도서관 본관",
+    "latitude": 37.4594,
+    "longitude": 126.95199,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-79",
+    "number": "62-1",
+    "name": "중앙도서관 관정관",
+    "latitude": 37.45903,
+    "longitude": 126.95247,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-80",
+    "number": "63",
+    "name": "학생회관",
+    "latitude": 37.45932,
+    "longitude": 126.95058,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-81",
+    "number": "64",
+    "name": "IBK커뮤니케이션센터",
+    "latitude": 37.46383,
+    "longitude": 126.94937,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-82",
+    "number": "65",
+    "name": "교수회관",
+    "latitude": 37.45781,
+    "longitude": 126.95387,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-83",
+    "number": "66",
+    "name": "학군단",
+    "latitude": 37.4567,
+    "longitude": 126.95424,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-84",
+    "number": "67",
+    "name": "NH농협두레문예관",
+    "latitude": 37.46353,
+    "longitude": 126.94973,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-85",
+    "number": "68",
+    "name": "파워플랜트",
+    "latitude": 37.46627,
+    "longitude": 126.95488,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-86",
+    "number": "68-1",
+    "name": "신림변전소",
+    "latitude": 37.46666,
+    "longitude": 126.95488,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-87",
+    "number": "68-2",
+    "name": "영선공장",
+    "latitude": 37.4659,
+    "longitude": 126.95557,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-88",
+    "number": "69",
+    "name": "실험동물자원관리원",
+    "latitude": 37.45728,
+    "longitude": 126.95278,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-7",
+    "number": "7",
+    "name": "인문관6",
+    "latitude": 37.46022,
+    "longitude": 126.95436,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-89",
+    "number": "70",
+    "name": "박물관",
+    "latitude": 37.46454,
+    "longitude": 126.95235,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-90",
+    "number": "71",
+    "name": "체육관",
+    "latitude": 37.4676,
+    "longitude": 126.95238,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "osm-456356713",
+    "number": "71-1",
+    "name": "체육문화교육연구동",
+    "latitude": 37.4665138,
+    "longitude": 126.9526562,
+    "source": "openstreetmap"
+  },
+  {
+    "id": "snu-91",
+    "number": "71-2",
+    "name": "포스코스포츠센터",
+    "latitude": 37.46828,
+    "longitude": 126.95165,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-92",
+    "number": "72",
+    "name": "법학도서관",
+    "latitude": 37.46182,
+    "longitude": 126.95189,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-93",
+    "number": "73",
+    "name": "문화관",
+    "latitude": 37.46159,
+    "longitude": 126.95104,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-94",
+    "number": "74",
+    "name": "예술복합연구동",
+    "latitude": 37.46193,
+    "longitude": 126.95312,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-95",
+    "number": "75",
+    "name": "복지관",
+    "latitude": 37.45609,
+    "longitude": 126.94909,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-96",
+    "number": "75-1",
+    "name": "제3학생식당",
+    "latitude": 37.45647,
+    "longitude": 126.94851,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-97",
+    "number": "76",
+    "name": "제4식당(서당골)",
+    "latitude": 37.46073,
+    "longitude": 126.9557,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-98",
+    "number": "76-1",
+    "name": "주차건물",
+    "latitude": 37.46102,
+    "longitude": 126.95591,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-8",
+    "number": "8",
+    "name": "두산인문관",
+    "latitude": 37.46016,
+    "longitude": 126.95398,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-99",
+    "number": "80",
+    "name": "수의대부속동물병원",
+    "latitude": 37.46822,
+    "longitude": 126.95324,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-100",
+    "number": "80-1",
+    "name": "생물공학연구소",
+    "latitude": 37.46813,
+    "longitude": 126.95348,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-101",
+    "number": "81",
+    "name": "생명공학연구동",
+    "latitude": 37.46698,
+    "longitude": 126.95425,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-102",
+    "number": "82",
+    "name": "환경대학원",
+    "latitude": 37.46237,
+    "longitude": 126.95409,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-103",
+    "number": "83",
+    "name": "인문사회계멀티미디어강의동",
+    "latitude": 37.46344,
+    "longitude": 126.95168,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-104",
+    "number": "84",
+    "name": "근대법학교육100주년기념관",
+    "latitude": 37.46226,
+    "longitude": 126.95233,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-105",
+    "number": "85",
+    "name": "수의과대학",
+    "latitude": 37.46744,
+    "longitude": 126.95365,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-106",
+    "number": "85-1",
+    "name": "수의대시약보관창고",
+    "latitude": 37.46799,
+    "longitude": 126.95371,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-107",
+    "number": "86",
+    "name": "치의학대학원 첨단교육연구복합단지",
+    "latitude": 37.46899,
+    "longitude": 126.95304,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-9",
+    "number": "9",
+    "name": "사범관1",
+    "latitude": 37.46017,
+    "longitude": 126.9548,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-201",
+    "number": "900",
+    "name": "(관악사)대학원 생활관",
+    "latitude": 37.46149,
+    "longitude": 126.9581,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "osm-482220682",
+    "number": "901",
+    "name": "대학원생활관 901동",
+    "latitude": 37.4619595,
+    "longitude": 126.9577853,
+    "source": "openstreetmap"
+  },
+  {
+    "id": "snu-203",
+    "number": "902",
+    "name": "(관악사)대학원 생활관",
+    "latitude": 37.46156,
+    "longitude": 126.95729,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-204",
+    "number": "903",
+    "name": "(관악사)대학원 생활관",
+    "latitude": 37.46107,
+    "longitude": 126.9576,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-205",
+    "number": "904",
+    "name": "(관악사)대학원 생활관",
+    "latitude": 37.46043,
+    "longitude": 126.95763,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-206",
+    "number": "905",
+    "name": "(관악사)대학원 생활관",
+    "latitude": 37.46114,
+    "longitude": 126.95854,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-207",
+    "number": "906",
+    "name": "(관악사)대학원 생활관",
+    "latitude": 37.46248,
+    "longitude": 126.95835,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-248",
+    "number": "915",
+    "name": "관악 915동[외국인학생기숙사]",
+    "latitude": 37.465012,
+    "longitude": 126.957503,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-249",
+    "number": "916",
+    "name": "관악 916동[외국인학생기숙사]",
+    "latitude": 37.4654,
+    "longitude": 126.957139,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-250",
+    "number": "917",
+    "name": "관악 917동[외국인학생기숙사]",
+    "latitude": 37.465821,
+    "longitude": 126.957455,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-208",
+    "number": "918",
+    "name": "(관악사)대학원 생활관",
+    "latitude": 37.46058,
+    "longitude": 126.95867,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-209",
+    "number": "919",
+    "name": "(관악사)학부 생활관",
+    "latitude": 37.46306,
+    "longitude": 126.95872,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-210",
+    "number": "920",
+    "name": "관악사후생관",
+    "latitude": 37.46394,
+    "longitude": 126.95905,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-211",
+    "number": "921",
+    "name": "(관악사)학부 생활관",
+    "latitude": 37.46335,
+    "longitude": 126.95903,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-212",
+    "number": "922",
+    "name": "(관악사)학부 생활관",
+    "latitude": 37.463,
+    "longitude": 126.95925,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-213",
+    "number": "923",
+    "name": "(관악사)학부 생활관",
+    "latitude": 37.46341,
+    "longitude": 126.95955,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-214",
+    "number": "924",
+    "name": "(관악사)학부 생활관",
+    "latitude": 37.46362,
+    "longitude": 126.95946,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-215",
+    "number": "925",
+    "name": "(관악사)학부 생활관",
+    "latitude": 37.46409,
+    "longitude": 126.9586,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-216",
+    "number": "926",
+    "name": "(관악사)학부 생활관",
+    "latitude": 37.46429,
+    "longitude": 126.95899,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-217",
+    "number": "931",
+    "name": "가족생활관1",
+    "latitude": 37.46711,
+    "longitude": 126.95866,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-218",
+    "number": "932",
+    "name": "가족생활관2",
+    "latitude": 37.46684,
+    "longitude": 126.95862,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-219",
+    "number": "933",
+    "name": "가족생활관3",
+    "latitude": 37.46679,
+    "longitude": 126.95911,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-220",
+    "number": "934",
+    "name": "가족생활관4",
+    "latitude": 37.46676,
+    "longitude": 126.95942,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-221",
+    "number": "935",
+    "name": "가족생활관5",
+    "latitude": 37.46735,
+    "longitude": 126.95966,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-222",
+    "number": "936",
+    "name": "교직원아파트",
+    "latitude": 37.46708,
+    "longitude": 126.95985,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-223",
+    "number": "940",
+    "name": "연구공원지원시설",
+    "latitude": 37.46588,
+    "longitude": 126.95952,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-224",
+    "number": "941",
+    "name": "백학어린이집",
+    "latitude": 37.46626,
+    "longitude": 126.95826,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-225",
+    "number": "941-1",
+    "name": "느티나무어린이집",
+    "latitude": 37.46589,
+    "longitude": 126.95876,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-226",
+    "number": "942",
+    "name": "LG연구동",
+    "latitude": 37.46587,
+    "longitude": 126.96088,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-227",
+    "number": "943",
+    "name": "SK텔레콤",
+    "latitude": 37.46637,
+    "longitude": 126.96059,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-228",
+    "number": "945",
+    "name": "웅진R&D센터",
+    "latitude": 37.46527,
+    "longitude": 126.96065,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-229",
+    "number": "946",
+    "name": "BK국제관",
+    "latitude": 37.46531,
+    "longitude": 126.95841,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-230",
+    "number": "950",
+    "name": "국제백신연구소",
+    "latitude": 37.46478,
+    "longitude": 126.95992,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-108",
+    "number": "97",
+    "name": "환경안전원1",
+    "latitude": 37.46634,
+    "longitude": 126.95073,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-109",
+    "number": "98",
+    "name": "환경안전원",
+    "latitude": 37.46663,
+    "longitude": 126.95063,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-110",
+    "number": "98-2",
+    "name": "폐기물창고",
+    "latitude": 37.46676,
+    "longitude": 126.95094,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-111",
+    "number": "99-1",
+    "name": "정구장관리실",
+    "latitude": 37.4556675512249,
+    "longitude": 126.949761351447,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-238",
+    "number": null,
+    "name": "공대테니스장",
+    "latitude": 37.455807283707784,
+    "longitude": 126.94993926925866,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-237",
+    "number": null,
+    "name": "관악사운동장",
+    "latitude": 37.4619962370616,
+    "longitude": 126.959037073547,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-240",
+    "number": null,
+    "name": "낙성대역",
+    "latitude": 37.47709864844915,
+    "longitude": 126.96352842457698,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-252",
+    "number": null,
+    "name": "붉은광장",
+    "latitude": 37.45587314704376,
+    "longitude": 126.9512305146599,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-231",
+    "number": null,
+    "name": "서울대 정문",
+    "latitude": 37.4662863019456,
+    "longitude": 126.948422649575,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-232",
+    "number": null,
+    "name": "서울대 후문",
+    "latitude": 37.464646626923,
+    "longitude": 126.957936914358,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-239",
+    "number": null,
+    "name": "서울대입구역",
+    "latitude": 37.481261982398244,
+    "longitude": 126.95271208134352,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-242",
+    "number": null,
+    "name": "신림역",
+    "latitude": 37.484268929423735,
+    "longitude": 126.92973237071037,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-233",
+    "number": null,
+    "name": "야구장",
+    "latitude": 37.4671785022552,
+    "longitude": 126.951008395282,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-236",
+    "number": null,
+    "name": "자하연",
+    "latitude": 37.4607006780578,
+    "longitude": 126.952103365166,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-234",
+    "number": null,
+    "name": "종합운동장",
+    "latitude": 37.464779176159,
+    "longitude": 126.95009153903,
+    "source": "snu-campus-map"
+  },
+  {
+    "id": "snu-235",
+    "number": null,
+    "name": "테니스장",
+    "latitude": 37.4656164774627,
+    "longitude": 126.954069913006,
+    "source": "snu-campus-map"
+  }
+]
