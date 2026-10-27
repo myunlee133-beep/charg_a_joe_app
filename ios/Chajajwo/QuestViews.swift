@@ -64,7 +64,7 @@ struct QuestBottomSheet: View {
         .overlay(alignment: .topLeading) {
             if store.homeFilter == .all || store.homeFilter == .shuttle {
                 Button { store.homeFilter = .shuttle; store.closeSheet() } label: {
-                    Label("교내순환 · \(shuttle.positions.count)대 위치", systemImage: "bus.fill")
+                    Label(shuttle.positions.isEmpty ? "교내순환 · 위치 확인" : "교내순환 · \(shuttle.positions.count)대 위치", systemImage: "bus.fill")
                         .font(.caption.weight(.semibold)).padding(.horizontal, 12).padding(.vertical, 9)
                         .foregroundStyle(Color.cjBlue).background(.white, in: Capsule()).shadow(radius: 2)
                 }

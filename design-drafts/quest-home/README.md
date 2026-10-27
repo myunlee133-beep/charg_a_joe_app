@@ -32,7 +32,7 @@
 
 루트에서 `swift test`로 퀘스트 상태와 추적 모델 테스트 12개를 실행한다. 정류장 기준점, 정지한 좌표, 1.2초 보간 종료, 작은 변화 누적, 후진·점프 거부, 비정상 관측 뒤 이력 복구, 누락·지연 제거, 한 바퀴 경계, 잘못된 노선/시각, 중복 수락·제출, 확대 시 퀘스트 보존을 검사한다.
 
-GitHub Actions는 macOS에서 위 테스트와 서명 없는 iOS Simulator 빌드를 실행한다. 시뮬레이터에 앱을 설치·실행한 홈 화면은 `native-home-preview` 아티팩트로 저장한다. 실기기 GPS 정확도와 실제 버스 이동 대조는 별도의 현장 확인이 필요하다.
+GitHub Actions는 macOS에서 위 테스트와 서명 없는 iOS Simulator 빌드를 실행한다. 수동 실행(`workflow_dispatch`)에서는 시뮬레이터에 앱을 설치·실행한 홈 화면을 `native-home-preview` 아티팩트로 저장한다. [초기 네이티브 홈 실행 캡처](https://github.com/yeongseo03/charg_a_joe_app/actions/runs/40548082560)의 실제 Kakao 지도, 퀘스트 목록과 6개 탭을 확인했다. 실기기 GPS 정확도와 실제 버스 이동 대조는 별도의 현장 확인이 필요하다.
 
 수동 확인 순서:
 

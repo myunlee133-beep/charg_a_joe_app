@@ -36,6 +36,10 @@ struct KakaoMapView: UIViewRepresentable {
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
+    static func dismantleUIView(_ uiView: KMViewContainer, coordinator: Coordinator) {
+        coordinator.tearDown()
+    }
+
     @MainActor final class Coordinator: NSObject, MapControllerDelegate, KakaoMapEventDelegate {
         var parent: KakaoMapView
         private var controller: KMController?
@@ -76,9 +80,20 @@ struct KakaoMapView: UIViewRepresentable {
             c.prepareEngine()
         }
 
+        func tearDown() {
+            // The six-tab container removes the home view when changing tabs.
+            // Release this engine before a later home view creates another one.
+            controller?.pauseEngine()
+            controller?.delegate = nil
+            (controller?.getView(viewName) as? KakaoMap)?.eventDelegate = nil
+            controller?.resetEngine()
+            controller = nil
+            pois.removeAll(); buildingPois.removeAll(); questPois.removeAll(); shuttlePois.removeAll()
+            userDot = nil; userDirection = nil
+        }
+
         // MARK: MapControllerDelegate
         func authenticationSucceeded() {
-            // ponytail: 탭을 벗어나도 엔진은 계속 돌아감. 배터리가 문제되면 pause/resetEngine 연결.
             if controller?.isEngineActive == false { controller?.activateEngine() }
         }
         func authenticationFailed(_ errorCode: Int, desc: String) {

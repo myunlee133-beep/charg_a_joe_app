@@ -66,7 +66,7 @@ struct ContentView: View {
         }
         .animation(.easeOut(duration: 0.25), value: store.toastText)
         .task(id: shouldTrackShuttle) {
-            if shouldTrackShuttle { await shuttle.run() } else { shuttle.stop() }
+            if shouldTrackShuttle { await shuttle.run() }
         }
         .task { await store.refreshDining() }
         .onChange(of: scenePhase) { _, phase in
