@@ -38,51 +38,16 @@ struct HomeView: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            KakaoMapView(places: places, counts: counts, selected: store.sel, sheetOpen: store.open,
-                         focusedBuilding: focusedBuilding, focusSerial: focusSerial,
-                         userCoordinate: userLocation.coordinate,
-                         userHeadingDegrees: userLocation.headingDegrees,
-                         userFocusSerial: userFocusSerial,
-                         quests: quests, shuttlePositions: shuttle.positions,
-                         onQuestSelect: { id in
-                             searchFocused = false
-                             store.selectedQuest = store.quests.first { $0.id == id }
-                         }) { id in
-                searchFocused = false
-                focusedBuilding = nil
-                store.select(id)
-            }
-                .ignoresSafeArea(edges: .top)
+            mainMap
 
             topBar
         }
         .overlay(alignment: .bottomTrailing) {
             myLocationButton
                 .padding(.trailing, 16)
-                .padding(.bottom, focusedBuilding != nil ? 178 : (store.open ? 350 : 318))
+                .padding(.bottom, locationButtonBottom)
         }
-        .overlay(alignment: .bottom) {
-            if let building = focusedBuilding {
-                buildingCard(building).padding(.horizontal, 12).padding(.bottom, 12)
-            } else if store.open, let place = Place.byID[store.sel], place.type != .hub {
-                HomePlaceCard(place: place).padding(12)
-            } else if store.open {
-                SheetView().padding(.horizontal, 12)
-            } else if store.homeFilter == .shuttle {
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Text("교내순환").font(.title3.weight(.heavy))
-                        Spacer()
-                        Button("전체 보기") { store.homeFilter = .all }
-                    }
-                    ShuttleStatusContent()
-                }.padding(20).frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.cjSurface, in: UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24))
-                    .shadow(radius: 6)
-            } else {
-                QuestBottomSheet(quests: quests)
-            }
-        }
+        .overlay(alignment: .bottom) { bottomContent }
         .sheet(item: $store.selectedQuest) { QuestDetailView(quest: $0) }
         .onChange(of: store.sel) { _, _ in
             if store.open { focusedBuilding = nil }
@@ -114,6 +79,63 @@ struct HomeView: View {
         }
     }
 
+
+    private var mainMap: some View {
+        KakaoMapView(places: places, counts: counts, selected: store.sel, sheetOpen: store.open,
+                     focusedBuilding: focusedBuilding, focusSerial: focusSerial,
+                     userCoordinate: userLocation.coordinate,
+                     userHeadingDegrees: userLocation.headingDegrees,
+                     userFocusSerial: userFocusSerial,
+                     quests: quests, shuttlePositions: shuttle.positions,
+                     onQuestSelect: { id in
+                         searchFocused = false
+                         store.selectedQuest = store.quests.first { $0.id == id }
+                     }) { id in
+            searchFocused = false
+            focusedBuilding = nil
+            store.select(id)
+        }
+            .ignoresSafeArea(edges: .top)
+    }
+
+    @ViewBuilder private var bottomContent: some View {
+        if let building = focusedBuilding {
+            buildingCard(building).padding(.horizontal, 12).padding(.bottom, 12)
+        } else if store.open, let place = Place.byID[store.sel], place.type != .hub {
+            HomePlaceCard(place: place).padding(12)
+        } else if store.open {
+            SheetView().padding(.horizontal, 12)
+        } else if store.homeFilter == .shuttle {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text("교내순환").font(.title3.weight(.heavy))
+                    Spacer()
+                    Button("전체 보기") { store.homeFilter = .all }
+                }
+                ShuttleStatusContent()
+            }.padding(20).frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.cjSurface, in: UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24))
+                .shadow(radius: 6)
+        } else if store.homeFilter == .food || store.homeFilter == .hubs {
+            HStack(spacing: 12) {
+                PlaceIcon(type: store.homeFilter == .food ? .food : .hub)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(store.homeFilter == .food ? "교내 식당 위치" : "분실물 보관 거점").font(.headline)
+                    Text("지도에서 장소를 눌러 확인하세요").font(.caption).foregroundStyle(Color.cjSub)
+                }
+                Spacer()
+                if store.homeFilter == .food { Button("식단 보기") { store.tab = .dining }.font(.subheadline.weight(.semibold)) }
+            }.padding(20).background(Color.cjSurface, in: UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24)).shadow(radius: 6)
+        } else {
+            QuestBottomSheet(quests: quests)
+        }
+    }
+
+    private var locationButtonBottom: CGFloat {
+        if focusedBuilding != nil { return 178 }
+        if store.open { return 350 }
+        return store.homeFilter == .food || store.homeFilter == .hubs ? 140 : 318
+    }
 
     /// Standard map-app locate button. GPS is displayed continuously, but camera only
     /// recenters on explicit request: panning/searching a building remains user-controlled.

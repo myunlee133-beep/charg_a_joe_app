@@ -244,8 +244,8 @@ struct KakaoMapView: UIViewRepresentable {
             }
             let styleID = "campus-circular-vehicle"
             if !addedStyles.contains(styleID) {
-                let image = UIGraphicsImageRenderer(size: CGSize(width: 30, height: 54)).image { _ in
-                    UIImage(named: "CampusShuttle")?.draw(in: CGRect(x: 0, y: 0, width: 30, height: 54))
+                let image = UIGraphicsImageRenderer(size: CGSize(width: 48, height: 72)).image { _ in
+                    UIImage(named: "CampusShuttle")?.draw(in: CGRect(x: 0, y: 0, width: 48, height: 72))
                 }
                 let icon = PoiIconStyle(symbol: image, anchorPoint: CGPoint(x: 0.5, y: 0.5))
                 manager.addPoiStyle(PoiStyle(styleID: styleID, styles: [PerLevelPoiStyle(iconStyle: icon, level: 0)]))

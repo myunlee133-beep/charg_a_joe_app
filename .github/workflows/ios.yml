@@ -17,4 +17,22 @@ jobs:
       - name: Test quest and circular-shuttle models
         run: swift test
       - name: Build the iOS simulator app without signing
-        run: xcodebuild -project ios/Chajajwo.xcodeproj -scheme Chajajwo -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
+        run: xcodebuild -project ios/Chajajwo.xcodeproj -scheme Chajajwo -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/ChajajwoBuild" CODE_SIGNING_ALLOWED=NO build
+      - name: Launch the native home screen
+        timeout-minutes: 5
+        run: |
+          DEVICE_ID=$(xcrun simctl list devices available --json | python3 -c 'import sys,json; print(next(d["udid"] for ds in json.load(sys.stdin)["devices"].values() for d in ds if d["name"].startswith("iPhone")))')
+          xcrun simctl boot "$DEVICE_ID"
+          xcrun simctl bootstatus "$DEVICE_ID" -b
+          xcrun simctl install "$DEVICE_ID" "$RUNNER_TEMP/ChajajwoBuild/Build/Products/Debug-iphonesimulator/Chajajwo.app"
+          xcrun simctl privacy "$DEVICE_ID" grant location org.chargajoe.chajajwo
+          xcrun simctl status_bar "$DEVICE_ID" override --time '9:41' --dataNetwork wifi --wifiMode active --wifiBars 3 --batteryState charged --batteryLevel 100
+          xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo
+          sleep 20
+          mkdir -p "$RUNNER_TEMP/native-preview"
+          xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/home.png"
+          xcrun simctl spawn "$DEVICE_ID" launchctl list | grep org.chargajoe.chajajwo
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-home-preview
+          path: ${{ runner.temp }}/native-preview/home.png
