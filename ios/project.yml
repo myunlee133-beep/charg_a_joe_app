@@ -20,6 +20,8 @@ targets:
       properties:
         CFBundleDisplayName: 찾아줘
         KAKAO_APP_KEY: "633176f4920468978f1c055f77f9ef5f"  # 카카오 개발자 콘솔의 네이티브 앱 키를 여기에 입력
+        COMMUNITY_SUPABASE_URL: "https://iqalavbntvadqawkegfa.supabase.co"  # Fill with https://YOUR-PROJECT.supabase.co for a deployed backend
+        COMMUNITY_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_Hbkr0PVh-QmFgfFGXU9Pbg_YqT_loSk"  # Supabase publishable (not service_role) key
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         NSLocationWhenInUseUsageDescription: 지도에 현재 위치와 바라보는 방향을 표시하고 내 위치로 지도를 이동하기 위해 사용해요.
