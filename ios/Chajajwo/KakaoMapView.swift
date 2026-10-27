@@ -1,5 +1,6 @@
 import SwiftUI
 import KakaoMapsSDK
+import CoreLocation
 
 /// 카카오맵 위에 거점 핀(POI)을 올리는 SwiftUI 래퍼.
 struct KakaoMapView: UIViewRepresentable {
@@ -9,6 +10,9 @@ struct KakaoMapView: UIViewRepresentable {
     let sheetOpen: Bool            // 하단 카드가 펼쳐졌는지
     let focusedBuilding: CampusBuilding?  // Search-selected campus building
     let focusSerial: Int                  // Increment to re-focus even for the same ID
+    let userCoordinate: CLLocationCoordinate2D?
+    let userHeadingDegrees: Double?
+    let userFocusSerial: Int              // One-tap recenter; does not force camera following
     let onSelect: (String) -> Void
 
     static func initSDK() {
@@ -41,6 +45,10 @@ struct KakaoMapView: UIViewRepresentable {
         private var lastBuildingID: String?
         private var lastFocusSerial = -1
         private let layerID = "places"
+        private let userLayerID = "user-location"
+        private var userDot: Poi?
+        private var userDirection: Poi?
+        private var lastUserFocusSerial = -1
         private let viewName = "mapview"
         /// 이 지도 레벨보다 멀리서 볼 때는 핀을 모두 숨긴다(기본 화면은 레벨 14).
         private static let minPinLevel = 14
@@ -81,13 +89,18 @@ struct KakaoMapView: UIViewRepresentable {
             _ = manager.addLabelLayer(option: LabelLayerOptions(layerID: layerID, competitionType: .none,
                                                                 competitionUnit: .symbolFirst, orderType: .rank, zOrder: 20000)) // 지도 기본 글자(zOrder ~10000)보다 위에 그려야 이름표가 안 가려진다
             manager.getLabelLayer(layerID: layerID)?.setClickable(true) // 레이어에서도 켜야 핀 탭 이벤트가 온다
+            _ = manager.addLabelLayer(option: LabelLayerOptions(
+                layerID: userLayerID, competitionType: .none,
+                competitionUnit: .symbolFirst, orderType: .rank, zOrder: 25000))
+            userDot = nil
+            userDirection = nil
             refresh()
         }
         func addViewFailed(_ viewName: String, viewInfoName: String) { print("카카오맵 뷰 추가 실패") }
         func containerDidResized(_ size: CGSize) {
             (controller?.getView(viewName) as? KakaoMap)?.viewRect = CGRect(origin: .zero, size: size)
         }
-        func viewWillDestroyed(_ view: ViewBase) {}
+        func viewWillDestroyed(_ view: ViewBase) { userDot = nil; userDirection = nil }
         func cameraDidStopped(kakaoMap: KakaoMap, by: MoveBy) { refresh() }
 
         // MARK: 핀 갱신
@@ -95,6 +108,8 @@ struct KakaoMapView: UIViewRepresentable {
             guard let map = controller?.getView(viewName) as? KakaoMap else { return }
             let manager = map.getLabelManager()
             guard let layer = manager.getLabelLayer(layerID: layerID) else { return }
+            // User marker is always visible, even at map levels where hub pins are hidden.
+            refreshUserLocation(on: map, manager: manager)
             let visible = Set(parent.places.map(\.id))
             pinsVisible = map.zoomLevel >= Self.minPinLevel
 
@@ -165,6 +180,72 @@ struct KakaoMapView: UIViewRepresentable {
                 }
                 lastSelected = parent.selected
             }
+        }
+
+        // MARK: 현재 위치 / 기기가 바라보는 방향
+        private func refreshUserLocation(on map: KakaoMap, manager: LabelManager) {
+            guard let coord = parent.userCoordinate,
+                  UserLocationMath.validCoordinate(latitude: coord.latitude, longitude: coord.longitude),
+                  let layer = manager.getLabelLayer(layerID: userLayerID) else {
+                userDot?.hide()
+                userDirection?.hide()
+                return
+            }
+
+            let point = MapPoint(longitude: coord.longitude, latitude: coord.latitude)
+            if !addedStyles.contains("user-position-dot") {
+                manager.addPoiStyle(Self.userPositionStyle())
+                addedStyles.insert("user-position-dot")
+            }
+            if userDot == nil {
+                let opt = PoiOptions(styleID: "user-position-dot", poiID: "my-location-dot")
+                opt.rank = 500
+                opt.clickable = false
+                userDot = layer.addPoi(option: opt, at: point)
+            }
+            userDot?.position = point
+            userDot?.show()
+
+            if let direction = parent.userHeadingDegrees,
+               let radians = UserLocationMath.headingRadians(direction) {
+                if !addedStyles.contains("user-position-direction") {
+                    manager.addPoiStyle(Self.userDirectionStyle())
+                    addedStyles.insert("user-position-direction")
+                }
+                if userDirection == nil {
+                    let opt = PoiOptions(styleID: "user-position-direction", poiID: "my-location-direction")
+                    opt.rank = 499
+                    opt.clickable = false
+                    opt.transformType = .absoluteRotation // compass bearing is north-relative
+                    userDirection = layer.addPoi(option: opt, at: point)
+                }
+                userDirection?.position = point
+                userDirection?.orientation = radians
+                userDirection?.show()
+            } else {
+                userDirection?.hide() // no compass or unreliable heading: dot only
+            }
+
+            if parent.userFocusSerial != lastUserFocusSerial {
+                let update = CameraUpdate.make(target: point, zoomLevel: 17, mapView: map)
+                map.animateCamera(cameraUpdate: update,
+                                  options: CameraAnimationOptions(autoElevation: false, consecutive: false, durationInMillis: 450))
+                lastUserFocusSerial = parent.userFocusSerial
+            }
+        }
+
+        private static func userPositionStyle() -> PoiStyle {
+            let renderer = ImageRenderer(content: UserLocationDot())
+            renderer.scale = 2
+            let icon = PoiIconStyle(symbol: renderer.uiImage ?? UIImage(), anchorPoint: CGPoint(x: 0.5, y: 0.5))
+            return PoiStyle(styleID: "user-position-dot", styles: [PerLevelPoiStyle(iconStyle: icon, level: 0)])
+        }
+
+        private static func userDirectionStyle() -> PoiStyle {
+            let renderer = ImageRenderer(content: UserLocationDirection())
+            renderer.scale = 2
+            let icon = PoiIconStyle(symbol: renderer.uiImage ?? UIImage(), anchorPoint: CGPoint(x: 0.5, y: 0.5))
+            return PoiStyle(styleID: "user-position-direction", styles: [PerLevelPoiStyle(iconStyle: icon, level: 0)])
         }
 
         // ponytail: SDK의 핀 클릭 판정이 우리 핀에 안 먹어서, 탭 좌표를 지도 좌표로 바꿔 가장 가까운 핀을 직접 고른다.
@@ -276,5 +357,33 @@ private struct CampusBuildingPin: View {
                 .font(.system(size: 8)).foregroundStyle(Color.cjTeal)
         }
         .padding(9)
+    }
+}
+
+/// Familiar map-app blue dot: separate from the heading so the dot never rotates.
+private struct UserLocationDot: View {
+    var body: some View {
+        Circle()
+            .fill(Color(red: 0.12, green: 0.47, blue: 0.96))
+            .frame(width: 18, height: 18)
+            .overlay(Circle().stroke(.white, lineWidth: 3))
+            .shadow(color: .black.opacity(0.30), radius: 3, y: 1)
+            .frame(width: 80, height: 80)
+    }
+}
+
+/// The translucent wedge points up at bearing 0 (north); Kakao rotates this POI
+/// to the Core Location compass heading. Hidden when heading is unavailable.
+private struct UserLocationDirection: View {
+    var body: some View {
+        Path { path in
+            let center = CGPoint(x: 40, y: 40)
+            path.move(to: center)
+            path.addLine(to: CGPoint(x: 19, y: 9))
+            path.addQuadCurve(to: CGPoint(x: 61, y: 9), control: CGPoint(x: 40, y: -1))
+            path.closeSubpath()
+        }
+        .fill(Color(red: 0.12, green: 0.47, blue: 0.96).opacity(0.24))
+        .frame(width: 80, height: 80)
     }
 }

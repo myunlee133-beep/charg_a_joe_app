@@ -1,10 +1,16 @@
 import SwiftUI
+import CoreLocation
 
 struct HomeView: View {
     @EnvironmentObject var store: Store
     @State private var query = ""
     @State private var focusedBuilding: CampusBuilding?
     @State private var focusSerial = 0
+    @StateObject private var userLocation = UserLocationService()
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var userFocusSerial = 0
+    @State private var pendingUserFocus = false
+    @State private var showLocationSettings = false
     @FocusState private var searchFocused: Bool
 
     private var searchResults: [CampusBuilding] { CampusBuildingCatalog.search(query) }
@@ -18,7 +24,10 @@ struct HomeView: View {
     var body: some View {
         ZStack(alignment: .top) {
             KakaoMapView(places: places, counts: counts, selected: store.sel, sheetOpen: store.open,
-                         focusedBuilding: focusedBuilding, focusSerial: focusSerial) { id in
+                         focusedBuilding: focusedBuilding, focusSerial: focusSerial,
+                         userCoordinate: userLocation.coordinate,
+                         userHeadingDegrees: userLocation.headingDegrees,
+                         userFocusSerial: userFocusSerial) { id in
                 searchFocused = false
                 focusedBuilding = nil
                 store.select(id)
@@ -26,6 +35,11 @@ struct HomeView: View {
                 .ignoresSafeArea(edges: .top)
 
             topBar
+        }
+        .overlay(alignment: .bottomTrailing) {
+            myLocationButton
+                .padding(.trailing, 16)
+                .padding(.bottom, focusedBuilding != nil ? 178 : (store.open ? 488 : 106))
         }
         .overlay(alignment: .bottom) {
             if let building = focusedBuilding {
@@ -38,8 +52,76 @@ struct HomeView: View {
             if store.open { focusedBuilding = nil }
         }
         .ignoresSafeArea(.keyboard) // 키보드가 올라와도 하단 시트가 같이 밀려 올라오지 않게
+        .onAppear { if scenePhase == .active { userLocation.start() } }
+        .onDisappear { userLocation.stop(); pendingUserFocus = false }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { userLocation.start() }
+            else { userLocation.stop(); pendingUserFocus = false }
+        }
+        .onChange(of: userLocation.coordinate?.latitude) { _, _ in
+            if pendingUserFocus, userLocation.coordinate != nil {
+                pendingUserFocus = false
+                focusedBuilding = nil
+                store.closeSheet()
+                userFocusSerial += 1
+            }
+        }
+        .alert("위치 접근 권한이 필요해요", isPresented: $showLocationSettings) {
+            Button("설정 열기") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            Button("취소", role: .cancel) { }
+        } message: {
+            Text("현재 위치를 지도에 표시하려면 iPhone 설정에서 찾아줘의 위치 접근을 허용해주세요.")
+        }
     }
 
+
+    /// Standard map-app locate button. GPS is displayed continuously, but camera only
+    /// recenters on explicit request: panning/searching a building remains user-controlled.
+    private var myLocationButton: some View {
+        VStack(alignment: .trailing, spacing: 5) {
+            if userLocation.approximateLocation && userLocation.coordinate != nil {
+                Text("대략적인 위치")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(Color(hex: 0x182A30))
+                    .padding(.horizontal, 9).padding(.vertical, 5)
+                    .background(.white, in: Capsule())
+            }
+            Button(action: focusMyLocation) {
+                Image(systemName: userLocation.coordinate == nil ? "location" : "location.fill")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundStyle(Color(hex: 0x287AF0))
+                    .frame(width: 52, height: 52)
+                    .background(.white, in: Circle())
+                    .overlay(Circle().stroke(Color(hex: 0xDDE7E8), lineWidth: 1))
+                    .shadow(color: .black.opacity(0.20), radius: 7, y: 2)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("내 위치로 이동")
+            .accessibilityHint("현재 위치가 확인되면 지도의 중심이 내 위치로 이동합니다")
+        }
+    }
+
+    private func focusMyLocation() {
+        searchFocused = false
+        if userLocation.authorizationStatus == .denied || userLocation.authorizationStatus == .restricted {
+            showLocationSettings = true
+            return
+        }
+        userLocation.start()
+        if let _ = userLocation.coordinate {
+            pendingUserFocus = false
+            focusedBuilding = nil
+            store.closeSheet()
+            userFocusSerial += 1
+        } else {
+            pendingUserFocus = true
+            store.toast(userLocation.errorMessage ?? "현재 위치를 확인하고 있어요")
+        }
+    }
 
     private var topBar: some View {
         VStack(spacing: 10) {
