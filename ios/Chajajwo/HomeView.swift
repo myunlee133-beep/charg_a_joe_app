@@ -3,6 +3,7 @@ import CoreLocation
 
 struct HomeView: View {
     @EnvironmentObject var store: Store
+    @EnvironmentObject var shuttle: CircularShuttleService
     @State private var query = ""
     @State private var focusedBuilding: CampusBuilding?
     @State private var focusSerial = 0
@@ -16,7 +17,21 @@ struct HomeView: View {
     private var searchResults: [CampusBuilding] { CampusBuildingCatalog.search(query) }
     private var hasSearchText: Bool { !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
 
-    private var places: [Place] { Place.all.filter { store.filter == nil || $0.type == store.filter } }
+    private var places: [Place] {
+        Place.all.filter {
+            switch store.homeFilter {
+            case .all: true
+            case .quests: false
+            case .food: $0.type == .food
+            case .shuttle: $0.type == .stop
+            case .hubs: $0.type == .hub
+            }
+        }
+    }
+    private var quests: [Quest] {
+        guard store.homeFilter == .all || store.homeFilter == .quests else { return [] }
+        return store.quests.filter { !hasSearchText || ($0.title + $0.place + $0.building).localizedCaseInsensitiveContains(query) }
+    }
     private var counts: [String: Int] {
         Dictionary(grouping: store.items, by: \.hub).mapValues(\.count)
     }
@@ -27,7 +42,12 @@ struct HomeView: View {
                          focusedBuilding: focusedBuilding, focusSerial: focusSerial,
                          userCoordinate: userLocation.coordinate,
                          userHeadingDegrees: userLocation.headingDegrees,
-                         userFocusSerial: userFocusSerial) { id in
+                         userFocusSerial: userFocusSerial,
+                         quests: quests, shuttlePositions: shuttle.positions,
+                         onQuestSelect: { id in
+                             searchFocused = false
+                             store.selectedQuest = store.quests.first { $0.id == id }
+                         }) { id in
                 searchFocused = false
                 focusedBuilding = nil
                 store.select(id)
@@ -39,15 +59,31 @@ struct HomeView: View {
         .overlay(alignment: .bottomTrailing) {
             myLocationButton
                 .padding(.trailing, 16)
-                .padding(.bottom, focusedBuilding != nil ? 178 : (store.open ? 488 : 106))
+                .padding(.bottom, focusedBuilding != nil ? 178 : (store.open ? 350 : 318))
         }
         .overlay(alignment: .bottom) {
             if let building = focusedBuilding {
                 buildingCard(building).padding(.horizontal, 12).padding(.bottom, 12)
-            } else {
+            } else if store.open, let place = Place.byID[store.sel], place.type != .hub {
+                HomePlaceCard(place: place).padding(12)
+            } else if store.open {
                 SheetView().padding(.horizontal, 12)
+            } else if store.homeFilter == .shuttle {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text("교내순환").font(.title3.weight(.heavy))
+                        Spacer()
+                        Button("전체 보기") { store.homeFilter = .all }
+                    }
+                    ShuttleStatusContent()
+                }.padding(20).frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.cjSurface, in: UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24))
+                    .shadow(radius: 6)
+            } else {
+                QuestBottomSheet(quests: quests)
             }
         }
+        .sheet(item: $store.selectedQuest) { QuestDetailView(quest: $0) }
         .onChange(of: store.sel) { _, _ in
             if store.open { focusedBuilding = nil }
         }
@@ -138,7 +174,7 @@ struct HomeView: View {
 
             HStack(spacing: 10) {
                 Image(systemName: "magnifyingglass").foregroundStyle(.primary)
-                TextField("건물명·동 번호 또는 분실물을 검색하세요", text: $query)
+                TextField("건물·퀘스트·분실물을 검색하세요", text: $query)
                     .submitLabel(.search)
                     .focused($searchFocused)
                     .onSubmit(search)
@@ -161,10 +197,11 @@ struct HomeView: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
-                    chip("전체", symbol: "square.grid.2x2.fill", type: nil)
-                    chip(PlaceType.hub.chipTitle, symbol: "mappin.circle.fill", type: .hub)
-                    chip(PlaceType.food.chipTitle, symbol: "fork.knife", type: .food)
-                    chip(PlaceType.stop.chipTitle, symbol: "bus.fill", type: .stop)
+                    chip("전체", symbol: "square.grid.2x2.fill", filter: .all)
+                    chip("퀘스트", symbol: "bolt.fill", filter: .quests)
+                    chip("식당", symbol: "fork.knife", filter: .food)
+                    chip("셔틀", symbol: "bus.fill", filter: .shuttle)
+                    chip("보관 거점", symbol: "mappin.circle.fill", filter: .hubs)
                 }
                 .padding(.vertical, 4)
             }
@@ -172,15 +209,16 @@ struct HomeView: View {
         .padding(.horizontal, 16).padding(.top, 8)
     }
 
-    private func chip(_ title: String, symbol: String, type: PlaceType?) -> some View {
-        let on = store.filter == type
+    private func chip(_ title: String, symbol: String, filter: Store.HomeFilter) -> some View {
+        let on = store.homeFilter == filter
         return Button {
-            if type == .food { store.showDining = true }
-            else { store.filter = type }
+            store.homeFilter = filter
+            store.closeSheet()
+            focusedBuilding = nil
         } label: {
             Label(title, systemImage: symbol)
                 .font(.subheadline.weight(.medium))
-                .foregroundStyle(on ? Color.white : (type?.textColor ?? .primary))
+                .foregroundStyle(on ? Color.white : Color.primary)
                 .padding(.horizontal, 16).frame(height: 38)
                 .background(on ? Color.cjTeal : Color.cjSurface, in: Capsule()).shadow(radius: 4, y: 2)
         }
@@ -261,6 +299,7 @@ struct HomeView: View {
     private func focus(on building: CampusBuilding) {
         searchFocused = false
         store.filter = nil
+        store.homeFilter = .all
         store.closeSheet()
         focusedBuilding = building
         focusSerial += 1  // Repeat taps on the same building still recenter the camera.
@@ -315,11 +354,15 @@ struct HomeView: View {
             focusedBuilding = nil
             query = ""
             store.filter = nil
+            store.homeFilter = .all
             store.select(p.id)
+        } else if let quest = store.quests.first(where: { ($0.title + $0.place).localizedCaseInsensitiveContains(q) }) {
+            store.selectedQuest = quest
         } else if let i = store.items.first(where: { ($0.title + $0.kind + $0.feat + $0.found).localizedCaseInsensitiveContains(q) }) {
             focusedBuilding = nil
             query = ""
             store.filter = nil
+            store.homeFilter = .all
             store.select(i.hub, item: i.id)
         } else {
             store.toast("'\(q)' 검색 결과가 없어요")

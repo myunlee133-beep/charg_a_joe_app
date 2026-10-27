@@ -2,10 +2,15 @@ import SwiftUI
 
 // ponytail: 웹 버전처럼 기기 로컬 저장(UserDefaults). 여러 기기·운영팀 공유가 필요하면 Supabase(places, items, claims)로 교체.
 final class Store: ObservableObject {
-    enum Tab: Hashable { case home, found, report, me }
+    enum Tab: String, CaseIterable { case home, dining, found, report, community, me }
+    enum HomeFilter { case all, quests, food, shuttle, hubs }
 
     // 화면 상태
     @Published var tab = Tab.home
+    @Published var homeFilter = HomeFilter.all
+    @Published var quests = Quest.demo
+    @Published var questSession = QuestSession()
+    @Published var selectedQuest: Quest?
     @Published var showDining = false   // 홈 탭 안에서 지도 대신 식당 화면을 보여준다
     @Published var sel = Place.all[0].id
     @Published var open = false
@@ -50,7 +55,7 @@ final class Store: ObservableObject {
         sel = id; open = true; itemID = item; claim = false; menu = false; showDining = false
     }
     func closeSheet() { open = false; itemID = nil }
-    func focus(hub: String, item: String) { tab = .home; filter = nil; select(hub, item: item) }
+    func focus(hub: String, item: String) { tab = .home; filter = nil; homeFilter = .all; select(hub, item: item) }
 
     /// 최신 식단을 받아 온다. 실패하면 기존(캐시/번들) 식단을 그대로 쓴다.
     @MainActor func refreshDining() async {

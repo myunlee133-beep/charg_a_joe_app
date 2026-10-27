@@ -55,7 +55,6 @@ struct Place: Identifiable {
     var menu: [(String, [String])] = []
     var building = ""
     var storage = ""
-    var next: [Int] = []
 
     var coord: CLLocationCoordinate2D { .init(latitude: lat, longitude: lng) }
 
@@ -63,10 +62,9 @@ struct Place: Identifiable {
         Place(id: "hub1", type: .hub, name: "학생회관 보관 거점", lat: 37.4617, lng: 126.9520, storage: "학생회관 1층 안내데스크"),
         Place(id: "hub2", type: .hub, name: "정문 셔틀 정류장 거점", lat: 37.4659, lng: 126.9489, storage: "정문 셔틀 정류장 옆 보관함"),
         Place(id: "hub3", type: .hub, name: "신공학관 셔틀 종점 거점", lat: 37.4495, lng: 126.9512, storage: "신공학관 1층 경비실"),
-        Place(id: "s1", type: .stop, name: "정문 셔틀 정류장", lat: 37.4664, lng: 126.9481, next: [3, 13, 23]),
-        Place(id: "s2", type: .stop, name: "학생회관 앞 정류장", lat: 37.4603, lng: 126.9545, next: [7, 17, 27]),
-        Place(id: "s3", type: .stop, name: "신공학관 셔틀 종점", lat: 37.4490, lng: 126.9520, next: [12, 22, 32]),
-    ]
+    ] + (CircularRoute.load()?.stops.enumerated().map { index, stop in
+        Place(id: "circular-stop-\(index)", type: .stop, name: stop.name + " · 교내순환", lat: stop.coordinate.latitude, lng: stop.coordinate.longitude)
+    } ?? [])
     static let byID = Dictionary(uniqueKeysWithValues: all.map { ($0.id, $0) })
     static let hubs = all.filter { $0.type == .hub }
 

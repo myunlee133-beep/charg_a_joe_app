@@ -140,6 +140,11 @@ struct MeView: View {
                 }
             }
             .navigationTitle("내 정보")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink { MyQuestsView() } label: { Label("내 퀘스트", systemImage: "bolt.circle") }
+                }
+            }
             .onChange(of: pick) { _, p in
                 Task { photo = try? await p?.loadTransferable(type: Data.self) }
             }

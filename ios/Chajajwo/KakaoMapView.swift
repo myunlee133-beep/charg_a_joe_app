@@ -13,6 +13,9 @@ struct KakaoMapView: UIViewRepresentable {
     let userCoordinate: CLLocationCoordinate2D?
     let userHeadingDegrees: Double?
     let userFocusSerial: Int              // One-tap recenter; does not force camera following
+    var quests: [Quest] = []
+    var shuttlePositions: [ShuttlePosition] = []
+    var onQuestSelect: ((String) -> Void)? = nil
     let onSelect: (String) -> Void
 
     static func initSDK() {
@@ -46,6 +49,12 @@ struct KakaoMapView: UIViewRepresentable {
         private var lastFocusSerial = -1
         private let layerID = "places"
         private let userLayerID = "user-location"
+        private let questLayerID = "quests"
+        private let shuttleLayerID = "circular-shuttle"
+        private var questPois: [String: Poi] = [:]
+        private var questStyles: [String: String] = [:]
+        private var shuttlePois: [String: Poi] = [:]
+        private var questGroups: [QuestMapGroup] = []
         private var userDot: Poi?
         private var userDirection: Poi?
         private var lastUserFocusSerial = -1
@@ -94,6 +103,10 @@ struct KakaoMapView: UIViewRepresentable {
                 competitionUnit: .symbolFirst, orderType: .rank, zOrder: 25000))
             userDot = nil
             userDirection = nil
+            for (id, zOrder) in [(questLayerID, 22000), (shuttleLayerID, 24000)] {
+                _ = manager.addLabelLayer(option: LabelLayerOptions(layerID: id, competitionType: .none,
+                    competitionUnit: .symbolFirst, orderType: .rank, zOrder: zOrder))
+            }
             refresh()
         }
         func addViewFailed(_ viewName: String, viewInfoName: String) { print("카카오맵 뷰 추가 실패") }
@@ -110,6 +123,8 @@ struct KakaoMapView: UIViewRepresentable {
             guard let layer = manager.getLabelLayer(layerID: layerID) else { return }
             // User marker is always visible, even at map levels where hub pins are hidden.
             refreshUserLocation(on: map, manager: manager)
+            refreshQuests(on: map, manager: manager)
+            refreshShuttles(manager: manager)
             let visible = Set(parent.places.map(\.id))
             pinsVisible = map.zoomLevel >= Self.minPinLevel
 
@@ -182,6 +197,73 @@ struct KakaoMapView: UIViewRepresentable {
             }
         }
 
+        private func refreshQuests(on map: KakaoMap, manager: LabelManager) {
+            guard let layer = manager.getLabelLayer(layerID: questLayerID) else { return }
+            questGroups = QuestMapGroup.groups(parent.quests, zoom: Int(map.zoomLevel))
+            let ids = Set(questGroups.map(\.id))
+            for id in Array(questPois.keys) where !ids.contains(id) {
+                layer.removePoi(poiID: "quest-\(id)")
+                questPois.removeValue(forKey: id); questStyles.removeValue(forKey: id)
+            }
+            for group in questGroups {
+                let q = group.quests[0]
+                let title = group.quests.count == 1 ? q.rewardText : "퀘스트 \(group.quests.count)"
+                let symbol = group.quests.count == 1 ? q.category.symbol : "bolt.fill"
+                let color: Color = q.mode == .firstCome ? .cjTeal : .cjBlue
+                let styleID = "quest-\(symbol)-\(title)-\(q.mode.rawValue)"
+                if !addedStyles.contains(styleID) {
+                    let renderer = ImageRenderer(content: SwiftUI.Label(title, systemImage: symbol)
+                        .font(.system(size: 11, weight: .bold)).foregroundStyle(.white)
+                        .padding(.horizontal, 10).padding(.vertical, 8)
+                        .background(color, in: Capsule()).overlay(Capsule().stroke(.white, lineWidth: 2)).padding(3))
+                    renderer.scale = 2
+                    let icon = PoiIconStyle(symbol: renderer.uiImage, anchorPoint: CGPoint(x: 0.5, y: 0.5))
+                    manager.addPoiStyle(PoiStyle(styleID: styleID, styles: [PerLevelPoiStyle(iconStyle: icon, level: 0)]))
+                    addedStyles.insert(styleID)
+                }
+                let coord = group.coordinate
+                let point = MapPoint(longitude: coord.longitude, latitude: coord.latitude)
+                if questPois[group.id] == nil {
+                    let option = PoiOptions(styleID: styleID, poiID: "quest-\(group.id)")
+                    option.rank = 300; option.clickable = false
+                    questPois[group.id] = layer.addPoi(option: option, at: point)
+                } else if questStyles[group.id] != styleID {
+                    questPois[group.id]?.changeTextAndStyle(texts: [], styleID: styleID)
+                }
+                questStyles[group.id] = styleID
+                questPois[group.id]?.position = point
+                questPois[group.id]?.show()
+            }
+        }
+
+        private func refreshShuttles(manager: LabelManager) {
+            guard let layer = manager.getLabelLayer(layerID: shuttleLayerID) else { return }
+            let ids = Set(parent.shuttlePositions.map(\.id))
+            for id in Array(shuttlePois.keys) where !ids.contains(id) {
+                layer.removePoi(poiID: "circular-\(id)"); shuttlePois.removeValue(forKey: id)
+            }
+            let styleID = "campus-circular-vehicle"
+            if !addedStyles.contains(styleID) {
+                let image = UIGraphicsImageRenderer(size: CGSize(width: 30, height: 54)).image { _ in
+                    UIImage(named: "CampusShuttle")?.draw(in: CGRect(x: 0, y: 0, width: 30, height: 54))
+                }
+                let icon = PoiIconStyle(symbol: image, anchorPoint: CGPoint(x: 0.5, y: 0.5))
+                manager.addPoiStyle(PoiStyle(styleID: styleID, styles: [PerLevelPoiStyle(iconStyle: icon, level: 0)]))
+                addedStyles.insert(styleID)
+            }
+            for bus in parent.shuttlePositions {
+                let point = MapPoint(longitude: bus.coordinate.longitude, latitude: bus.coordinate.latitude)
+                if shuttlePois[bus.id] == nil {
+                    let option = PoiOptions(styleID: styleID, poiID: "circular-\(bus.id)")
+                    option.rank = 400; option.clickable = false; option.transformType = .absoluteRotation
+                    shuttlePois[bus.id] = layer.addPoi(option: option, at: point)
+                }
+                shuttlePois[bus.id]?.position = point
+                shuttlePois[bus.id]?.orientation = bus.bearingRadians
+                shuttlePois[bus.id]?.show()
+            }
+        }
+
         // MARK: 현재 위치 / 기기가 바라보는 방향
         private func refreshUserLocation(on map: KakaoMap, manager: LabelManager) {
             guard let coord = parent.userCoordinate,
@@ -251,13 +333,25 @@ struct KakaoMapView: UIViewRepresentable {
         // ponytail: SDK의 핀 클릭 판정이 우리 핀에 안 먹어서, 탭 좌표를 지도 좌표로 바꿔 가장 가까운 핀을 직접 고른다.
         func kakaoMapDidTapped(kakaoMap: KakaoMap, point: CGPoint) {
             dismissKeyboard() // 지도를 누르면 키보드 내림. 제스처를 따로 얹으면 SDK 탭이 안 먹어서 SDK 콜백에서 처리한다.
-            guard pinsVisible else { return }
             // 점 중심이 앵커라서 탭한 지점을 그대로 기준으로 삼고, 반경은 화면 22pt 만큼의 거리.
             let probe = kakaoMap.getPosition(CGPoint(x: point.x, y: point.y)).wgsCoord
             let edge = kakaoMap.getPosition(CGPoint(x: point.x + 22, y: point.y)).wgsCoord
             let k = cos(probe.latitude * .pi / 180)
             func dist(_ a: (Double, Double), _ b: (Double, Double)) -> Double { hypot(a.0 - b.0, (a.1 - b.1) * k) }
             let radius = dist((probe.latitude, probe.longitude), (edge.latitude, edge.longitude))
+            if let group = questGroups.min(by: {
+                dist((probe.latitude, probe.longitude), ($0.coordinate.latitude, $0.coordinate.longitude)) <
+                dist((probe.latitude, probe.longitude), ($1.coordinate.latitude, $1.coordinate.longitude))
+            }), dist((probe.latitude, probe.longitude), (group.coordinate.latitude, group.coordinate.longitude)) <= radius * 1.5 {
+                if group.quests.count == 1 { parent.onQuestSelect?(group.quests[0].id) }
+                else {
+                    let coordinate = group.coordinate
+                    let update = CameraUpdate.make(target: MapPoint(longitude: coordinate.longitude, latitude: coordinate.latitude), zoomLevel: 18, mapView: kakaoMap)
+                    kakaoMap.animateCamera(cameraUpdate: update, options: CameraAnimationOptions(autoElevation: false, consecutive: false, durationInMillis: 450))
+                }
+                return
+            }
+            guard pinsVisible else { return }
             let hit = parent.places
                 .map { ($0.id, dist((probe.latitude, probe.longitude), ($0.lat, $0.lng))) }
                 .filter { $0.1 <= radius }

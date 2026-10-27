@@ -22,13 +22,36 @@ struct ChajajwoApp: App {
 struct ContentView: View {
     @EnvironmentObject var store: Store
     @Environment(\.scenePhase) private var scenePhase
+    @StateObject private var shuttle = CircularShuttleService()
+
+    private var shouldTrackShuttle: Bool {
+        scenePhase == .active && store.tab == .home &&
+        (store.homeFilter == .all || store.homeFilter == .shuttle)
+    }
 
     var body: some View {
-        TabView(selection: $store.tab) {
-            Group { if store.showDining { DiningView() } else { HomeView() } }.tabItem { Label("홈", systemImage: "house.fill") }.tag(Store.Tab.home)
-            FoundView().tabItem { Label("분실물 발견", systemImage: "shippingbox") }.tag(Store.Tab.found)
-            ReportView().tabItem { Label("내 분실 신고", systemImage: "doc.text.magnifyingglass") }.tag(Store.Tab.report)
-            MeView().tabItem { Label("내 정보", systemImage: "person.crop.circle") }.tag(Store.Tab.me)
+        Group {
+            switch store.tab {
+            case .home: HomeView()
+            case .dining: DiningView()
+            case .found: FoundView()
+            case .report: ReportView()
+            case .community: NavigationStack { Color(uiColor: .systemGroupedBackground).navigationTitle("커뮤니티") }
+            case .me: MeView()
+            }
+        }
+        .environmentObject(shuttle)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            HStack(spacing: 0) {
+                tab(.home, "홈", "house.fill")
+                tab(.dining, "식당", "fork.knife")
+                tab(.found, "분실물", "shippingbox")
+                tab(.report, "신고", "doc.text.magnifyingglass")
+                tab(.community, "커뮤니티", "bubble.left.and.bubble.right")
+                tab(.me, "내 정보", "person.crop.circle")
+            }
+            .padding(.top, 9).padding(.bottom, 5)
+            .background(Color.cjSurface.shadow(color: .black.opacity(0.06), radius: 5, y: -2))
         }
         .overlay(alignment: .bottom) {
             if let t = store.toastText {
@@ -42,9 +65,26 @@ struct ContentView: View {
             }
         }
         .animation(.easeOut(duration: 0.25), value: store.toastText)
+        .task(id: shouldTrackShuttle) {
+            if shouldTrackShuttle { await shuttle.run() } else { shuttle.stop() }
+        }
         .task { await store.refreshDining() }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { Task { await store.refreshDining() } }
         }
+    }
+
+    private func tab(_ value: Store.Tab, _ title: String, _ icon: String) -> some View {
+        Button { store.tab = value } label: {
+            VStack(spacing: 5) {
+                Image(systemName: icon).font(.system(size: 20, weight: .medium))
+                Text(title).font(.system(size: 10, weight: .semibold)).lineLimit(1)
+            }
+            .foregroundStyle(store.tab == value ? Color.cjTeal : Color.cjSub)
+            .frame(maxWidth: .infinity, minHeight: 44)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(store.tab == value ? .isSelected : [])
     }
 }
