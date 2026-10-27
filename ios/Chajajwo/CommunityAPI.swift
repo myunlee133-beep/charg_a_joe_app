@@ -283,8 +283,8 @@ final class CommunityAPI: ObservableObject {
         clearLocalSession()
     }
 
-    private func rpc<T: Decodable>(_ name: String, _ parameters: [String: Any], as type: T.Type) async throws -> T {
-        try decode(type, try await request("/rest/v1/rpc/\(name)", json: parameters))
+    func rpc<T: Decodable>(_ name: String, _ parameters: [String: Any], as type: T.Type, authenticated: Bool = true) async throws -> T {
+        try decode(type, try await request("/rest/v1/rpc/\(name)", json: parameters, authenticated: authenticated))
     }
 
     func feed(board: CommunityBoard, query: String, tag: String?, savedOnly: Bool = false,
