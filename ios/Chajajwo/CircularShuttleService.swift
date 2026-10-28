@@ -38,7 +38,7 @@ import SwiftUI
                 animation?.cancel()
                 animation = Task { [weak self] in
                     // Ease between received points, then stop. Never predict onward.
-                    for _ in 0..<25 {
+                    while tracker.isAnimating(at: ProcessInfo.processInfo.systemUptime) {
                         do { try await Task.sleep(for: .milliseconds(50)) } catch { return }
                         guard let self, self.generation == runID, !Task.isCancelled else { return }
                         self.positions = tracker.positions(at: ProcessInfo.processInfo.systemUptime)

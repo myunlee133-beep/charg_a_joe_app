@@ -36,6 +36,24 @@ final class CampusCoreTests: XCTestCase {
         XCTAssertEqual(t.positions(at: 5).first?.changes, 0)
         t.update([bus(136.8)], at: 10); XCTAssertEqual(t.positions(at: 12).first?.changes, 1)
     }
+    func testStopToStopCheckpointAnimatesWithoutTeleportingOrRestarting() throws {
+        let t = try tracker(); t.update([bus(136)], at: 0)
+        let origin = try XCTUnwrap(t.positions(at: 0).first).coordinate
+        for at in stride(from: 5.0, to: 30.0, by: 5.0) { t.update([bus(136)], at: at) }
+        t.update([bus(188)], at: 30)
+        XCTAssertTrue(t.isAnimating(at: 30))
+        XCTAssertEqual(t.positions(at: 30).first?.coordinate, origin)
+        let middle = try XCTUnwrap(t.positions(at: 34).first).coordinate
+        let target = try XCTUnwrap(t.positions(at: 38).first).coordinate
+        XCTAssertGreaterThan(origin.distance(to: middle), 10)
+        XCTAssertGreaterThan(middle.distance(to: target), 10)
+        t.update([bus(188)], at: 35)
+        XCTAssertTrue(t.isAnimating(at: 36))
+        XCTAssertGreaterThan(try XCTUnwrap(t.positions(at: 36).first).coordinate.distance(to: target), 1)
+        XCTAssertEqual(t.positions(at: 38).first?.coordinate, target)
+        XCTAssertFalse(t.isAnimating(at: 38))
+        XCTAssertEqual(t.positions(at: 50).first?.coordinate, target)
+    }
     func testBackwardsJitterAndInvalidJumpDoNotMoveVehicle() throws {
         let t = try tracker(); t.update([bus(136)], at: 0); t.update([bus(138)], at: 5)
         let valid = try XCTUnwrap(t.positions(at: 7).first)
