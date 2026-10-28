@@ -20,6 +20,10 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>COMMUNITY_SUPABASE_PUBLISHABLE_KEY</key>
+	<string>sb_publishable_Hbkr0PVh-QmFgfFGXU9Pbg_YqT_loSk</string>
+	<key>COMMUNITY_SUPABASE_URL</key>
+	<string>https://iqalavbntvadqawkegfa.supabase.co</string>
 	<key>KAKAO_APP_KEY</key>
 	<string>633176f4920468978f1c055f77f9ef5f</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
@@ -30,9 +34,5 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
-	<key>COMMUNITY_SUPABASE_URL</key>
-	<string>https://iqalavbntvadqawkegfa.supabase.co</string>
-	<key>COMMUNITY_SUPABASE_PUBLISHABLE_KEY</key>
-	<string>﻿sb_publishable_Hbkr0PVh-QmFgfFGXU9Pbg_YqT_loSk</string>
 </dict>
 </plist>
