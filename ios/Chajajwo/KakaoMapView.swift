@@ -13,7 +13,11 @@ struct KakaoMapView: UIViewRepresentable {
     let userCoordinate: CLLocationCoordinate2D?
     let userHeadingDegrees: Double?
     let userFocusSerial: Int              // One-tap recenter; does not force camera following
+    let lostPins: [LostFoundMapPin]
+    let lostFocusID: String?
+    let lostFocusSerial: Int
     let onSelect: (String) -> Void
+    let onSelectLost: (String) -> Void
 
     static func initSDK() {
         let key = Bundle.main.object(forInfoDictionaryKey: "KAKAO_APP_KEY") as? String ?? ""
@@ -48,6 +52,9 @@ struct KakaoMapView: UIViewRepresentable {
         private let userLayerID = "user-location"
         private var userDot: Poi?
         private var userDirection: Poi?
+        private let lostLayerID = "lost-found"
+        private var lostPois: [String: Poi] = [:]
+        private var lastLostFocusSerial = -1
         private var lastUserFocusSerial = -1
         private let viewName = "mapview"
         /// 이 지도 레벨보다 멀리서 볼 때는 핀을 모두 숨긴다(기본 화면은 레벨 14).
@@ -92,6 +99,9 @@ struct KakaoMapView: UIViewRepresentable {
             _ = manager.addLabelLayer(option: LabelLayerOptions(
                 layerID: userLayerID, competitionType: .none,
                 competitionUnit: .symbolFirst, orderType: .rank, zOrder: 25000))
+            _ = manager.addLabelLayer(option: LabelLayerOptions(layerID: lostLayerID,
+                competitionType: .none, competitionUnit: .symbolFirst, orderType: .rank, zOrder: 22000))
+            lostPois.removeAll()
             userDot = nil
             userDirection = nil
             refresh()
@@ -110,6 +120,7 @@ struct KakaoMapView: UIViewRepresentable {
             guard let layer = manager.getLabelLayer(layerID: layerID) else { return }
             // User marker is always visible, even at map levels where hub pins are hidden.
             refreshUserLocation(on: map, manager: manager)
+            refreshLostPins(on: map, manager: manager)
             let visible = Set(parent.places.map(\.id))
             pinsVisible = map.zoomLevel >= Self.minPinLevel
 
@@ -182,6 +193,48 @@ struct KakaoMapView: UIViewRepresentable {
             }
         }
 
+        // MARK: 검증된 분실물센터와 회원 신고 위치. Existing Kakao map is reused.
+        private func refreshLostPins(on map: KakaoMap, manager: LabelManager) {
+            guard let layer = manager.getLabelLayer(layerID: lostLayerID) else { return }
+            let ids = Set(parent.lostPins.map(\.id))
+            for (id, poi) in lostPois where !ids.contains(id) { poi.hide() }
+            for pin in parent.lostPins {
+                let styleID: String
+                switch pin.kind {
+                case .center: styleID = "lf-center"
+                case .found: styleID = "lf-found"
+                case .lost: styleID = "lf-lost"
+                }
+                if !addedStyles.contains(styleID) {
+                    manager.addPoiStyle(Self.lostPinStyle(id: styleID, kind: pin.kind))
+                    addedStyles.insert(styleID)
+                }
+                let pos = MapPoint(longitude: pin.longitude, latitude: pin.latitude)
+                if lostPois[pin.id] == nil {
+                    let option = PoiOptions(styleID: styleID, poiID: pin.id)
+                    option.rank = pin.kind == .center ? 320 : 250
+                    option.clickable = false // coordinate hit-testing in SDK tap callback
+                    lostPois[pin.id] = layer.addPoi(option: option, at: pos)
+                }
+                lostPois[pin.id]?.position = pos
+                lostPois[pin.id]?.show()
+            }
+            if parent.lostFocusSerial != lastLostFocusSerial, let id = parent.lostFocusID,
+               let pin = parent.lostPins.first(where: { $0.id == id }) {
+                let update = CameraUpdate.make(target: MapPoint(longitude: pin.longitude, latitude: pin.latitude),
+                                               zoomLevel: 17, mapView: map)
+                map.animateCamera(cameraUpdate: update,
+                    options: CameraAnimationOptions(autoElevation: false, consecutive: false, durationInMillis: 450))
+                lastLostFocusSerial = parent.lostFocusSerial
+            }
+        }
+        private static func lostPinStyle(id: String, kind: LostFoundMapPin.Kind) -> PoiStyle {
+            let renderer = ImageRenderer(content: LostFoundPin(kind: kind))
+            renderer.scale = 2
+            return PoiStyle(styleID: id, styles: [PerLevelPoiStyle(iconStyle:
+                PoiIconStyle(symbol: renderer.uiImage ?? UIImage(), anchorPoint: CGPoint(x: 0.5, y: 0.9)), level: 0)])
+        }
+
         // MARK: 현재 위치 / 기기가 바라보는 방향
         private func refreshUserLocation(on map: KakaoMap, manager: LabelManager) {
             guard let coord = parent.userCoordinate,
@@ -251,7 +304,7 @@ struct KakaoMapView: UIViewRepresentable {
         // ponytail: SDK의 핀 클릭 판정이 우리 핀에 안 먹어서, 탭 좌표를 지도 좌표로 바꿔 가장 가까운 핀을 직접 고른다.
         func kakaoMapDidTapped(kakaoMap: KakaoMap, point: CGPoint) {
             dismissKeyboard() // 지도를 누르면 키보드 내림. 제스처를 따로 얹으면 SDK 탭이 안 먹어서 SDK 콜백에서 처리한다.
-            guard pinsVisible else { return }
+            // Hit-test lost-and-found pins independently of zoom and old hub pin visibility.
             // 점 중심이 앵커라서 탭한 지점을 그대로 기준으로 삼고, 반경은 화면 22pt 만큼의 거리.
             let probe = kakaoMap.getPosition(CGPoint(x: point.x, y: point.y)).wgsCoord
             let edge = kakaoMap.getPosition(CGPoint(x: point.x + 22, y: point.y)).wgsCoord
@@ -262,7 +315,12 @@ struct KakaoMapView: UIViewRepresentable {
                 .map { ($0.id, dist((probe.latitude, probe.longitude), ($0.lat, $0.lng))) }
                 .filter { $0.1 <= radius }
                 .min { $0.1 < $1.1 }
-            if let hit { parent.onSelect(hit.0) }
+            let lostHit = parent.lostPins
+                .map { ($0.id, dist((probe.latitude, probe.longitude), ($0.latitude, $0.longitude))) }
+                .filter { $0.1 <= radius }
+                .min { $0.1 < $1.1 }
+            if let lostHit { parent.onSelectLost(lostHit.0); return }
+            if pinsVisible, let hit { parent.onSelect(hit.0) }
         }
 
         // MARK: 핀 이미지
@@ -385,5 +443,32 @@ private struct UserLocationDirection: View {
         }
         .fill(Color(red: 0.12, green: 0.47, blue: 0.96).opacity(0.24))
         .frame(width: 80, height: 80)
+    }
+}
+
+/// Center, found-item, and lost-request pins are intentionally distinct.
+private struct LostFoundPin: View {
+    let kind: LostFoundMapPin.Kind
+    private var accent: Color {
+        switch kind {
+        case .center: Color(hex: 0x0F7F74)
+        case .found: Color(hex: 0x287AF0)
+        case .lost: Color(hex: 0xF26B1D)
+        }
+    }
+    private var symbol: String {
+        switch kind {
+        case .center: "cross.case.fill"
+        case .found: "shippingbox.fill"
+        case .lost: "magnifyingglass"
+        }
+    }
+    var body: some View {
+        VStack(spacing: -2) {
+            Image(systemName: symbol).font(.system(size: 14, weight: .bold))
+                .foregroundStyle(.white).frame(width: 33, height: 33)
+                .background(accent, in: Circle()).overlay(Circle().stroke(.white, lineWidth: 3))
+            Image(systemName: "arrowtriangle.down.fill").font(.system(size: 7)).foregroundStyle(accent)
+        }.padding(9)
     }
 }

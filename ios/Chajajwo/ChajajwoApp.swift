@@ -5,6 +5,7 @@ import SwiftUI
 @main
 struct ChajajwoApp: App {
     @StateObject private var store = Store()
+    @StateObject private var lostFound = LostFoundAPI()
 
     init() { KakaoMapView.initSDK() }
 
@@ -12,6 +13,7 @@ struct ChajajwoApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(store)
+                .environmentObject(lostFound)
                 .environment(\.locale, Locale(identifier: "ko_KR"))
                 .tint(Color.cjTealText)
                 .preferredColorScheme(.light) // 다크모드여도 라이트 화면 그대로
@@ -26,8 +28,7 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $store.tab) {
             Group { if store.showDining { DiningView() } else { HomeView() } }.tabItem { Label("홈", systemImage: "house.fill") }.tag(Store.Tab.home)
-            FoundView().tabItem { Label("분실물 발견", systemImage: "shippingbox") }.tag(Store.Tab.found)
-            ReportView().tabItem { Label("내 분실 신고", systemImage: "doc.text.magnifyingglass") }.tag(Store.Tab.report)
+            LostFoundView().tabItem { Label("분실물", systemImage: "shippingbox.fill") }.tag(Store.Tab.lostFound)
             CommunityView().tabItem { Label("사랑방", systemImage: "bubble.left.and.bubble.right.fill") }.tag(Store.Tab.community)
             MeView().tabItem { Label("내 정보", systemImage: "person.crop.circle") }.tag(Store.Tab.me)
         }

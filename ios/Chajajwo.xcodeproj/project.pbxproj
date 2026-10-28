@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EAB100000000000000000005 /* LostFoundRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB100000000000000000006 /* LostFoundRules.swift */; };
+		EAB100000000000000000003 /* LostFoundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB100000000000000000004 /* LostFoundView.swift */; };
+		EAB100000000000000000001 /* LostFoundAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB100000000000000000002 /* LostFoundAPI.swift */; };
 		3F37CE322734D466EF679B0A /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167AB2FB5772FA754F4D351D /* Models.swift */; };
 		6345E3CA1B8866006C34F451 /* SheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 597ED81F0302CB4D4B2A46D4 /* SheetView.swift */; };
 		689967753C20DF3AF16687D3 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0002B9E7C0B2A55E705C4A1F /* HomeView.swift */; };
@@ -30,6 +33,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		EAB100000000000000000006 /* LostFoundRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LostFoundRules.swift; sourceTree = "<group>"; };
+		EAB100000000000000000004 /* LostFoundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LostFoundView.swift; sourceTree = "<group>"; };
+		EAB100000000000000000002 /* LostFoundAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LostFoundAPI.swift; sourceTree = "<group>"; };
 		0002B9E7C0B2A55E705C4A1F /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		167AB2FB5772FA754F4D351D /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		2D19537DD6F6D6939F565D17 /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
@@ -76,6 +82,9 @@
 		9F502B7EFA45CE888CCCCFB4 /* Chajajwo */ = {
 			isa = PBXGroup;
 			children = (
+                EAB100000000000000000006 /* LostFoundRules.swift */,
+                EAB100000000000000000004 /* LostFoundView.swift */,
+                EAB100000000000000000002 /* LostFoundAPI.swift */,
 				E6FD255F2ECB57ABE416FCDD /* Assets.xcassets */,
 				C37F690BF5CA084C0DAD6C3B /* ChajajwoApp.swift */,
 				8448DF90FAA152C7BBC65918 /* Components.swift */,
@@ -188,6 +197,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+		        EAB100000000000000000005 /* LostFoundRules.swift in Sources */,
+		        EAB100000000000000000003 /* LostFoundView.swift in Sources */,
+		        EAB100000000000000000001 /* LostFoundAPI.swift in Sources */,
 				C24000000000000000000005 /* CommunityRules.swift in Sources */,
 				C24000000000000000000003 /* CommunityView.swift in Sources */,
 				C24000000000000000000001 /* CommunityAPI.swift in Sources */,
