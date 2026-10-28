@@ -118,7 +118,7 @@ final class LostFoundAPI: ObservableObject {
         guard configured else { return }
         do {
             centers = try await account.rpc("lf_centers_list", [:], as: [LostFoundCenter].self, authenticated: false)
-        } catch { self.error = "센터 데이터를 불러오지 못해 확인된 기본 정보로 표시합니다. \(error.localizedDescription)"; centers = .verified }
+        } catch { self.error = "센터 데이터를 불러오지 못해 확인된 기본 정보로 표시합니다. \(error.localizedDescription)"; centers = LostFoundCenter.verified }
         guard loggedIn else { found = []; lost = []; inbox = []; myClaims = []; leads = []; return }
         do {
             async let a: [LostFoundRecord] = account.rpc("lf_found_list", [:], as: [LostFoundRecord].self)

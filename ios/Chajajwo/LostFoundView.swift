@@ -265,7 +265,7 @@ private struct LostFoundEditor: View {
                 description: description.trimmingCharacters(in: .whitespacesAndNewlines), building: building,
                 eventAt: eventAt, custody: custody, centerID: custody == "center" ? centerID : nil)
             dismiss()
-        } catch { error = error.localizedDescription }
+        } catch { self.error = error.localizedDescription }
     }
 }
 
@@ -332,12 +332,12 @@ private struct LostFoundRecordDetail: View {
     }
     private func updateStatus(_ status: String) async {
         do { try await lf.setStatus(type, id: record.id, status: status); dismiss() }
-        catch { error = error.localizedDescription }
+        catch { self.error = error.localizedDescription }
     }
     private func link() async {
         guard let requestID = selectedRequest else { return }
         do { try await lf.link(foundID: record.id, requestID: requestID); dismiss() }
-        catch { error = error.localizedDescription }
+        catch { self.error = error.localizedDescription }
     }
 }
 
@@ -365,7 +365,7 @@ private struct LostFoundClaimEditor: View {
                     Button("확인 요청") { Task {
                         busy = true; defer { busy = false }
                         do { try await lf.claim(foundID: itemID, proof: proof); dismiss() }
-                        catch { error = error.localizedDescription }
+                        catch { self.error = error.localizedDescription }
                     } }.disabled(busy || !LostFoundRules.validProof(proof))
                 }
             }
