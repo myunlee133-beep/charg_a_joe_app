@@ -161,6 +161,7 @@ struct HomeView: View {
     private var locationButtonBottom: CGFloat {
         if focusedBuilding != nil || selectedLostPinID != nil { return 190 }
         if store.lostMapOnly { return 106 }
+        if store.homeFilter != .food && store.homeFilter != .hubs && store.homeFilter != .shuttle && store.questSheetCollapsed { return 140 }
         if store.open { return 350 }
         return store.homeFilter == .food || store.homeFilter == .hubs ? 140 : 318
     }

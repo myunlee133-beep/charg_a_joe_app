@@ -259,10 +259,8 @@ struct KakaoMapView: UIViewRepresentable {
             }
         }
         private static func lostPinStyle(id: String, kind: LostFoundMapPin.Kind) -> PoiStyle {
-            let renderer = ImageRenderer(content: LostFoundPin(kind: kind))
-            renderer.scale = 2
-            return PoiStyle(styleID: id, styles: [PerLevelPoiStyle(iconStyle:
-                PoiIconStyle(symbol: renderer.uiImage ?? UIImage(), anchorPoint: CGPoint(x: 0.5, y: 0.9)), level: 0)])
+            PoiStyle(styleID: id, styles: [PerLevelPoiStyle(iconStyle:
+                PoiIconStyle(symbol: render(LostFoundPin(kind: kind)), anchorPoint: CGPoint(x: 0.5, y: 0.5)), level: 0)])
         }
 
         private func refreshQuests(on map: KakaoMap, manager: LabelManager) {
@@ -275,17 +273,11 @@ struct KakaoMapView: UIViewRepresentable {
             }
             for group in questGroups {
                 let q = group.quests[0]
-                let title = group.quests.count == 1 ? q.rewardText : "퀘스트 \(group.quests.count)"
-                let symbol = group.quests.count == 1 ? q.category.symbol : "bolt.fill"
                 let color: Color = q.mode == .firstCome ? .cjTeal : .cjBlue
-                let styleID = "quest-\(symbol)-\(title)-\(q.mode.rawValue)"
+                let styleID = "quest-dot-\(q.mode.rawValue)-\(group.quests.count)"
                 if !addedStyles.contains(styleID) {
-                    let renderer = ImageRenderer(content: SwiftUI.Label(title, systemImage: symbol)
-                        .font(.system(size: 11, weight: .bold)).foregroundStyle(.white)
-                        .padding(.horizontal, 10).padding(.vertical, 8)
-                        .background(color, in: Capsule()).overlay(Capsule().stroke(.white, lineWidth: 2)).padding(3))
-                    renderer.scale = 2
-                    let icon = PoiIconStyle(symbol: renderer.uiImage, anchorPoint: CGPoint(x: 0.5, y: 0.5))
+                    let icon = PoiIconStyle(symbol: Self.render(MapDot(color: color, count: group.quests.count > 1 ? group.quests.count : 0)),
+                                            anchorPoint: CGPoint(x: 0.5, y: 0.5))
                     manager.addPoiStyle(PoiStyle(styleID: styleID, styles: [PerLevelPoiStyle(iconStyle: icon, level: 0)]))
                     addedStyles.insert(styleID)
                 }
@@ -310,10 +302,10 @@ struct KakaoMapView: UIViewRepresentable {
             for id in Array(shuttlePois.keys) where !ids.contains(id) {
                 layer.removePoi(poiID: "circular-\(id)"); shuttlePois.removeValue(forKey: id)
             }
-            let styleID = "campus-circular-vehicle"
+            let styleID = "campus-circular-vehicle-s"
             if !addedStyles.contains(styleID) {
-                let image = UIGraphicsImageRenderer(size: CGSize(width: 48, height: 72)).image { _ in
-                    UIImage(named: "CampusShuttle")?.draw(in: CGRect(x: 0, y: 0, width: 48, height: 72))
+                let image = UIGraphicsImageRenderer(size: CGSize(width: 28, height: 42)).image { _ in
+                    UIImage(named: "CampusShuttle")?.draw(in: CGRect(x: 0, y: 0, width: 28, height: 42))
                 }
                 let icon = PoiIconStyle(symbol: image, anchorPoint: CGPoint(x: 0.5, y: 0.5))
                 manager.addPoiStyle(PoiStyle(styleID: styleID, styles: [PerLevelPoiStyle(iconStyle: icon, level: 0)]))
@@ -466,7 +458,7 @@ struct KakaoMapView: UIViewRepresentable {
             return PoiStyle(styleID: id, styles: [PerLevelPoiStyle(iconStyle: plain, textStyle: text, level: 0)])
         }
 
-        private static func render(_ content: PinIcon) -> UIImage {
+        private static func render(_ content: some View) -> UIImage {
             let renderer = ImageRenderer(content: content)
             renderer.scale = 2
             return renderer.uiImage ?? UIImage()
@@ -495,8 +487,15 @@ struct PinIcon: View {
         }
     }
 
-    private var pin: some View {
-        Circle().fill(type.color)
+    private var pin: some View { MapDot(color: type.color, count: count) }
+}
+
+/// 식당 핀과 같은 모양의 점. 묶음이면 개수 배지를 단다.
+struct MapDot: View {
+    let color: Color
+    var count = 0
+    var body: some View {
+        Circle().fill(color)
             .frame(width: 11, height: 11)
             .shadow(color: .black.opacity(0.25), radius: 1.5, y: 1)
             .overlay(alignment: .topTrailing) {
@@ -565,19 +564,5 @@ private struct LostFoundPin: View {
         case .lost: Color(hex: 0xF26B1D)
         }
     }
-    private var symbol: String {
-        switch kind {
-        case .center: "cross.case.fill"
-        case .found: "shippingbox.fill"
-        case .lost: "magnifyingglass"
-        }
-    }
-    var body: some View {
-        VStack(spacing: -2) {
-            Image(systemName: symbol).font(.system(size: 14, weight: .bold))
-                .foregroundStyle(.white).frame(width: 33, height: 33)
-                .background(accent, in: Circle()).overlay(Circle().stroke(.white, lineWidth: 3))
-            Image(systemName: "arrowtriangle.down.fill").font(.system(size: 7)).foregroundStyle(accent)
-        }.padding(9)
-    }
+    var body: some View { MapDot(color: accent) }
 }

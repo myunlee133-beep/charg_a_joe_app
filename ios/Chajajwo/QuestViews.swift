@@ -2,7 +2,6 @@ import SwiftUI
 
 struct QuestBottomSheet: View {
     @EnvironmentObject var store: Store
-    @EnvironmentObject var shuttle: CircularShuttleService
     let quests: [Quest]
     @State private var expanded = false
     @State private var mode: QuestMode?
@@ -14,28 +13,45 @@ struct QuestBottomSheet: View {
             highReward ? $0.reward > $1.reward : $0.distance < $1.distance
         }
     }
+    private var collapsed: Bool { store.questSheetCollapsed }
+    /// 아래로 쓸면 한 단계씩 내려가고(펼침 → 기본 → 접힘), 위로 쓸면 올라간다.
+    private var swipe: some Gesture {
+        DragGesture(minimumDistance: 12).onEnded { value in
+            let up = value.translation.height < 0
+            withAnimation(.easeInOut(duration: 0.25)) {
+                if up { if collapsed { store.questSheetCollapsed = false } else { expanded = true } }
+                else { if expanded { expanded = false } else { store.questSheetCollapsed = true } }
+            }
+        }
+    }
     var body: some View {
         VStack(spacing: 12) {
-            Button { withAnimation(.easeInOut(duration: 0.25)) { expanded.toggle() } } label: {
-                Capsule().fill(Color.cjHandle).frame(width: 40, height: 4)
-                    .frame(maxWidth: .infinity).frame(height: 20).contentShape(Rectangle())
-            }
-            .accessibilityLabel(expanded ? "퀘스트 목록 접기" : "퀘스트 목록 펼치기")
-            .gesture(DragGesture(minimumDistance: 12).onEnded { value in
-                withAnimation { expanded = value.translation.height < 0 }
-            })
-            HStack {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("내 주변 퀘스트 \(rows.count)").font(.title3.weight(.heavy))
-                    Text("학생회관 기준 · 시연 퀘스트").font(.caption).foregroundStyle(Color.cjSub)
+            VStack(spacing: 12) {
+                Button {
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        if collapsed { store.questSheetCollapsed = false } else { expanded.toggle() }
+                    }
+                } label: {
+                    Capsule().fill(Color.cjHandle).frame(width: 40, height: 4)
+                        .frame(maxWidth: .infinity).frame(height: 20).contentShape(Rectangle())
                 }
-                Spacer()
-                Button { creating = true } label: {
-                    Label("등록", systemImage: "plus").font(.subheadline.weight(.bold))
-                        .padding(.horizontal, 12).padding(.vertical, 9)
-                        .foregroundStyle(.white).background(Color.cjTeal, in: Capsule())
+                .accessibilityLabel(collapsed || !expanded ? "퀘스트 목록 펼치기" : "퀘스트 목록 접기")
+                HStack {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("내 주변 퀘스트 \(rows.count)").font(.title3.weight(.heavy))
+                        Text("학생회관 기준 · 시연 퀘스트").font(.caption).foregroundStyle(Color.cjSub)
+                    }
+                    Spacer()
+                    Button { creating = true } label: {
+                        Label("등록", systemImage: "plus").font(.subheadline.weight(.bold))
+                            .padding(.horizontal, 12).padding(.vertical, 9)
+                            .foregroundStyle(.white).background(Color.cjTeal, in: Capsule())
+                    }
                 }
             }
+            .contentShape(Rectangle())
+            .gesture(swipe)
+            if !collapsed {
             HStack(spacing: 8) {
                 modeButton("전체", nil)
                 modeButton("선착순", .firstCome)
@@ -56,21 +72,12 @@ struct QuestBottomSheet: View {
                 }
             }
             .scrollIndicators(.hidden)
-        }
-        .padding(.horizontal, 18).padding(.bottom, 8)
-        .frame(height: expanded ? min(580, UIScreen.main.bounds.height * 0.65) : 265)
-        .background(Color.cjSurface, in: UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24))
-        .shadow(color: .black.opacity(0.13), radius: 10, y: -3)
-        .overlay(alignment: .topLeading) {
-            if store.homeFilter == .all || store.homeFilter == .shuttle {
-                Button { store.homeFilter = .shuttle; store.closeSheet() } label: {
-                    Label(shuttle.positions.isEmpty ? "교내순환 · 위치 확인" : "교내순환 · \(shuttle.positions.count)대 위치", systemImage: "bus.fill")
-                        .font(.caption.weight(.semibold)).padding(.horizontal, 12).padding(.vertical, 9)
-                        .foregroundStyle(Color.cjBlue).background(.white, in: Capsule()).shadow(radius: 2)
-                }
-                .offset(x: 16, y: -44)
             }
         }
+        .padding(.horizontal, 18).padding(.bottom, 8)
+        .frame(height: collapsed ? nil : (expanded ? min(580, UIScreen.main.bounds.height * 0.65) : 265))
+        .background(Color.cjSurface, in: UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24))
+        .shadow(color: .black.opacity(0.13), radius: 10, y: -3)
         .sheet(isPresented: $creating) { CreateQuestView() }
     }
     private func modeButton(_ title: String, _ value: QuestMode?) -> some View {
