@@ -28,6 +28,7 @@ struct ContentView: View {
             Group { if store.showDining { DiningView() } else { HomeView() } }.tabItem { Label("홈", systemImage: "house.fill") }.tag(Store.Tab.home)
             FoundView().tabItem { Label("분실물 발견", systemImage: "shippingbox") }.tag(Store.Tab.found)
             ReportView().tabItem { Label("내 분실 신고", systemImage: "doc.text.magnifyingglass") }.tag(Store.Tab.report)
+            CommunityView().tabItem { Label("사랑방", systemImage: "bubble.left.and.bubble.right.fill") }.tag(Store.Tab.community)
             MeView().tabItem { Label("내 정보", systemImage: "person.crop.circle") }.tag(Store.Tab.me)
         }
         .overlay(alignment: .bottom) {

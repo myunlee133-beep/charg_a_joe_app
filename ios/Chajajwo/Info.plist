@@ -30,5 +30,9 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
+	<key>COMMUNITY_SUPABASE_URL</key>
+	<string>https://iqalavbntvadqawkegfa.supabase.co</string>
+	<key>COMMUNITY_SUPABASE_PUBLISHABLE_KEY</key>
+	<string>﻿sb_publishable_Hbkr0PVh-QmFgfFGXU9Pbg_YqT_loSk</string>
 </dict>
 </plist>
