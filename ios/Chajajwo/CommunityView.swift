@@ -353,7 +353,7 @@ private struct CommunityPostEditor: View {
                                          sourceURL: board == .goodwill ? sourceURL : nil,
                                          expires: board == .goodwill && hasExpiry ? expires : nil)
             dismiss()
-        } catch { error = error.localizedDescription }
+        } catch { self.error = error.localizedDescription }
     }
 }
 
@@ -389,7 +389,7 @@ private struct CommunityReportForm: View {
                         Task {
                             working = true; defer { working = false }
                             do { try await api.report(postID: target.postID, commentID: target.commentID, reason: reason); dismiss() }
-                            catch { error = error.localizedDescription }
+                            catch { self.error = error.localizedDescription }
                         }
                     }
                     .disabled(working || reason.trimmingCharacters(in: .whitespacesAndNewlines).count < 2)
@@ -452,7 +452,7 @@ private struct CommunityPostDetailView: View {
                                     Button("내 글 삭제", systemImage: "trash", role: .destructive) {
                                         Task {
                                             do { try await api.deletePost(postID); onChange(); dismiss() }
-                                            catch { error = error.localizedDescription }
+                                            catch { self.error = error.localizedDescription }
                                         }
                                     }
                                 } else {
@@ -518,7 +518,7 @@ private struct CommunityPostDetailView: View {
             Button("차단", role: .destructive) {
                 Task {
                     do { try await api.blockAuthor(of: postID); onChange(); dismiss() }
-                    catch { error = error.localizedDescription }
+                    catch { self.error = error.localizedDescription }
                 }
             }
         } message: { Text("차단한 사용자의 글과 댓글은 내 화면에서 숨겨져요.") }
@@ -549,12 +549,12 @@ private struct CommunityPostDetailView: View {
             post = try await api.post(postID)
             comments = try await api.comments(postID)
             onChange()
-        } catch { error = error.localizedDescription }
+        } catch { self.error = error.localizedDescription }
     }
     private func tryAction(_ action: () async throws -> Void) async {
         busy = true; defer { busy = false }
         do { try await action(); await refresh() }
-        catch { error = error.localizedDescription }
+        catch { self.error = error.localizedDescription }
     }
 }
 
@@ -577,7 +577,7 @@ private struct CommunityProfileView: View {
                     Button("닉네임 변경") {
                         Task {
                             do { try await api.setNickname(nickname); error = nil }
-                            catch { error = error.localizedDescription }
+                            catch { self.error = error.localizedDescription }
                         }
                     }
                     .disabled(!CommunityRules.validNickname(nickname))
@@ -602,7 +602,7 @@ private struct CommunityProfileView: View {
                             Button("차단 해제") {
                                 Task {
                                     do { try await api.unblock(block.id); blocks = try await api.myBlocks() }
-                                    catch { error = error.localizedDescription }
+                                    catch { self.error = error.localizedDescription }
                                 }
                             }
                         }
@@ -629,7 +629,7 @@ private struct CommunityProfileView: View {
                 Button("계정과 커뮤니티 기록 삭제", role: .destructive) {
                     Task {
                         do { try await api.deleteAccount(); onSignOut(); dismiss() }
-                        catch { error = error.localizedDescription }
+                        catch { self.error = error.localizedDescription }
                     }
                 }
             } message: { Text("게시글, 댓글, 기여 기록을 복원할 수 없습니다. 기존 지도·식단 기능은 유지됩니다.") }
@@ -697,14 +697,14 @@ private struct CommunityModeratorView: View {
             async let a = api.pending()
             async let b = api.reports()
             pending = try await a; reports = try await b
-        } catch { error = error.localizedDescription }
+        } catch { self.error = error.localizedDescription }
     }
     private func review(_ id: UUID, _ state: String) async {
         do { try await api.review(postID: id, state: state, note: reviewNote); await reload() }
-        catch { error = error.localizedDescription }
+        catch { self.error = error.localizedDescription }
     }
     private func resolve(_ id: UUID, hide: Bool, dismiss: Bool) async {
         do { try await api.resolveReport(id, hide: hide, dismiss: dismiss); await reload() }
-        catch { error = error.localizedDescription }
+        catch { self.error = error.localizedDescription }
     }
 }
