@@ -31,6 +31,17 @@ struct DiningData: Codable {
     let dates: [String]
     let restaurants: [Restaurant]
     let menus: [Menu]
+    private enum CodingKeys: String, CodingKey { case schemaVersion, generatedAt, dates, restaurants, menus }
+
+    /// 건물별 메뉴. 식단 화면을 그릴 때마다 메뉴 7천여 개를 처음부터 훑지 않도록 처음 쓸 때 한 번만 묶어 둔다.
+    private final class MenuIndex { var byBuilding: [String: [Menu]]? }
+    private let menuIndex = MenuIndex()
+    private var menusByBuilding: [String: [Menu]] {
+        if let built = menuIndex.byBuilding { return built }
+        let built = Dictionary(grouping: menus.filter { $0.building != nil }) { $0.building! }
+        menuIndex.byBuilding = built
+        return built
+    }
 
     static let updateNeeded = "업데이트 필요"
     /// 아침·점심·저녁 구분 없이 매장별로 한 번에 보여주는 푸드코트 매장.
@@ -48,11 +59,11 @@ struct DiningData: Codable {
         FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("meals.json")
     }
 
-    static var calendar: Calendar {
+    static let calendar: Calendar = {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(identifier: "Asia/Seoul")!
         return calendar
-    }
+    }()
 
     static func decode(_ data: Data) -> DiningData? {
         guard let snapshot = try? JSONDecoder().decode(DiningData.self, from: data),
@@ -157,7 +168,7 @@ struct DiningData: Codable {
     private func dayMenus(for place: Place, on date: Date) -> [Menu] {
         let parts = Self.calendar.dateComponents([.year, .month, .day], from: date)
         let key = String(format: "%04d-%02d-%02d", parts.year!, parts.month!, parts.day!)
-        return menus.filter { $0.building == place.building && ($0.date == key || $0.date == nil) }
+        return (menusByBuilding[place.building] ?? []).filter { $0.date == key || $0.date == nil }
     }
 
     func menus(for place: Place, on date: Date, meal: DiningMeal) -> [Menu] {

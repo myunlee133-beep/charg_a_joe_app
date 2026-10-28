@@ -20,20 +20,27 @@ struct DiningView: View {
         return (regular + stalls).filter { priceLimit == 0 || ($0.priceWon.map { $0 <= priceLimit } ?? false) }
     }
 
-    private var places: [Place] {
+    /// 식당마다 메뉴를 한 번만 계산해 필터·정렬·카드가 같이 쓴다.
+    private struct Row: Identifiable {
+        let place: Place
+        let dishes: [DiningData.Menu]
+        var id: String { place.id }
+    }
+
+    private var rows: [Row] {
         let search = query.trimmingCharacters(in: .whitespaces)
-        return Place.all.filter { place in
-            guard place.type == .food else { return false }
-            if onlyFavorites && !favorites.contains(place.id) { return false }
-            if onlyOpen && !store.dining.status(for: place, at: Date()).isOpen { return false }
+        return Place.all.compactMap { place -> Row? in
+            guard place.type == .food else { return nil }
+            if onlyFavorites && !favorites.contains(place.id) { return nil }
+            if onlyOpen && !store.dining.status(for: place, at: Date()).isOpen { return nil }
             let dishes = menus(for: place)
-            if priceLimit > 0 && dishes.isEmpty { return false }
-            return search.isEmpty || place.name.localizedCaseInsensitiveContains(search)
-                || dishes.contains { ($0.name + $0.unit).localizedCaseInsensitiveContains(search) }
+            if priceLimit > 0 && dishes.isEmpty { return nil }
+            guard search.isEmpty || place.name.localizedCaseInsensitiveContains(search)
+                || dishes.contains(where: { ($0.name + $0.unit).localizedCaseInsensitiveContains(search) }) else { return nil }
+            return Row(place: place, dishes: dishes)
         }.sorted { lhs, rhs in
-            let left = !menus(for: lhs).isEmpty, right = !menus(for: rhs).isEmpty
-            if left != right { return left }
-            return lhs.name.localizedStandardCompare(rhs.name) == .orderedAscending
+            if lhs.dishes.isEmpty != rhs.dishes.isEmpty { return !lhs.dishes.isEmpty }
+            return lhs.place.name.localizedStandardCompare(rhs.place.name) == .orderedAscending
         }
     }
 
@@ -44,17 +51,18 @@ struct DiningView: View {
                 Divider()
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 14) {
+                        let rows = self.rows
                         HStack {
                             Text("서울대 관악캠퍼스").font(.caption).foregroundStyle(Color.cjSub)
                             Spacer()
-                            Text("식당 \(places.count)곳").font(.caption.weight(.semibold))
+                            Text("식당 \(rows.count)곳").font(.caption.weight(.semibold))
                         }
                         .padding(.top, 16)
-                        if places.isEmpty {
+                        if rows.isEmpty {
                             ContentUnavailableView("조건에 맞는 식당이 없어요", systemImage: "fork.knife",
                                                    description: Text("검색어나 필터를 바꿔 보세요."))
                         }
-                        ForEach(places) { restaurantCard($0) }
+                        ForEach(rows) { restaurantCard($0.place, dishes: $0.dishes) }
                     }
                     .padding(.horizontal, 16).padding(.bottom, 24)
                 }
@@ -140,9 +148,8 @@ struct DiningView: View {
         .padding(.horizontal, 16).padding(.top, 8).padding(.bottom, 14)
     }
 
-    private func restaurantCard(_ place: Place) -> some View {
-        let dishes = menus(for: place)
-        return VStack(alignment: .leading, spacing: 12) {
+    private func restaurantCard(_ place: Place, dishes: [DiningData.Menu]) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top, spacing: 8) {
                 VStack(alignment: .leading, spacing: 7) {
                     Text(place.name).font(.title3.weight(.bold))

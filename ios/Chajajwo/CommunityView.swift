@@ -30,6 +30,7 @@ struct CommunityView: View {
     @State private var error: String?
     @State private var loading = false
     @State private var hasMore = true
+    @State private var loadedAt = Date.distantPast
     @State private var showEditor = false
     @State private var showProfile = false
     @State private var showAdmin = false
@@ -76,7 +77,14 @@ struct CommunityView: View {
             .sheet(isPresented: $showAdmin, onDismiss: { Task { await load(reset: true) } }) {
                 CommunityModeratorView(api: api)
             }
-            .task { await api.restore(); if api.authenticated { await load(reset: true) } }
+            .onAppear {
+                // 탭에 들어올 때마다 불린다. 로그인돼 있고 1분 안에 받은 목록이 있으면 다시 받지 않는다(새로고침은 그대로).
+                // .task와 달리 탭을 넘겨도 받던 요청이 취소되지 않는다.
+                Task {
+                    if !api.authenticated { await api.restore() }
+                    if api.authenticated, Date().timeIntervalSince(loadedAt) > 60 { await load(reset: true) }
+                }
+            }
             .onChange(of: api.authenticated) { _, loggedIn in
                 if loggedIn { Task { await load(reset: true) } }
                 else { posts = [] }
@@ -188,7 +196,7 @@ struct CommunityView: View {
         do {
             let more = try await api.feed(board: board, query: query.trimmingCharacters(in: .whitespacesAndNewlines),
                                           tag: selectedTag, savedOnly: savedOnly, offset: reset ? 0 : posts.count)
-            if reset { posts = more } else { posts += more }
+            if reset { posts = more; loadedAt = Date() } else { posts += more }
             hasMore = more.count == 30
         } catch { self.error = error.localizedDescription }
     }

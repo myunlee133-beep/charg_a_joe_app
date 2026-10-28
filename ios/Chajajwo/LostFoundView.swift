@@ -40,9 +40,9 @@ struct LostFoundView: View {
             }
             .background(Color(uiColor: .systemGroupedBackground))
             .navigationTitle("분실물")
-            .toolbar { ToolbarItem(placement: .topBarTrailing) { Button { Task { await lf.prepare() } } label: { Image(systemName: "arrow.clockwise") } } }
-            .task { await lf.prepare() }
-            .refreshable { await lf.prepare() }
+            .toolbar { ToolbarItem(placement: .topBarTrailing) { Button { Task { await lf.prepare(force: true) } } label: { Image(systemName: "arrow.clockwise") } } }
+            .onAppear { Task { await lf.prepare() } } // .task와 달리 탭을 넘겨도 받던 요청이 취소되지 않는다
+            .refreshable { await lf.prepare(force: true) }
             .sheet(item: $editor) { kind in LostFoundEditor(type: kind) }
             .sheet(item: $selected) { record in LostFoundRecordDetail(record: record, type: section == 1 ? .found : .lost) }
             .sheet(isPresented: $showAuth) { LostFoundAuthView() }

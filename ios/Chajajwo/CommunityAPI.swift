@@ -176,6 +176,9 @@ final class CommunityAPI: ObservableObject {
         session = CommunityKeychain.load()
     }
 
+    /// 다른 탭에서 로그인·로그아웃했는지 확인할 때 쓴다.
+    static var hasSavedSession: Bool { CommunityKeychain.load() != nil }
+
     private func url(_ path: String) throws -> URL {
         guard let config = configuration,
               let url = URL(string: path, relativeTo: config.url)?.absoluteURL else {
@@ -231,14 +234,17 @@ final class CommunityAPI: ObservableObject {
             try await refresh()
             profile = try await rpc("community_ensure_profile", [:], as: CommunityProfile.self)
             authenticated = true
+        } catch is URLError, is CancellationError {
+            // 탭을 넘겨 요청이 취소됐거나 네트워크가 끊겼을 뿐이다. 로그인 정보는 그대로 두고 다음에 다시 시도한다.
         } catch {
-            session = nil; authenticated = false; profile = nil
-            CommunityKeychain.clear()
+            clearLocalSession()
         }
     }
 
     private func refresh() async throws {
-        guard let old = session else { throw CommunityError.message("로그인 정보가 없습니다.") }
+        // 분실물 탭의 CommunityAPI가 먼저 갱신했을 수 있으니 키체인의 최신 토큰을 쓴다.
+        // 이미 쓴 refresh 토큰을 다시 보내면 Supabase가 세션을 끊는다.
+        guard let old = CommunityKeychain.load() ?? session else { throw CommunityError.message("로그인 정보가 없습니다.") }
         let data = try await request("/auth/v1/token?grant_type=refresh_token",
                                      json: ["refresh_token": old.refreshToken], authenticated: false)
         guard try updateSession(data) else { throw CommunityError.message("로그인 갱신에 실패했어요.") }

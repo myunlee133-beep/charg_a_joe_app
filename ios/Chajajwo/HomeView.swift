@@ -99,7 +99,7 @@ struct HomeView: View {
                      userFocusSerial: userFocusSerial,
                      lostPins: lostPins, lostFocusID: store.lostPinID,
                      lostFocusSerial: store.lostFocusSerial,
-                     quests: quests, shuttlePositions: shuttle.positions,
+                     quests: quests, shuttle: shuttle,
                      onQuestSelect: { id in
                          searchFocused = false
                          store.selectedQuest = store.quests.first { $0.id == id }

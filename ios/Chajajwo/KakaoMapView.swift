@@ -17,7 +17,7 @@ struct KakaoMapView: UIViewRepresentable {
     let lostFocusID: String?
     let lostFocusSerial: Int
     var quests: [Quest] = []
-    var shuttlePositions: [ShuttlePosition] = []
+    var shuttle: CircularShuttleService? = nil  // 셔틀 핀은 SwiftUI를 거치지 않고 위치가 바뀔 때 바로 옮긴다
     var onQuestSelect: ((String) -> Void)? = nil
     let onSelect: (String) -> Void
     let onSelectLost: (String) -> Void
@@ -30,6 +30,7 @@ struct KakaoMapView: UIViewRepresentable {
     func makeUIView(context: Context) -> KMViewContainer {
         let container = KMViewContainer()
         context.coordinator.createController(container)
+        shuttle?.onPositionsChange = { [weak coordinator = context.coordinator] in coordinator?.shuttlesChanged() }
         return container
     }
 
@@ -296,9 +297,15 @@ struct KakaoMapView: UIViewRepresentable {
             }
         }
 
+        func shuttlesChanged() {
+            guard let map = controller?.getView(viewName) as? KakaoMap else { return }
+            refreshShuttles(manager: map.getLabelManager())
+        }
+
         private func refreshShuttles(manager: LabelManager) {
             guard let layer = manager.getLabelLayer(layerID: shuttleLayerID) else { return }
-            let ids = Set(parent.shuttlePositions.map(\.id))
+            let positions = parent.shuttle?.positions ?? []
+            let ids = Set(positions.map(\.id))
             for id in Array(shuttlePois.keys) where !ids.contains(id) {
                 layer.removePoi(poiID: "circular-\(id)"); shuttlePois.removeValue(forKey: id)
             }
@@ -311,7 +318,7 @@ struct KakaoMapView: UIViewRepresentable {
                 manager.addPoiStyle(PoiStyle(styleID: styleID, styles: [PerLevelPoiStyle(iconStyle: icon, level: 0)]))
                 addedStyles.insert(styleID)
             }
-            for bus in parent.shuttlePositions {
+            for bus in positions {
                 let point = MapPoint(longitude: bus.coordinate.longitude, latitude: bus.coordinate.latitude)
                 if shuttlePois[bus.id] == nil {
                     let option = PoiOptions(styleID: styleID, poiID: "circular-\(bus.id)")

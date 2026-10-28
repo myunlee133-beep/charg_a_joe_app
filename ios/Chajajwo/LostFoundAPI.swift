@@ -105,11 +105,20 @@ final class LostFoundAPI: ObservableObject {
         if id.hasPrefix("found:") { return found.first { "found:\($0.id.uuidString.lowercased())" == id } }
         return lost.first { "lost:\($0.id.uuidString.lowercased())" == id }
     }
-    func prepare() async {
+    private var loadedAt = Date.distantPast
+    private var preparing = false
+
+    /// 홈·분실물 탭에 들어올 때마다 불린다. 1분 안에 받았고 로그인 상태(사랑방 탭 로그인 포함)가 그대로면 건너뛴다.
+    /// 새로고침 버튼·당겨서 새로고침은 force.
+    func prepare(force: Bool = false) async {
+        guard !preparing,
+              force || Date().timeIntervalSince(loadedAt) > 60 || loggedIn != CommunityAPI.hasSavedSession else { return }
+        preparing = true; defer { preparing = false }
         account = CommunityAPI() // Read latest Keychain session, including sign-in from 사랑방 tab.
         await account.restore()
         loggedIn = account.authenticated
         await refresh()
+        if error == nil && loggedIn == CommunityAPI.hasSavedSession { loadedAt = Date() } // 실패하면 다음 진입 때 다시 받는다
     }
     func refresh() async {
         guard !loading else { return }

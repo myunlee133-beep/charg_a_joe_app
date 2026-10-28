@@ -3,7 +3,10 @@ import SwiftUI
 /// The public endpoint used by the Android app returns schematic coordinates,
 /// not GPS. Only route 41946 is requested; no simulated fallback is displayed.
 @MainActor final class CircularShuttleService: ObservableObject {
-    @Published private(set) var positions: [ShuttlePosition] = []
+    /// 애니메이션 중 1초에 20번 바뀐다. @Published면 그때마다 ContentView·HomeView 전체가 다시 그려지므로
+    /// 지도 핀에만 onPositionsChange로 직접 알린다. 상태 카드는 5초마다 바뀌는 status·queriedAt으로 갱신된다.
+    private(set) var positions: [ShuttlePosition] = [] { didSet { onPositionsChange?() } }
+    var onPositionsChange: (@MainActor () -> Void)?
     @Published private(set) var status = "실시간 위치 확인 중"
     @Published private(set) var queriedAt: Date?
     @Published private(set) var heldCount = 0
