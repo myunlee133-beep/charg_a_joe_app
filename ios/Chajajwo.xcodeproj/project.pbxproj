@@ -7,22 +7,25 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-        C24000000000000000000005 /* CommunityRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24000000000000000000006 /* CommunityRules.swift */; };
-        C24000000000000000000003 /* CommunityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24000000000000000000004 /* CommunityView.swift */; };
-        C24000000000000000000001 /* CommunityAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24000000000000000000002 /* CommunityAPI.swift */; };
-        A18000000000000000000001 /* UserLocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18000000000000000000002 /* UserLocationService.swift */; };
-        A18000000000000000000003 /* UserLocationMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18000000000000000000004 /* UserLocationMath.swift */; };
+		EAB100000000000000000005 /* LostFoundRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB100000000000000000006 /* LostFoundRules.swift */; };
+		EAB100000000000000000003 /* LostFoundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB100000000000000000004 /* LostFoundView.swift */; };
+		EAB100000000000000000001 /* LostFoundAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB100000000000000000002 /* LostFoundAPI.swift */; };
 		3F37CE322734D466EF679B0A /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167AB2FB5772FA754F4D351D /* Models.swift */; };
 		6345E3CA1B8866006C34F451 /* SheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 597ED81F0302CB4D4B2A46D4 /* SheetView.swift */; };
 		689967753C20DF3AF16687D3 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0002B9E7C0B2A55E705C4A1F /* HomeView.swift */; };
 		779E06E3A38A5A81A408FE83 /* DiningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C71793D2BDEBBE0B4104048F /* DiningView.swift */; };
 		8480E099E329F7E2735F8EC5 /* meals.json in Resources */ = {isa = PBXBuildFile; fileRef = 99839F37C55FF9AC8F108599 /* meals.json */; };
-		B00100000000000000000001 /* CampusBuildings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00100000000000000000002 /* CampusBuildings.swift */; };
-		B00100000000000000000003 /* campus_buildings.json in Resources */ = {isa = PBXBuildFile; fileRef = B00100000000000000000004 /* campus_buildings.json */; };
 		8969D7A83AF52727A43AC987 /* KakaoMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E2D883C39979A1D67886B1C /* KakaoMapView.swift */; };
 		93C05C931C68DE277C07B217 /* Tabs.swift in Sources */ = {isa = PBXBuildFile; fileRef = B445B1C3F9C3315DE62A7DF8 /* Tabs.swift */; };
 		95050154E215ADABB568BC2E /* DiningData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F752E28546F71532B695A3B0 /* DiningData.swift */; };
+		A18000000000000000000001 /* UserLocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18000000000000000000002 /* UserLocationService.swift */; };
+		A18000000000000000000003 /* UserLocationMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18000000000000000000004 /* UserLocationMath.swift */; };
 		A5924269FCA14622A346BE08 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D19537DD6F6D6939F565D17 /* Store.swift */; };
+		B00100000000000000000001 /* CampusBuildings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00100000000000000000002 /* CampusBuildings.swift */; };
+		B00100000000000000000003 /* campus_buildings.json in Resources */ = {isa = PBXBuildFile; fileRef = B00100000000000000000004 /* campus_buildings.json */; };
+		C24000000000000000000001 /* CommunityAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24000000000000000000002 /* CommunityAPI.swift */; };
+		C24000000000000000000003 /* CommunityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24000000000000000000004 /* CommunityView.swift */; };
+		C24000000000000000000005 /* CommunityRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24000000000000000000006 /* CommunityRules.swift */; };
 		D409AED59FA48D6510BA861E /* KakaoMapsSDK-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 3927C225706CCD20B36883FA /* KakaoMapsSDK-SPM */; };
 		D6A967127FDF55C2285BBF86 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8448DF90FAA152C7BBC65918 /* Components.swift */; };
 		D6EA8F33B06C15C424DE6C37 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E6FD255F2ECB57ABE416FCDD /* Assets.xcassets */; };
@@ -30,11 +33,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-        C24000000000000000000006 /* CommunityRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityRules.swift; sourceTree = "<group>"; };
-        C24000000000000000000004 /* CommunityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityView.swift; sourceTree = "<group>"; };
-        C24000000000000000000002 /* CommunityAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityAPI.swift; sourceTree = "<group>"; };
-        A18000000000000000000002 /* UserLocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLocationService.swift; sourceTree = "<group>"; };
-        A18000000000000000000004 /* UserLocationMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLocationMath.swift; sourceTree = "<group>"; };
+		EAB100000000000000000006 /* LostFoundRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LostFoundRules.swift; sourceTree = "<group>"; };
+		EAB100000000000000000004 /* LostFoundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LostFoundView.swift; sourceTree = "<group>"; };
+		EAB100000000000000000002 /* LostFoundAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LostFoundAPI.swift; sourceTree = "<group>"; };
 		0002B9E7C0B2A55E705C4A1F /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		167AB2FB5772FA754F4D351D /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		2D19537DD6F6D6939F565D17 /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
@@ -42,10 +43,15 @@
 		6E2D883C39979A1D67886B1C /* KakaoMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KakaoMapView.swift; sourceTree = "<group>"; };
 		8448DF90FAA152C7BBC65918 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		86C82520DD181A83C5A81347 /* Chajajwo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chajajwo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		99839F37C55FF9AC8F108599 /* meals.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = meals.json; sourceTree = "<group>"; };
+		A18000000000000000000002 /* UserLocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLocationService.swift; sourceTree = "<group>"; };
+		A18000000000000000000004 /* UserLocationMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLocationMath.swift; sourceTree = "<group>"; };
 		B00100000000000000000002 /* CampusBuildings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CampusBuildings.swift; sourceTree = "<group>"; };
 		B00100000000000000000004 /* campus_buildings.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = campus_buildings.json; sourceTree = "<group>"; };
-		99839F37C55FF9AC8F108599 /* meals.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = meals.json; sourceTree = "<group>"; };
 		B445B1C3F9C3315DE62A7DF8 /* Tabs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tabs.swift; sourceTree = "<group>"; };
+		C24000000000000000000002 /* CommunityAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityAPI.swift; sourceTree = "<group>"; };
+		C24000000000000000000004 /* CommunityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityView.swift; sourceTree = "<group>"; };
+		C24000000000000000000006 /* CommunityRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityRules.swift; sourceTree = "<group>"; };
 		C37F690BF5CA084C0DAD6C3B /* ChajajwoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChajajwoApp.swift; sourceTree = "<group>"; };
 		C71793D2BDEBBE0B4104048F /* DiningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiningView.swift; sourceTree = "<group>"; };
 		D9E64762475D71D84F1E2F12 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -76,6 +82,9 @@
 		9F502B7EFA45CE888CCCCFB4 /* Chajajwo */ = {
 			isa = PBXGroup;
 			children = (
+                EAB100000000000000000006 /* LostFoundRules.swift */,
+                EAB100000000000000000004 /* LostFoundView.swift */,
+                EAB100000000000000000002 /* LostFoundAPI.swift */,
 				E6FD255F2ECB57ABE416FCDD /* Assets.xcassets */,
 				C37F690BF5CA084C0DAD6C3B /* ChajajwoApp.swift */,
 				8448DF90FAA152C7BBC65918 /* Components.swift */,
@@ -83,12 +92,12 @@
 				C71793D2BDEBBE0B4104048F /* DiningView.swift */,
 				0002B9E7C0B2A55E705C4A1F /* HomeView.swift */,
 				D9E64762475D71D84F1E2F12 /* Info.plist */,
-                6E2D883C39979A1D67886B1C /* KakaoMapView.swift */,
-                A18000000000000000000002 /* UserLocationService.swift */,
-                A18000000000000000000004 /* UserLocationMath.swift */,
-                C24000000000000000000006 /* CommunityRules.swift */,
-                C24000000000000000000004 /* CommunityView.swift */,
-                C24000000000000000000002 /* CommunityAPI.swift */,
+				6E2D883C39979A1D67886B1C /* KakaoMapView.swift */,
+				A18000000000000000000002 /* UserLocationService.swift */,
+				A18000000000000000000004 /* UserLocationMath.swift */,
+				C24000000000000000000006 /* CommunityRules.swift */,
+				C24000000000000000000004 /* CommunityView.swift */,
+				C24000000000000000000002 /* CommunityAPI.swift */,
 				167AB2FB5772FA754F4D351D /* Models.swift */,
 				597ED81F0302CB4D4B2A46D4 /* SheetView.swift */,
 				2D19537DD6F6D6939F565D17 /* Store.swift */,
@@ -188,17 +197,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-                C24000000000000000000005 /* CommunityRules.swift in Sources */,
-                C24000000000000000000003 /* CommunityView.swift in Sources */,
-                C24000000000000000000001 /* CommunityAPI.swift in Sources */,
+		        EAB100000000000000000005 /* LostFoundRules.swift in Sources */,
+		        EAB100000000000000000003 /* LostFoundView.swift in Sources */,
+		        EAB100000000000000000001 /* LostFoundAPI.swift in Sources */,
+				C24000000000000000000005 /* CommunityRules.swift in Sources */,
+				C24000000000000000000003 /* CommunityView.swift in Sources */,
+				C24000000000000000000001 /* CommunityAPI.swift in Sources */,
 				F91F2A6C09D8B8C144B1BC8B /* ChajajwoApp.swift in Sources */,
 				D6A967127FDF55C2285BBF86 /* Components.swift in Sources */,
 				95050154E215ADABB568BC2E /* DiningData.swift in Sources */,
 				779E06E3A38A5A81A408FE83 /* DiningView.swift in Sources */,
 				689967753C20DF3AF16687D3 /* HomeView.swift in Sources */,
-                8969D7A83AF52727A43AC987 /* KakaoMapView.swift in Sources */,
-                A18000000000000000000001 /* UserLocationService.swift in Sources */,
-                A18000000000000000000003 /* UserLocationMath.swift in Sources */,
+				8969D7A83AF52727A43AC987 /* KakaoMapView.swift in Sources */,
+				A18000000000000000000001 /* UserLocationService.swift in Sources */,
+				A18000000000000000000003 /* UserLocationMath.swift in Sources */,
 				B00100000000000000000001 /* CampusBuildings.swift in Sources */,
 				3F37CE322734D466EF679B0A /* Models.swift in Sources */,
 				6345E3CA1B8866006C34F451 /* SheetView.swift in Sources */,
