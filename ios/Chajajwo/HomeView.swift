@@ -4,6 +4,7 @@ import CoreLocation
 struct HomeView: View {
     @EnvironmentObject var store: Store
     @EnvironmentObject var lf: LostFoundAPI
+    @EnvironmentObject var shuttle: CircularShuttleService
     @State private var selectedLostPinID: String?
     @State private var query = ""
     @State private var focusedBuilding: CampusBuilding?
@@ -21,10 +22,21 @@ struct HomeView: View {
     // The three pre-existing example hubs are NOT official centers: do not render them.
     private var places: [Place] {
         if store.lostMapOnly { return [] }
-        return Place.all.filter { $0.type != .hub && (store.filter == nil || $0.type == store.filter) }
+        return Place.all.filter {
+            switch store.homeFilter {
+            case .all: $0.type != .hub
+            case .quests, .hubs: false
+            case .food: $0.type == .food
+            case .shuttle: $0.type == .stop
+            }
+        }
     }
     private var lostPins: [LostFoundMapPin] {
-        store.lostMapOnly || store.filter == nil ? lf.pins : []
+        store.lostMapOnly || store.homeFilter == .all ? lf.pins : []
+    }
+    private var quests: [Quest] {
+        guard !store.lostMapOnly, store.homeFilter == .all || store.homeFilter == .quests else { return [] }
+        return store.quests.filter { !hasSearchText || ($0.title + $0.place + $0.building).localizedCaseInsensitiveContains(query) }
     }
     private var counts: [String: Int] {
         Dictionary(grouping: store.items, by: \.hub).mapValues(\.count)
@@ -32,48 +44,17 @@ struct HomeView: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            KakaoMapView(places: places, counts: counts, selected: store.sel, sheetOpen: store.open,
-                         focusedBuilding: focusedBuilding, focusSerial: focusSerial,
-                         userCoordinate: userLocation.coordinate,
-                         userHeadingDegrees: userLocation.headingDegrees,
-                         userFocusSerial: userFocusSerial,
-                         lostPins: lostPins, lostFocusID: store.lostPinID,
-                         lostFocusSerial: store.lostFocusSerial,
-                         onSelect: { id in
-                             searchFocused = false
-                             focusedBuilding = nil
-                             selectedLostPinID = nil
-                             store.select(id)
-                         }, onSelectLost: { id in
-                             searchFocused = false
-                             focusedBuilding = nil
-                             store.closeSheet()
-                             selectedLostPinID = id
-                         })
-                .ignoresSafeArea(edges: .top)
+            mainMap
 
             topBar
         }
         .overlay(alignment: .bottomTrailing) {
             myLocationButton
                 .padding(.trailing, 16)
-                .padding(.bottom, focusedBuilding != nil || selectedLostPinID != nil ? 190 : (store.open ? 488 : 106))
+                .padding(.bottom, locationButtonBottom)
         }
-        .overlay(alignment: .bottom) {
-            if let building = focusedBuilding {
-                buildingCard(building).padding(.horizontal, 12).padding(.bottom, 12)
-            } else if let id = selectedLostPinID, let pin = lf.pins.first(where: { $0.id == id }) {
-                lostPinCard(pin).padding(.horizontal, 12).padding(.bottom, 12)
-            } else if !store.lostMapOnly {
-                SheetView().padding(.horizontal, 12)
-            } else {
-                Button { store.tab = .lostFound } label: {
-                    Label("분실물 발견·분실 의뢰 등록하기", systemImage: "shippingbox")
-                        .font(.subheadline.weight(.bold)).padding(16)
-                        .frame(maxWidth: .infinity).background(Color.cjSurface, in: RoundedRectangle(cornerRadius: 15))
-                }.padding(.horizontal, 12).padding(.bottom, 12)
-            }
-        }
+        .overlay(alignment: .bottom) { bottomContent }
+        .sheet(item: $store.selectedQuest) { QuestDetailView(quest: $0) }
         .onChange(of: store.sel) { _, _ in
             if store.open { focusedBuilding = nil }
         }
@@ -109,6 +90,80 @@ struct HomeView: View {
         }
     }
 
+
+    private var mainMap: some View {
+        KakaoMapView(places: places, counts: counts, selected: store.sel, sheetOpen: store.open,
+                     focusedBuilding: focusedBuilding, focusSerial: focusSerial,
+                     userCoordinate: userLocation.coordinate,
+                     userHeadingDegrees: userLocation.headingDegrees,
+                     userFocusSerial: userFocusSerial,
+                     lostPins: lostPins, lostFocusID: store.lostPinID,
+                     lostFocusSerial: store.lostFocusSerial,
+                     quests: quests, shuttlePositions: shuttle.positions,
+                     onQuestSelect: { id in
+                         searchFocused = false
+                         store.selectedQuest = store.quests.first { $0.id == id }
+                     }, onSelect: { id in
+                         searchFocused = false
+                         focusedBuilding = nil
+                         selectedLostPinID = nil
+                         store.select(id)
+                     }, onSelectLost: { id in
+                         searchFocused = false
+                         focusedBuilding = nil
+                         store.closeSheet()
+                         selectedLostPinID = id
+                     })
+            .ignoresSafeArea(edges: .top)
+    }
+
+    @ViewBuilder private var bottomContent: some View {
+        if let building = focusedBuilding {
+            buildingCard(building).padding(.horizontal, 12).padding(.bottom, 12)
+        } else if let id = selectedLostPinID, let pin = lf.pins.first(where: { $0.id == id }) {
+            lostPinCard(pin).padding(.horizontal, 12).padding(.bottom, 12)
+        } else if store.lostMapOnly {
+            Button { store.tab = .lostFound } label: {
+                Label("분실물 발견·분실 의뢰 등록하기", systemImage: "shippingbox")
+                    .font(.subheadline.weight(.bold)).padding(16)
+                    .frame(maxWidth: .infinity).background(Color.cjSurface, in: RoundedRectangle(cornerRadius: 15))
+            }.padding(.horizontal, 12).padding(.bottom, 12)
+        } else if store.open, let place = Place.byID[store.sel], place.type != .hub {
+            HomePlaceCard(place: place).padding(12)
+        } else if store.open {
+            SheetView().padding(.horizontal, 12)
+        } else if store.homeFilter == .shuttle {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text("교내순환").font(.title3.weight(.heavy))
+                    Spacer()
+                    Button("전체 보기") { store.homeFilter = .all }
+                }
+                ShuttleStatusContent()
+            }.padding(20).frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.cjSurface, in: UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24))
+                .shadow(radius: 6)
+        } else if store.homeFilter == .food || store.homeFilter == .hubs {
+            HStack(spacing: 12) {
+                PlaceIcon(type: store.homeFilter == .food ? .food : .hub)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(store.homeFilter == .food ? "교내 식당 위치" : "분실물 보관 거점").font(.headline)
+                    Text("지도에서 장소를 눌러 확인하세요").font(.caption).foregroundStyle(Color.cjSub)
+                }
+                Spacer()
+                if store.homeFilter == .food { Button("식단 보기") { store.tab = .dining }.font(.subheadline.weight(.semibold)) }
+            }.padding(20).background(Color.cjSurface, in: UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24)).shadow(radius: 6)
+        } else {
+            QuestBottomSheet(quests: quests)
+        }
+    }
+
+    private var locationButtonBottom: CGFloat {
+        if focusedBuilding != nil || selectedLostPinID != nil { return 190 }
+        if store.lostMapOnly { return 106 }
+        if store.open { return 350 }
+        return store.homeFilter == .food || store.homeFilter == .hubs ? 140 : 318
+    }
 
     /// Standard map-app locate button. GPS is displayed continuously, but camera only
     /// recenters on explicit request: panning/searching a building remains user-controlled.
@@ -169,7 +224,7 @@ struct HomeView: View {
 
             HStack(spacing: 10) {
                 Image(systemName: "magnifyingglass").foregroundStyle(.primary)
-                TextField("건물명·동 번호 또는 분실물을 검색하세요", text: $query)
+                TextField("건물·퀘스트·분실물을 검색하세요", text: $query)
                     .submitLabel(.search)
                     .focused($searchFocused)
                     .onSubmit(search)
@@ -192,10 +247,11 @@ struct HomeView: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
-                    chip("전체", symbol: "square.grid.2x2.fill", type: nil)
+                    chip("전체", symbol: "square.grid.2x2.fill", filter: .all)
+                    chip("퀘스트", symbol: "bolt.fill", filter: .quests)
                     Button {
                         store.lostMapOnly = true
-                        store.filter = nil
+                        store.homeFilter = .all
                         store.closeSheet()
                         selectedLostPinID = nil
                     } label: {
@@ -205,8 +261,8 @@ struct HomeView: View {
                             .padding(.horizontal, 16).frame(height: 38)
                             .background(store.lostMapOnly ? Color.cjTeal : Color.cjSurface, in: Capsule())
                     }
-                    chip(PlaceType.food.chipTitle, symbol: "fork.knife", type: .food)
-                    chip(PlaceType.stop.chipTitle, symbol: "bus.fill", type: .stop)
+                    chip("식당", symbol: "fork.knife", filter: .food)
+                    chip("셔틀", symbol: "bus.fill", filter: .shuttle)
                 }
                 .padding(.vertical, 4)
             }
@@ -214,17 +270,18 @@ struct HomeView: View {
         .padding(.horizontal, 16).padding(.top, 8)
     }
 
-    private func chip(_ title: String, symbol: String, type: PlaceType?) -> some View {
-        let on = !store.lostMapOnly && store.filter == type
+    private func chip(_ title: String, symbol: String, filter: Store.HomeFilter) -> some View {
+        let on = !store.lostMapOnly && store.homeFilter == filter
         return Button {
             store.lostMapOnly = false
             selectedLostPinID = nil
-            if type == .food { store.showDining = true }
-            else { store.filter = type }
+            store.homeFilter = filter
+            store.closeSheet()
+            focusedBuilding = nil
         } label: {
             Label(title, systemImage: symbol)
                 .font(.subheadline.weight(.medium))
-                .foregroundStyle(on ? Color.white : (type?.textColor ?? .primary))
+                .foregroundStyle(on ? Color.white : Color.primary)
                 .padding(.horizontal, 16).frame(height: 38)
                 .background(on ? Color.cjTeal : Color.cjSurface, in: Capsule()).shadow(radius: 4, y: 2)
         }
@@ -305,6 +362,7 @@ struct HomeView: View {
     private func focus(on building: CampusBuilding) {
         searchFocused = false
         store.filter = nil
+        store.homeFilter = .all
         store.closeSheet()
         selectedLostPinID = nil
         store.lostMapOnly = false
@@ -390,6 +448,7 @@ struct HomeView: View {
             focusedBuilding = nil
             query = ""
             store.filter = nil
+            store.homeFilter = .all
             store.closeSheet()
             store.lostMapOnly = true
             store.lostPinID = pin.id
@@ -401,8 +460,11 @@ struct HomeView: View {
             focusedBuilding = nil
             query = ""
             store.filter = nil
+            store.homeFilter = .all
             store.lostMapOnly = false
             store.select(p.id)
+        } else if let quest = store.quests.first(where: { ($0.title + $0.place).localizedCaseInsensitiveContains(q) }) {
+            store.selectedQuest = quest
         } else {
             store.toast("'\(q)' 검색 결과가 없어요")
         }

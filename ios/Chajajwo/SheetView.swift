@@ -92,7 +92,7 @@ struct SheetView: View {
     @ViewBuilder private var badge: some View {
         switch place.type {
         case .food: EmptyView()
-        case .stop: Badge(text: "운행 정보 예시", color: .cjBlue)
+        case .stop: Badge(text: "교내순환", color: .cjBlue)
         case .hub: Badge(text: item?.kind ?? "보관 중 \(hubItems.count)건", color: .cjTeal)
         }
     }
@@ -249,14 +249,7 @@ struct SheetView: View {
 
     private var stopBody: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ForEach(Array(place.next.enumerated()), id: \.offset) { i, m in
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("\(i == 0 ? "다음 셔틀" : "\(i + 1)번째 셔틀") 약 \(m)분 후").font(.body.weight(.bold))
-                    Text("정문 → 학생회관 → 공대 순환").font(.footnote).foregroundStyle(Color.cjSub)
-                }
-                .padding(.vertical, 14)
-                Divider()
-            }
+            ShuttleStatusContent().padding(.vertical, 14)
             Link(destination: place.directionsURL) { BigLabel(text: "길찾기", style: .tealLine) }.padding(.top, 14)
         }
     }

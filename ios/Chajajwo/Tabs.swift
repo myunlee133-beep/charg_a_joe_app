@@ -20,7 +20,13 @@ struct MeView: View {
                     Text("분실물·커뮤니티 글은 Supabase 계정으로 등록합니다. 식단과 지도는 로그인하지 않아도 이용할 수 있어요.")
                         .font(.footnote).foregroundStyle(.secondary)
                 }
-            }.navigationTitle("내 정보")
+            }
+            .navigationTitle("내 정보")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink { MyQuestsView() } label: { Label("내 퀘스트", systemImage: "bolt.circle") }
+                }
+            }
         }
     }
 }

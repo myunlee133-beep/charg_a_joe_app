@@ -24,14 +24,22 @@ struct ChajajwoApp: App {
 struct ContentView: View {
     @EnvironmentObject var store: Store
     @Environment(\.scenePhase) private var scenePhase
+    @StateObject private var shuttle = CircularShuttleService()
+
+    private var shouldTrackShuttle: Bool {
+        scenePhase == .active && store.tab == .home &&
+        (store.homeFilter == .all || store.homeFilter == .shuttle)
+    }
 
     var body: some View {
         TabView(selection: $store.tab) {
             Group { if store.showDining { DiningView() } else { HomeView() } }.tabItem { Label("홈", systemImage: "house.fill") }.tag(Store.Tab.home)
+            DiningView().tabItem { Label("식당", systemImage: "fork.knife") }.tag(Store.Tab.dining)
             LostFoundView().tabItem { Label("분실물", systemImage: "shippingbox.fill") }.tag(Store.Tab.lostFound)
             CommunityView().tabItem { Label("사랑방", systemImage: "bubble.left.and.bubble.right.fill") }.tag(Store.Tab.community)
             MeView().tabItem { Label("내 정보", systemImage: "person.crop.circle") }.tag(Store.Tab.me)
         }
+        .environmentObject(shuttle)
         .overlay(alignment: .bottom) {
             if let t = store.toastText {
                 Text(t)
@@ -44,9 +52,13 @@ struct ContentView: View {
             }
         }
         .animation(.easeOut(duration: 0.25), value: store.toastText)
+        .task(id: shouldTrackShuttle) {
+            if shouldTrackShuttle { await shuttle.run() }
+        }
         .task { await store.refreshDining() }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { Task { await store.refreshDining() } }
         }
     }
+
 }
