@@ -79,8 +79,8 @@ struct ShuttlePosition: Identifiable {
 /// Port of the reviewed Android/TypeScript tracker. Pixel matching is separate
 /// from road metres. Query times never imply an operator GPS measurement time.
 final class CircularShuttleTracker {
-    static let interpolation = 1.2
-    static let checkpointInterpolation = 8.0
+    static let interpolation = 5.0
+    static let maximumInterpolation = 30.0
     static let staleAfter = 20.0
     private struct Bus {
         var id: String, x: Double, y: Double, diagram: Double, road: Double, fromRoad: Double
@@ -90,7 +90,8 @@ final class CircularShuttleTracker {
         var visible = true
         func display(at now: Double) -> Double {
             let t = min(1, max(0, (now - animationAt) / animationDuration))
-            return fromRoad + (road - fromRoad) * t * t * (3 - 2 * t)
+            // Keep moving between feeds, along confirmed road geometry only.
+            return fromRoad + (road - fromRoad) * t
         }
     }
     let route: CircularRoute
@@ -186,12 +187,10 @@ final class CircularShuttleTracker {
                     bus.visible = false; heldCount += 1; next[row.id] = bus; continue
                 }
                 if road - bus.road > 0.01 {
-                    // Coarse stop-to-stop checkpoints are normal operator updates.
-                    // Animate the confirmed road leg instead of teleporting at >38px.
+                    // Coarse stop-to-stop updates must also move along the road.
+                    // Retarget from the current frame without jumping or rewinding.
                     bus.fromRoad = bus.display(at: now)
-                    bus.animationDuration = delta > 38
-                        ? min(Self.checkpointInterpolation, max(Self.interpolation, seconds))
-                        : max(Self.interpolation, bus.animationAt + bus.animationDuration - now)
+                    bus.animationDuration = min(Self.maximumInterpolation, max(Self.interpolation, seconds))
                     bus.diagram = max(bus.diagram, match.distance); bus.road = road
                     bus.animationAt = now; bus.movedAt = now; bus.changes += 1
                     bus.x = row.x; bus.y = row.y
@@ -201,17 +200,20 @@ final class CircularShuttleTracker {
         }
         buses = next
     }
-    func isAnimating(at now: Double) -> Bool {
-        buses.values.contains { $0.visible && now - $0.seenAt < Self.staleAfter &&
-            $0.road - $0.fromRoad > 0.01 && now < $0.animationAt + $0.animationDuration }
-    }
     func positions(at now: Double) -> [ShuttlePosition] {
         buses.values.filter { $0.visible && now - $0.seenAt < Self.staleAfter }.sorted { $0.id < $1.id }.map { bus in
             let distance = bus.display(at: now), point = coordinate(at: distance)
-            let (index, t) = segment(bus.diagram)
+            let (index, t) = segment(diagramDistance(atRoad: distance))
             return ShuttlePosition(id: bus.id, coordinate: point, bearingRadians: point.bearing(to: coordinate(at: distance + 5)),
                                    nextStop: route.stops[(index + (t > 0.999 ? 2 : 1)) % route.stops.count].name,
                                    movementAge: bus.changes > 0 ? max(0, now - bus.movedAt) : nil, changes: bus.changes)
         }
+    }
+
+    private func diagramDistance(atRoad distance: Double) -> Double {
+        let d = modulo(distance, totalRoadDistance)
+        let index = roadStarts.indices.last { roadStarts[$0] <= d } ?? 0
+        let t = min(1, max(0, (d - roadStarts[index]) / max(0.001, roadLengths[index])))
+        return diagramDistances[index] + (diagramDistances[index + 1] - diagramDistances[index]) * t
     }
 }

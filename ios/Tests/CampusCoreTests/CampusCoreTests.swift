@@ -24,8 +24,8 @@ final class CampusCoreTests: XCTestCase {
     func testNewCoordinatesInterpolateAndStopAtLastObservation() throws {
         let t = try tracker(); t.update([bus(136)], at: 0); let a = try XCTUnwrap(t.positions(at: 0).first)
         t.update([bus(138)], at: 5)
-        let middle = try XCTUnwrap(t.positions(at: 5.6).first)
-        let target = try XCTUnwrap(t.positions(at: 6.2).first)
+        let middle = try XCTUnwrap(t.positions(at: 7.5).first)
+        let target = try XCTUnwrap(t.positions(at: 10).first)
         XCTAssertGreaterThan(a.coordinate.distance(to: middle.coordinate), 0)
         XCTAssertGreaterThan(middle.coordinate.distance(to: target.coordinate), 0)
         XCTAssertEqual(t.positions(at: 18).first?.coordinate, target.coordinate)
@@ -36,30 +36,55 @@ final class CampusCoreTests: XCTestCase {
         XCTAssertEqual(t.positions(at: 5).first?.changes, 0)
         t.update([bus(136.8)], at: 10); XCTAssertEqual(t.positions(at: 12).first?.changes, 1)
     }
-    func testStopToStopCheckpointAnimatesWithoutTeleportingOrRestarting() throws {
+    func testBackwardsJitterAndInvalidJumpDoNotMoveVehicle() throws {
+        let t = try tracker(); t.update([bus(136)], at: 0); t.update([bus(138)], at: 5)
+        let valid = try XCTUnwrap(t.positions(at: 10).first)
+        t.update([bus(136)], at: 10); XCTAssertEqual(t.positions(at: 12).first?.coordinate, valid.coordinate)
+        t.update([bus(239)], at: 15); XCTAssertTrue(t.positions(at: 15).isEmpty); XCTAssertEqual(t.heldCount, 1)
+    }
+    func testContinuousFramesAcrossPollsWithoutJumpOrRewind() throws {
+        let t = try tracker(); t.update([bus(136)], at: 0)
+        t.update([bus(138)], at: 5)
+        var previous = try XCTUnwrap(t.positions(at: 5).first).coordinate
+        for frame in 1...200 {
+            let now = 5 + Double(frame) * 0.05
+            if frame == 100 {
+                let before = try XCTUnwrap(t.positions(at: now).first).coordinate
+                t.update([bus(140)], at: now)
+                XCTAssertEqual(t.positions(at: now).first?.coordinate, before)
+            }
+            let point = try XCTUnwrap(t.positions(at: now).first).coordinate
+            XCTAssertGreaterThan(previous.distance(to: point), 0.001, "frame \(frame) stalled")
+            XCTAssertLessThan(previous.distance(to: point), 2, "frame \(frame) jumped")
+            XCTAssertLessThan(point.latitude, previous.latitude, "frame \(frame) rewound")
+            previous = point
+        }
+    }
+
+    func testCoarseCheckpointsKeepMovingThroughRepeatedFeeds() throws {
         let t = try tracker(); t.update([bus(136)], at: 0)
         let origin = try XCTUnwrap(t.positions(at: 0).first).coordinate
         for at in stride(from: 5.0, to: 30.0, by: 5.0) { t.update([bus(136)], at: at) }
         t.update([bus(188)], at: 30)
-        XCTAssertTrue(t.isAnimating(at: 30))
         XCTAssertEqual(t.positions(at: 30).first?.coordinate, origin)
-        let middle = try XCTUnwrap(t.positions(at: 34).first).coordinate
-        let target = try XCTUnwrap(t.positions(at: 38).first).coordinate
-        XCTAssertGreaterThan(origin.distance(to: middle), 10)
-        XCTAssertGreaterThan(middle.distance(to: target), 10)
-        t.update([bus(188)], at: 35)
-        XCTAssertTrue(t.isAnimating(at: 36))
-        XCTAssertGreaterThan(try XCTUnwrap(t.positions(at: 36).first).coordinate.distance(to: target), 1)
-        XCTAssertEqual(t.positions(at: 38).first?.coordinate, target)
-        XCTAssertFalse(t.isAnimating(at: 38))
-        XCTAssertEqual(t.positions(at: 50).first?.coordinate, target)
+        var previous = origin
+        for second in 31...60 {
+            let now = Double(second)
+            let before = try XCTUnwrap(t.positions(at: now).first).coordinate
+            if second % 5 == 0 {
+                t.update([bus(188)], at: now)
+                XCTAssertEqual(t.positions(at: now).first?.coordinate, before)
+            }
+            XCTAssertGreaterThan(previous.distance(to: before), 1)
+            XCTAssertLessThan(previous.distance(to: before), 20)
+            previous = before
+        }
+        XCTAssertEqual(t.positions(at: 65).first?.coordinate, previous)
+        XCTAssertEqual(t.positions(at: 65).first?.changes, 1)
+        XCTAssertLessThan(previous.distance(to: t.route.stops[3].coordinate), 35)
+        XCTAssertTrue(t.positions(at: 80).isEmpty)
     }
-    func testBackwardsJitterAndInvalidJumpDoNotMoveVehicle() throws {
-        let t = try tracker(); t.update([bus(136)], at: 0); t.update([bus(138)], at: 5)
-        let valid = try XCTUnwrap(t.positions(at: 7).first)
-        t.update([bus(136)], at: 10); XCTAssertEqual(t.positions(at: 12).first?.coordinate, valid.coordinate)
-        t.update([bus(239)], at: 15); XCTAssertTrue(t.positions(at: 15).isEmpty); XCTAssertEqual(t.heldCount, 1)
-    }
+
     func testBadObservationDoesNotEraseIdentityHistory() throws {
         let t = try tracker(); t.update([bus(136)], at: 0)
         t.update([.init(id: "100", x: 155, y: 200)], at: 5); XCTAssertTrue(t.positions(at: 5).isEmpty)
