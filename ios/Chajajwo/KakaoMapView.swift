@@ -185,6 +185,13 @@ struct KakaoMapView: UIViewRepresentable {
             guard let map = controller?.getView(viewName) as? KakaoMap else { return }
             let manager = map.getLabelManager()
             guard let layer = manager.getLabelLayer(layerID: layerID) else { return }
+            // Apply the current card's margins before creating camera updates or
+            // measuring labels; food -> quest selection otherwise uses stale margins.
+            if lastSheetOpen != parent.sheetOpen {
+                if parent.sheetOpen { map.setMargins(UIEdgeInsets(top: 0, left: 0, bottom: 190, right: 0)) }
+                else { map.resetMargins() }
+                lastSheetOpen = parent.sheetOpen
+            }
             // User marker is always visible, even at map levels where hub pins are hidden.
             refreshUserLocation(on: map, manager: manager)
             refreshLostPins(on: map, manager: manager)
@@ -208,12 +215,6 @@ struct KakaoMapView: UIViewRepresentable {
             }
             let visible = Set(parent.places.map(\.id))
             pinsVisible = map.zoomLevel >= Self.minPinLevel
-
-            if lastSheetOpen != parent.sheetOpen {
-                // 카드가 화면 아래쪽 대부분을 덮으므로, 열려 있을 땐 지도 아래쪽 여백을 줘서 중심을 위로 올린다.
-                if parent.sheetOpen { map.setMargins(UIEdgeInsets(top: 0, left: 0, bottom: 190, right: 0)) } else { map.resetMargins() }
-                lastSheetOpen = parent.sheetOpen
-            }
 
             for p in Place.all {
                 let count = parent.counts[p.id] ?? 0
