@@ -65,3 +65,35 @@ struct QuestSession {
         progress[quest.id] = .resultPending; return true
     }
 }
+
+
+/// Clusters display coordinates without changing the stored item location.
+struct FoundItemMapEntry {
+    let id: String
+    let title: String
+    let coordinate: CampusCoordinate
+    let isCenter: Bool
+}
+struct FoundItemMapGroup: Identifiable {
+    let id: String
+    let entries: [FoundItemMapEntry]
+    var isCenter: Bool { entries.allSatisfy(\.isCenter) }
+    var coordinate: CampusCoordinate {
+        .init(latitude: entries.map { $0.coordinate.latitude }.reduce(0,+) / Double(entries.count),
+              longitude: entries.map { $0.coordinate.longitude }.reduce(0,+) / Double(entries.count))
+    }
+    static func groups(_ entries: [FoundItemMapEntry], zoom: Int) -> [Self] {
+        let valid = entries.filter { $0.coordinate.isValid }
+        var result = valid.filter(\.isCenter).map { Self(id: $0.id, entries: [$0]) }
+        let cells: [Double] = [0.024, 0.012, 0.006, 0.003, 0.0015, 0.0006, 0.00015]
+        let cell = zoom >= 20 ? 0.0000001 : cells[max(0, min(cells.count - 1, zoom - 13))]
+        let buckets = Dictionary(grouping: valid.filter { !$0.isCenter }) {
+            "\(Int(floor($0.coordinate.latitude / cell)))-\(Int(floor($0.coordinate.longitude / cell)))"
+        }
+        for key in buckets.keys.sorted() {
+            let rows = buckets[key]!.sorted { $0.id < $1.id }
+            result.append(Self(id: rows.count == 1 ? rows[0].id : "found-cluster-\(zoom)-\(key)", entries: rows))
+        }
+        return result
+    }
+}
