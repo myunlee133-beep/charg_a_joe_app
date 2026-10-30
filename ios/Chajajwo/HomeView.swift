@@ -436,16 +436,19 @@ struct HomeView: View {
                 Text("\(center.building) · \(center.room)").font(.subheadline)
                 Text(center.weekdayHours ?? "운영시간 확인 필요").font(.caption).foregroundStyle(Color.cjTealText)
                 Text(center.weekendHolidayNote).font(.caption).foregroundStyle(.secondary)
-                if let phone = center.phone, let url = URL(string: "tel:\(phone)") { Link("전화 문의", destination: url) }
             } else {
                 Text("물품의 현재 보관 위치입니다. 경찰서 이관 시 이관 장소를 표시합니다.")
                     .font(.caption).foregroundStyle(.secondary)
             }
-            Button("이 위치의 습득물 보기") {
-                selectedLostItems = .init(id: pin.id, title: pin.title,
-                    coordinate: .init(latitude: pin.latitude, longitude: pin.longitude))
-            }
-                .font(.subheadline.weight(.bold))
+            HStack(spacing: 16) {
+                Button("이 위치의 습득물 보기") {
+                    selectedLostItems = .init(id: pin.id, title: pin.title,
+                        coordinate: .init(latitude: pin.latitude, longitude: pin.longitude))
+                }
+                if let phone = lf.center(pin.id)?.phone, let url = URL(string: "tel:\(phone)") {
+                    Link("전화 문의", destination: url)
+                }
+            }.font(.subheadline.weight(.bold))
         }
         .padding(15)
         .frame(maxWidth: .infinity, alignment: .leading)
