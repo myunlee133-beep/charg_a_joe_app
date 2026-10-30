@@ -1,4 +1,5 @@
 import XCTest
+import CoreGraphics
 @testable import CampusCore
 
 final class MapMarkerLayoutTests: XCTestCase {

@@ -1,4 +1,5 @@
 import Foundation
+import CoreGraphics
 
 /// Screen-space geometry is independent of the map SDK and never changes a
 /// place's geographic coordinate. Only its label receives the returned offset.
