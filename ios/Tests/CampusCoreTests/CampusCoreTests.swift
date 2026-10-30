@@ -126,4 +126,36 @@ final class CampusCoreTests: XCTestCase {
         XCTAssertTrue(QuestMapGroup.groups(Quest.demo, zoom: 17).allSatisfy { $0.quests.count == 1 })
         XCTAssertTrue(Quest.demo.allSatisfy(\.isValid))
     }
+    func testMapProgressivelyRevealsQuestInformation() {
+        XCTAssertEqual(QuestMapPresentation.at(zoom: 13), .overview)
+        XCTAssertEqual(QuestMapPresentation.at(zoom: 15), .icon)
+        XCTAssertEqual(QuestMapPresentation.at(zoom: 16), .icon)
+        XCTAssertEqual(QuestMapPresentation.at(zoom: 17), .reward)
+        XCTAssertEqual(QuestMapPresentation.at(zoom: 18), .detail)
+        var previous = 0
+        for zoom in 7...20 {
+            let groups = QuestMapGroup.groups(Quest.demo, zoom: zoom)
+            XCTAssertEqual(groups.flatMap(\.quests).map(\.id).sorted(), Quest.demo.map(\.id).sorted())
+            XCTAssertGreaterThanOrEqual(groups.count, previous)
+            XCTAssertEqual(groups.map(\.id), QuestMapGroup.groups(Array(Quest.demo.reversed()), zoom: zoom).map(\.id))
+            previous = groups.count
+        }
+        XCTAssertLessThan(QuestMapGroup.groups(Quest.demo, zoom: 15).count, Quest.demo.count)
+    }
+    func testNearbyPinsAcrossOldGridBoundaryStillCluster() {
+        var first = Quest.demo[0], second = Quest.demo[1]
+        first.coordinate = .init(latitude: 37.46099, longitude: 126.951)
+        second.coordinate = .init(latitude: 37.46101, longitude: 126.951)
+        XCTAssertEqual(QuestMapGroup.groups([first, second], zoom: 16).count, 1)
+        second.coordinate = first.coordinate
+        XCTAssertEqual(QuestMapGroup.groups([first, second], zoom: 20).first?.quests.count, 2)
+    }
+    func testClusterDoesNotCollapseAChainOfSeparatePlaces() {
+        var quests = Array(Quest.demo.prefix(3))
+        for index in quests.indices {
+            quests[index].coordinate = .init(latitude: 37.46 + Double(index) * 0.0006, longitude: 126.951)
+        }
+        XCTAssertEqual(QuestMapGroup.groups(quests, zoom: 16).count, 2)
+        XCTAssertEqual(QuestMapGroup.groups(quests, zoom: 18).count, 3)
+    }
 }

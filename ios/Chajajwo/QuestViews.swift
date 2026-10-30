@@ -159,6 +159,38 @@ private struct QuestCard: View {
     }
 }
 
+struct MapQuestPreview: View {
+    @EnvironmentObject private var store: Store
+    let quest: Quest
+    let onClose: () -> Void
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 10) {
+                Image(systemName: quest.category.symbol).font(.title3).foregroundStyle(quest.category.accent)
+                    .frame(width: 40, height: 40).background(quest.category.accent.opacity(0.10), in: RoundedRectangle(cornerRadius: 12))
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(quest.title).font(.subheadline.weight(.bold)).lineLimit(2)
+                    Text("\(quest.place) · \(quest.distance)m").font(.caption).foregroundStyle(Color.cjSub)
+                }
+                Spacer(minLength: 0)
+                Button(action: onClose) { Image(systemName: "xmark").frame(width: 44, height: 44) }
+                    .foregroundStyle(Color.cjSub).accessibilityLabel("퀘스트 미리보기 닫기")
+            }
+            HStack {
+                Text(quest.rewardText).font(.title3.weight(.heavy)).foregroundStyle(quest.category.accent)
+                Spacer()
+                Button { store.selectedQuest = quest } label: {
+                    Label("상세 보기", systemImage: "arrow.right").font(.subheadline.weight(.bold))
+                        .foregroundStyle(.white).padding(.horizontal, 16).padding(.vertical, 12)
+                        .background(Color.cjTeal, in: Capsule())
+                }
+            }
+        }
+        .padding(16).background(Color.cjSurface, in: RoundedRectangle(cornerRadius: 20))
+        .shadow(color: .black.opacity(0.12), radius: 8, y: 2)
+    }
+}
+
 struct QuestBottomSheet: View {
     @EnvironmentObject var store: Store
     let quests: [Quest]

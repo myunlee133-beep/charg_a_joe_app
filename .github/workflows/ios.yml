@@ -33,6 +33,16 @@ jobs:
           mkdir -p "$RUNNER_TEMP/native-preview"
           xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/home.png"
           xcrun simctl spawn "$DEVICE_ID" launchctl list | grep org.chargajoe.chajajwo
+          for LEVEL in 16 17 18; do
+            xcrun simctl terminate "$DEVICE_ID" org.chargajoe.chajajwo
+            xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-map-zoom "$LEVEL"
+            sleep 7
+            xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/map-$LEVEL.png"
+          done
+          xcrun simctl terminate "$DEVICE_ID" org.chargajoe.chajajwo
+          xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-map-zoom 18 -preview-map-selected
+          sleep 7
+          xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/map-selected.png"
           xcrun simctl terminate "$DEVICE_ID" org.chargajoe.chajajwo
           xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-quests
           sleep 5
@@ -42,3 +52,11 @@ jobs:
         with:
           name: native-home-preview
           path: ${{ runner.temp }}/native-preview/*.png
+      - name: Package the verified app for Appetize
+        if: github.event_name != 'pull_request'
+        run: ditto -c -k --sequesterRsrc --keepParent "$RUNNER_TEMP/ChajajwoBuild/Build/Products/Debug-iphonesimulator/Chajajwo.app" "$RUNNER_TEMP/Chajajwo-simulator.zip"
+      - uses: actions/upload-artifact@v4
+        if: github.event_name != 'pull_request'
+        with:
+          name: Chajajwo-simulator
+          path: ${{ runner.temp }}/Chajajwo-simulator.zip

@@ -18,7 +18,11 @@ struct KakaoMapView: UIViewRepresentable {
     let lostFocusSerial: Int
     var quests: [Quest] = []
     var shuttle: CircularShuttleService? = nil  // 셔틀 핀은 SwiftUI를 거치지 않고 위치가 바뀔 때 바로 옮긴다
+    var selectedQuestID: String? = nil
+    var zoomRequest = 0
     var onQuestSelect: ((String) -> Void)? = nil
+    var onQuestGroupSelect: (([String]) -> Void)? = nil
+    var onQuestDeselect: (() -> Void)? = nil
     let onSelect: (String) -> Void
     let onSelectLost: (String) -> Void
 
@@ -64,6 +68,7 @@ struct KakaoMapView: UIViewRepresentable {
         private var questStyles: [String: String] = [:]
         private var shuttlePois: [String: Poi] = [:]
         private var questGroups: [QuestMapGroup] = []
+        private var lastZoomRequest = 0
         private var userDot: Poi?
         private var userDirection: Poi?
         private let lostLayerID = "lost-found"
@@ -110,8 +115,15 @@ struct KakaoMapView: UIViewRepresentable {
 
         func addViews() {
             // 위쪽 검색창·아래쪽 시트에 가려지지 않게 학생회관 일대를 중심에 둔다.
+            var initialLevel = 15
+            #if DEBUG
+            let args = ProcessInfo.processInfo.arguments
+            if let index = args.firstIndex(of: "-preview-map-zoom"), index + 1 < args.count, let level = Int(args[index + 1]) {
+                initialLevel = min(20, max(7, level))
+            }
+            #endif
             let info = MapviewInfo(viewName: viewName, viewInfoName: "map",
-                                   defaultPosition: MapPoint(longitude: 126.9520, latitude: 37.4590), defaultLevel: 16)
+                                   defaultPosition: MapPoint(longitude: 126.9520, latitude: 37.4600), defaultLevel: initialLevel)
             controller?.addView(info)
         }
         func addViewSucceeded(_ viewName: String, viewInfoName: String) {
@@ -152,6 +164,13 @@ struct KakaoMapView: UIViewRepresentable {
             refreshLostPins(on: map, manager: manager)
             refreshQuests(on: map, manager: manager)
             refreshShuttles(manager: manager)
+            if parent.zoomRequest != lastZoomRequest {
+                let delta = parent.zoomRequest - lastZoomRequest
+                lastZoomRequest = parent.zoomRequest
+                let center = map.getPosition(CGPoint(x: map.viewRect.width / 2, y: map.viewRect.height / 2))
+                let update = CameraUpdate.make(target: center, zoomLevel: min(20, max(7, Int(map.zoomLevel) + delta)), mapView: map)
+                map.animateCamera(cameraUpdate: update, options: CameraAnimationOptions(autoElevation: false, consecutive: false, durationInMillis: 300))
+            }
             let visible = Set(parent.places.map(\.id))
             pinsVisible = map.zoomLevel >= Self.minPinLevel
 
@@ -275,10 +294,12 @@ struct KakaoMapView: UIViewRepresentable {
             for group in questGroups {
                 let q = group.quests[0]
                 let reward = group.quests.map(\.reward).max() ?? q.reward
-                let styleID = "quest-card-\(q.category.rawValue)-\(reward)-\(group.quests.count)"
+                let selected = group.quests.contains { $0.id == parent.selectedQuestID }
+                let presentation = selected ? QuestMapPresentation.detail : .at(zoom: Int(map.zoomLevel))
+                let styleID = "quest-\(presentation.rawValue)-\(q.id)-\(q.category.rawValue)-\(reward)-\(group.quests.count)-\(selected)"
                 if !addedStyles.contains(styleID) {
-                    let icon = PoiIconStyle(symbol: Self.render(QuestMapPin(quest: q, count: group.quests.count, reward: reward)),
-                                            anchorPoint: CGPoint(x: 0.5, y: QuestMapPin.anchorY))
+                    let pin = QuestMapPin(quest: q, count: group.quests.count, presentation: presentation, selected: selected)
+                    let icon = PoiIconStyle(symbol: Self.render(pin), anchorPoint: CGPoint(x: 0.5, y: pin.anchorY))
                     manager.addPoiStyle(PoiStyle(styleID: styleID, styles: [PerLevelPoiStyle(iconStyle: icon, level: 0)]))
                     addedStyles.insert(styleID)
                 }
@@ -407,22 +428,23 @@ struct KakaoMapView: UIViewRepresentable {
             let k = cos(probe.latitude * .pi / 180)
             func dist(_ a: (Double, Double), _ b: (Double, Double)) -> Double { hypot(a.0 - b.0, (a.1 - b.1) * k) }
             let radius = dist((probe.latitude, probe.longitude), (edge.latitude, edge.longitude))
-            // Reward cards extend above their map anchor. Test the entire card,
-            // including its label, with a geographic polygon from screen corners.
-            let hitRect = CGRect(x: point.x - QuestMapPin.width / 2,
-                                 y: point.y - QuestMapPin.height * (1 - QuestMapPin.anchorY),
-                                 width: QuestMapPin.width, height: QuestMapPin.height)
-                .intersection(CGRect(origin: .zero, size: kakaoMap.viewRect.size))
-            let corners = [CGPoint(x: hitRect.minX, y: hitRect.minY), CGPoint(x: hitRect.maxX, y: hitRect.minY),
-                           CGPoint(x: hitRect.maxX, y: hitRect.maxY), CGPoint(x: hitRect.minX, y: hitRect.maxY)]
-                .map { kakaoMap.getPosition($0).wgsCoord }
-            let cardArea = Path { path in
-                path.move(to: CGPoint(x: corners[0].longitude, y: corners[0].latitude))
-                for corner in corners.dropFirst() { path.addLine(to: CGPoint(x: corner.longitude, y: corner.latitude)) }
-                path.closeSubpath()
-            }
+            // Match the hit area to each zoom-dependent marker, including its label.
             if let group = questGroups.filter({
-                cardArea.contains(CGPoint(x: $0.coordinate.longitude, y: $0.coordinate.latitude))
+                let selected = $0.quests.contains { $0.id == parent.selectedQuestID }
+                let pin = QuestMapPin(quest: $0.quests[0], count: $0.quests.count,
+                                      presentation: selected ? .detail : .at(zoom: Int(kakaoMap.zoomLevel)), selected: selected)
+                let width = max(44, pin.size.width), height = max(44, pin.size.height)
+                let hitRect = CGRect(x: point.x - width / 2, y: point.y - height * (1 - pin.anchorY), width: width, height: height)
+                    .intersection(CGRect(origin: .zero, size: kakaoMap.viewRect.size))
+                let corners = [CGPoint(x: hitRect.minX, y: hitRect.minY), CGPoint(x: hitRect.maxX, y: hitRect.minY),
+                               CGPoint(x: hitRect.maxX, y: hitRect.maxY), CGPoint(x: hitRect.minX, y: hitRect.maxY)]
+                    .map { kakaoMap.getPosition($0).wgsCoord }
+                let area = Path { path in
+                    path.move(to: CGPoint(x: corners[0].longitude, y: corners[0].latitude))
+                    for corner in corners.dropFirst() { path.addLine(to: CGPoint(x: corner.longitude, y: corner.latitude)) }
+                    path.closeSubpath()
+                }
+                return area.contains(CGPoint(x: $0.coordinate.longitude, y: $0.coordinate.latitude))
             }).min(by: {
                 dist((probe.latitude, probe.longitude), ($0.coordinate.latitude, $0.coordinate.longitude)) <
                 dist((probe.latitude, probe.longitude), ($1.coordinate.latitude, $1.coordinate.longitude))
@@ -430,7 +452,10 @@ struct KakaoMapView: UIViewRepresentable {
                 if group.quests.count == 1 { parent.onQuestSelect?(group.quests[0].id) }
                 else {
                     let coordinate = group.coordinate
-                    let update = CameraUpdate.make(target: MapPoint(longitude: coordinate.longitude, latitude: coordinate.latitude), zoomLevel: 18, mapView: kakaoMap)
+                    if kakaoMap.zoomLevel >= 20 || group.quests.allSatisfy({ $0.coordinate.distance(to: coordinate) < 5 }) {
+                        parent.onQuestGroupSelect?(group.quests.map(\.id)); return
+                    }
+                    let update = CameraUpdate.make(target: MapPoint(longitude: coordinate.longitude, latitude: coordinate.latitude), zoomLevel: min(20, Int(kakaoMap.zoomLevel) + 2), mapView: kakaoMap)
                     kakaoMap.animateCamera(cameraUpdate: update, options: CameraAnimationOptions(autoElevation: false, consecutive: false, durationInMillis: 450))
                 }
                 return
@@ -445,6 +470,7 @@ struct KakaoMapView: UIViewRepresentable {
                 .min { $0.1 < $1.1 }
             if let lostHit { parent.onSelectLost(lostHit.0); return }
             if pinsVisible, let hit { parent.onSelect(hit.0) }
+            else { parent.onQuestDeselect?() }
         }
 
         // MARK: 핀 이미지
@@ -489,40 +515,62 @@ struct KakaoMapView: UIViewRepresentable {
     }
 }
 
-/// Large, readable reward marker. Its tip stays on the quest's actual coordinate.
+/// Reference flow: small count clusters, individual icons, then short labels.
 private struct QuestMapPin: View {
-    static let width: CGFloat = 132
-    static let height: CGFloat = 76
-    static let anchorY: CGFloat = 68.0 / height
     let quest: Quest
     let count: Int
-    let reward: Int
+    let presentation: QuestMapPresentation
+    let selected: Bool
+
+    var size: CGSize {
+        if count > 1 { return CGSize(width: 44, height: 44) }
+        switch presentation {
+        case .overview: return CGSize(width: 32, height: 32)
+        case .icon: return CGSize(width: 44, height: 52)
+        case .reward: return CGSize(width: 106, height: 48)
+        case .detail: return CGSize(width: 144, height: 66)
+        }
+    }
+    var anchorY: CGFloat { count > 1 || presentation == .overview ? 0.5 : (size.height - 6) / size.height }
 
     var body: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 7) {
-                Image(systemName: count > 1 ? "bolt.fill" : quest.category.symbol)
-                    .font(.system(size: 17, weight: .bold))
-                    .frame(width: 30, height: 34)
-                    .background(quest.category.accent.opacity(0.10), in: RoundedRectangle(cornerRadius: 9))
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(count > 1 ? "퀘스트 \(count)개" : quest.category.title)
-                        .font(.system(size: 10, weight: .semibold))
-                    Text((count > 1 ? "최대 " : "") + reward.formatted(.number.locale(Locale(identifier: "ko_KR"))) + "원")
-                        .font(.system(size: 12, weight: .heavy)).lineLimit(1).minimumScaleFactor(0.7)
+        Group {
+            if count > 1 {
+                Text("\(count)").font(.system(size: 14, weight: .heavy)).foregroundStyle(Color.cjTealText)
+                    .frame(width: 32, height: 32).background(Color.cjSuccessFill, in: Circle())
+                    .overlay(Circle().stroke(Color.cjTeal.opacity(0.25), lineWidth: 5))
+            } else if presentation == .overview {
+                Image(systemName: quest.category.symbol).font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(.white).frame(width: 24, height: 24).background(quest.category.accent, in: Circle())
+                    .overlay(Circle().stroke(.white, lineWidth: 2))
+            } else {
+                VStack(spacing: -1) {
+                    if presentation == .icon {
+                        Image(systemName: quest.category.symbol).font(.system(size: 17, weight: .bold))
+                            .foregroundStyle(.white).frame(width: 34, height: 34)
+                            .background(quest.category.accent, in: Circle()).overlay(Circle().stroke(.white, lineWidth: 3))
+                    } else {
+                        HStack(spacing: 6) {
+                            Image(systemName: quest.category.symbol).font(.system(size: 14, weight: .bold))
+                            VStack(alignment: .leading, spacing: 3) {
+                                if presentation == .detail {
+                                    Text(quest.place).font(.system(size: 10, weight: .semibold)).lineLimit(1)
+                                }
+                                Text(quest.rewardText).font(.system(size: 12, weight: .heavy)).lineLimit(1).minimumScaleFactor(0.7)
+                            }
+                        }
+                        .foregroundStyle(selected ? Color.white : quest.category.accent)
+                        .padding(.horizontal, 9).frame(width: size.width - 10, height: size.height - 22)
+                        .background(selected ? quest.category.accent : Color.white, in: RoundedRectangle(cornerRadius: 12))
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(quest.category.accent, lineWidth: 1.5))
+                    }
+                    Image(systemName: "arrowtriangle.down.fill").font(.system(size: 10)).foregroundStyle(quest.category.accent)
+                        .frame(height: 9)
                 }
-                Spacer(minLength: 0)
             }
-            .foregroundStyle(quest.category.accent)
-            .padding(.horizontal, 9).frame(width: Self.width - 12, height: 52)
-            .background(.white, in: RoundedRectangle(cornerRadius: 15))
-            .overlay(RoundedRectangle(cornerRadius: 15).stroke(quest.category.accent, lineWidth: 2))
-            Image(systemName: "arrowtriangle.down.fill")
-                .font(.system(size: 12)).foregroundStyle(quest.category.accent)
-                .frame(height: 10)
         }
-        .shadow(color: .black.opacity(0.18), radius: 3, y: 2)
-        .frame(width: Self.width, height: Self.height)
+        .shadow(color: .black.opacity(0.14), radius: 2, y: 1)
+        .frame(width: size.width, height: size.height)
     }
 }
 

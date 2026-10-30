@@ -11,7 +11,7 @@ final class Store: ObservableObject {
     @Published var quests = Quest.demo
     @Published var questSession = QuestSession()
     @Published var selectedQuest: Quest?
-    @Published var questSheetCollapsed = false
+    @Published var questSheetCollapsed = true
     @Published var showDining = false   // 홈 탭 안에서 지도 대신 식당 화면을 보여준다
     @Published var lostMapOnly = false
     @Published var lostPinID: String?
