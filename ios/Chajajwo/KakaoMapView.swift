@@ -18,6 +18,7 @@ struct KakaoMapView: UIViewRepresentable {
     let lostFocusSerial: Int
     var quests: [Quest] = []
     var shuttle: CircularShuttleService? = nil  // 셔틀 핀은 SwiftUI를 거치지 않고 위치가 바뀔 때 바로 옮긴다
+    var onSelectLostGroup: ((FoundItemMapSelection) -> Void)? = nil
     var onQuestSelect: ((String) -> Void)? = nil
     let onSelect: (String) -> Void
     let onSelectLost: (String) -> Void
@@ -237,6 +238,13 @@ struct KakaoMapView: UIViewRepresentable {
                 layer.removePoi(poiID: id); lostPois.removeValue(forKey: id); lostStyles.removeValue(forKey: id)
             }
             for group in lostGroups {
+                // Keep the count badge readable when a center shares an item's exact location.
+                if group.isCenter && lostGroups.contains(where: { other in
+                    !other.isCenter && other.entries.contains { $0.coordinate == group.coordinate }
+                }) {
+                    lostPois[group.id]?.hide()
+                    continue
+                }
                 let kind: LostFoundMapPin.Kind = group.isCenter ? .center : .found
                 let count = group.entries.count
                 let styleID = group.isCenter ? "lf-center" : "lf-found-\(count)"
@@ -415,6 +423,22 @@ struct KakaoMapView: UIViewRepresentable {
             let k = cos(probe.latitude * .pi / 180)
             func dist(_ a: (Double, Double), _ b: (Double, Double)) -> Double { hypot(a.0 - b.0, (a.1 - b.1) * k) }
             let radius = dist((probe.latitude, probe.longitude), (edge.latitude, edge.longitude))
+            // A numeric item marker opens its complete location scope, including at max zoom.
+            // Compare the quest distance so a nearby quest does not capture a tap on the number.
+            if let group = lostGroups.filter({ !$0.isCenter }).min(by: {
+                dist((probe.latitude, probe.longitude), ($0.coordinate.latitude, $0.coordinate.longitude)) <
+                dist((probe.latitude, probe.longitude), ($1.coordinate.latitude, $1.coordinate.longitude))
+            }) {
+                let itemDistance = dist((probe.latitude, probe.longitude), (group.coordinate.latitude, group.coordinate.longitude))
+                let questDistance = questGroups.map {
+                    dist((probe.latitude, probe.longitude), ($0.coordinate.latitude, $0.coordinate.longitude))
+                }.min() ?? .infinity
+                if itemDistance <= radius * (group.entries.count > 1 ? 2 : 1.5), itemDistance <= questDistance {
+                    if let select = parent.onSelectLostGroup { select(FoundItemMapSelection(group: group)) }
+                    else if let first = group.entries.first { parent.onSelectLost(first.id) }
+                    return
+                }
+            }
             if let group = questGroups.min(by: {
                 dist((probe.latitude, probe.longitude), ($0.coordinate.latitude, $0.coordinate.longitude)) <
                 dist((probe.latitude, probe.longitude), ($1.coordinate.latitude, $1.coordinate.longitude))
@@ -434,10 +458,8 @@ struct KakaoMapView: UIViewRepresentable {
             if let group = lostGroups.min(by: {
                 dist((probe.latitude, probe.longitude), ($0.coordinate.latitude, $0.coordinate.longitude)) < dist((probe.latitude, probe.longitude), ($1.coordinate.latitude, $1.coordinate.longitude))
             }), dist((probe.latitude, probe.longitude), (group.coordinate.latitude, group.coordinate.longitude)) <= radius * 1.5 {
-                if group.entries.count > 1 && kakaoMap.zoomLevel < 20 {
-                    let update = CameraUpdate.make(target: MapPoint(longitude: group.coordinate.longitude, latitude: group.coordinate.latitude), zoomLevel: min(20, Int(kakaoMap.zoomLevel) + 2), mapView: kakaoMap)
-                    kakaoMap.animateCamera(cameraUpdate: update, options: CameraAnimationOptions(autoElevation: false, consecutive: false, durationInMillis: 450))
-                } else if let first = group.entries.first { parent.onSelectLost(first.id) }
+                if !group.isCenter, let select = parent.onSelectLostGroup { select(FoundItemMapSelection(group: group)) }
+                else if let first = group.entries.first { parent.onSelectLost(first.id) }
                 return
             }
             if pinsVisible, let hit { parent.onSelect(hit.0) }

@@ -5,6 +5,8 @@ import ImageIO
 import UniformTypeIdentifiers
 
 struct LostFoundView: View {
+    var mapSelection: FoundItemMapSelection? = nil
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject private var store: Store
     @EnvironmentObject private var lf: LostFoundAPI
@@ -17,6 +19,7 @@ struct LostFoundView: View {
     @State private var query = ""
     private var filtered: [LostFoundRecord] {
         lf.found.filter {
+            (mapSelection?.contains(latitude: $0.latitude, longitude: $0.longitude) ?? true) &&
             (category == "전체" || $0.category == category) &&
             (storage == "전체" || $0.storage.rawValue == storage) &&
             (query.isEmpty || "\($0.title) \($0.locationName) \($0.description)".localizedCaseInsensitiveContains(query))
@@ -50,8 +53,12 @@ struct LostFoundView: View {
                         ForEach(lf.claims) { LostFoundClaimCard(claim: $0) }
                     }
                 }.padding(16)
-            }.background(Color(uiColor: .systemGroupedBackground)).navigationTitle("분실물")
-                .toolbar { ToolbarItem(placement: .topBarTrailing) {
+            }.background(Color(uiColor: .systemGroupedBackground)).navigationTitle(mapSelection == nil ? "분실물" : "선택 위치 분실물")
+                .toolbar {
+                    if mapSelection != nil {
+                        ToolbarItem(placement: .topBarLeading) { Button("닫기") { dismiss() } }
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
                     Button { Task { await lf.prepare(force: true) } } label: { Image(systemName: "arrow.clockwise") }.disabled(lf.loading)
                 } }
                 .onAppear { Task { await lf.prepare() } }
@@ -71,6 +78,11 @@ struct LostFoundView: View {
     }
     private var records: some View {
         VStack(alignment: .leading, spacing: 12) {
+            if let mapSelection {
+                Text(mapSelection.title).font(.headline)
+                Text("지도에서 선택한 \(mapSelection.coordinates.count)곳의 보관 위치만 표시합니다. 물품을 누르면 상세 내용과 수령 확인을 볼 수 있어요.")
+                    .font(.footnote).foregroundStyle(.secondary)
+            }
             TextField("제목·보관 장소 검색", text: $query).textFieldStyle(.roundedBorder)
             HStack {
                 Picker("종류", selection: $category) {

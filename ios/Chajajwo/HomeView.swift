@@ -6,6 +6,7 @@ struct HomeView: View {
     @EnvironmentObject var lf: LostFoundAPI
     @EnvironmentObject var shuttle: CircularShuttleService
     @State private var selectedLostPinID: String?
+    @State private var selectedLostItems: FoundItemMapSelection?
     @State private var query = ""
     @State private var focusedBuilding: CampusBuilding?
     @State private var focusSerial = 0
@@ -55,6 +56,7 @@ struct HomeView: View {
         }
         .overlay(alignment: .bottom) { bottomContent }
         .sheet(item: $store.selectedQuest) { QuestDetailView(quest: $0) }
+        .sheet(item: $selectedLostItems) { LostFoundView(mapSelection: $0) }
         .onChange(of: store.sel) { _, _ in
             if store.open { focusedBuilding = nil }
         }
@@ -108,6 +110,13 @@ struct HomeView: View {
                      lostPins: lostPins, lostFocusID: store.lostPinID,
                      lostFocusSerial: store.lostFocusSerial,
                      quests: quests, shuttle: shuttle,
+                     onSelectLostGroup: { selection in
+                         searchFocused = false
+                         focusedBuilding = nil
+                         selectedLostPinID = nil
+                         store.closeSheet()
+                         selectedLostItems = selection
+                     },
                      onQuestSelect: { id in
                          searchFocused = false
                          store.selectedQuest = store.quests.first { $0.id == id }
@@ -432,7 +441,10 @@ struct HomeView: View {
                 Text("물품의 현재 보관 위치입니다. 경찰서 이관 시 이관 장소를 표시합니다.")
                     .font(.caption).foregroundStyle(.secondary)
             }
-            Button("습득물 상세·수령 확인") { store.tab = .lostFound }
+            Button("이 위치의 습득물 보기") {
+                selectedLostItems = .init(id: pin.id, title: pin.title,
+                    coordinate: .init(latitude: pin.latitude, longitude: pin.longitude))
+            }
                 .font(.subheadline.weight(.bold))
         }
         .padding(15)
