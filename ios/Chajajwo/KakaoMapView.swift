@@ -66,10 +66,13 @@ struct KakaoMapView: UIViewRepresentable {
         private let shuttleLayerID = "circular-shuttle"
         private var questPois: [String: Poi] = [:]
         private var questStyles: [String: String] = [:]
+        private var questTapHandlers: [String: DisposableEventHandler] = [:]
         private var shuttlePois: [String: Poi] = [:]
         private var questGroups: [QuestMapGroup] = []
         private var lastZoomRequest = 0
         private var lastQuestFocusID: String?
+        private var lastQuestTapAt = -Double.infinity
+        private var lastQuestTapID: String?
         private var userDot: Poi?
         private var userDirection: Poi?
         private let lostLayerID = "lost-found"
@@ -97,6 +100,8 @@ struct KakaoMapView: UIViewRepresentable {
         }
 
         func tearDown() {
+            questTapHandlers.values.forEach { $0.dispose() }
+            questTapHandlers.removeAll()
             // The six-tab container removes the home view when changing tabs.
             // Release this engine before a later home view creates another one.
             controller?.pauseEngine()
@@ -147,6 +152,7 @@ struct KakaoMapView: UIViewRepresentable {
             for (id, zOrder) in [(questLayerID, 22000), (shuttleLayerID, 24000)] {
                 _ = manager.addLabelLayer(option: LabelLayerOptions(layerID: id, competitionType: .none,
                     competitionUnit: .symbolFirst, orderType: .rank, zOrder: zOrder))
+                if id == questLayerID { manager.getLabelLayer(layerID: id)?.setClickable(true) }
             }
             refresh()
         }
@@ -300,6 +306,7 @@ struct KakaoMapView: UIViewRepresentable {
             questGroups = QuestMapGroup.groups(parent.quests, zoom: Int(map.zoomLevel))
             let ids = Set(questGroups.map(\.id))
             for id in Array(questPois.keys) where !ids.contains(id) {
+                questTapHandlers.removeValue(forKey: id)?.dispose()
                 layer.removePoi(poiID: "quest-\(id)")
                 questPois.removeValue(forKey: id); questStyles.removeValue(forKey: id)
             }
@@ -319,8 +326,9 @@ struct KakaoMapView: UIViewRepresentable {
                 let point = MapPoint(longitude: coord.longitude, latitude: coord.latitude)
                 if questPois[group.id] == nil {
                     let option = PoiOptions(styleID: styleID, poiID: "quest-\(group.id)")
-                    option.rank = 300; option.clickable = false
+                    option.rank = 300; option.clickable = true
                     questPois[group.id] = layer.addPoi(option: option, at: point)
+                    questTapHandlers[group.id] = questPois[group.id]?.addPoiTappedEventHandler(target: self, handler: Coordinator.questPoiTapped)
                 } else if questStyles[group.id] != styleID {
                     questPois[group.id]?.changeTextAndStyle(texts: [], styleID: styleID)
                 }
@@ -328,6 +336,26 @@ struct KakaoMapView: UIViewRepresentable {
                 questPois[group.id]?.position = point
                 questPois[group.id]?.show()
             }
+        }
+
+        private func questPoiTapped(_ param: PoiInteractionEventParam) {
+            guard let map = controller?.getView(viewName) as? KakaoMap,
+                  let group = questGroups.first(where: { "quest-\($0.id)" == param.poiItem.itemID }) else { return }
+            selectQuestGroup(group, on: map)
+        }
+
+        private func selectQuestGroup(_ group: QuestMapGroup, on map: KakaoMap) {
+            let now = ProcessInfo.processInfo.systemUptime
+            guard group.id != lastQuestTapID || now - lastQuestTapAt > 0.3 else { return }
+            lastQuestTapAt = now; lastQuestTapID = group.id
+            dismissKeyboard()
+            if group.quests.count == 1 { parent.onQuestSelect?(group.quests[0].id); return }
+            let coordinate = group.coordinate
+            if map.zoomLevel >= 20 || group.quests.allSatisfy({ $0.coordinate.distance(to: coordinate) < 5 }) {
+                parent.onQuestGroupSelect?(group.quests.map(\.id)); return
+            }
+            let update = CameraUpdate.make(target: MapPoint(longitude: coordinate.longitude, latitude: coordinate.latitude), zoomLevel: min(20, Int(map.zoomLevel) + 2), mapView: map)
+            map.animateCamera(cameraUpdate: update, options: CameraAnimationOptions(autoElevation: false, consecutive: false, durationInMillis: 450))
         }
 
         func shuttlesChanged() {
@@ -433,6 +461,8 @@ struct KakaoMapView: UIViewRepresentable {
         // ponytail: SDK의 핀 클릭 판정이 우리 핀에 안 먹어서, 탭 좌표를 지도 좌표로 바꿔 가장 가까운 핀을 직접 고른다.
         func kakaoMapDidTapped(kakaoMap: KakaoMap, point: CGPoint) {
             dismissKeyboard() // 지도를 누르면 키보드 내림. 제스처를 따로 얹으면 SDK 탭이 안 먹어서 SDK 콜백에서 처리한다.
+            // A POI tap can also emit a map tap. Keep one selection/zoom per touch.
+            if ProcessInfo.processInfo.systemUptime - lastQuestTapAt < 0.2 { return }
             // Hit-test lost-and-found pins independently of zoom and old hub pin visibility.
             // 점 중심이 앵커라서 탭한 지점을 그대로 기준으로 삼고, 반경은 화면 22pt 만큼의 거리.
             let probe = kakaoMap.getPosition(CGPoint(x: point.x, y: point.y)).wgsCoord
@@ -461,15 +491,7 @@ struct KakaoMapView: UIViewRepresentable {
                 dist((probe.latitude, probe.longitude), ($0.coordinate.latitude, $0.coordinate.longitude)) <
                 dist((probe.latitude, probe.longitude), ($1.coordinate.latitude, $1.coordinate.longitude))
             }) {
-                if group.quests.count == 1 { parent.onQuestSelect?(group.quests[0].id) }
-                else {
-                    let coordinate = group.coordinate
-                    if kakaoMap.zoomLevel >= 20 || group.quests.allSatisfy({ $0.coordinate.distance(to: coordinate) < 5 }) {
-                        parent.onQuestGroupSelect?(group.quests.map(\.id)); return
-                    }
-                    let update = CameraUpdate.make(target: MapPoint(longitude: coordinate.longitude, latitude: coordinate.latitude), zoomLevel: min(20, Int(kakaoMap.zoomLevel) + 2), mapView: kakaoMap)
-                    kakaoMap.animateCamera(cameraUpdate: update, options: CameraAnimationOptions(autoElevation: false, consecutive: false, durationInMillis: 450))
-                }
+                selectQuestGroup(group, on: kakaoMap)
                 return
             }
             let hit = parent.places
