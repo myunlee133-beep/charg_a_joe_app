@@ -32,6 +32,7 @@
 		F91F2A6C09D8B8C144B1BC8B /* ChajajwoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37F690BF5CA084C0DAD6C3B /* ChajajwoApp.swift */; };
 		C10000000000000000000001 /* CircularShuttle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000002 /* CircularShuttle.swift */; };
 		C10000000000000000000003 /* QuestModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000004 /* QuestModels.swift */; };
+		C1000000000000000000000B /* MapMarkerLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1000000000000000000000C /* MapMarkerLayout.swift */; };
 		C10000000000000000000005 /* CircularShuttleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000006 /* CircularShuttleService.swift */; };
 		C10000000000000000000007 /* QuestViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000008 /* QuestViews.swift */; };
 		C10000000000000000000009 /* circular_route.json in Resources */ = {isa = PBXBuildFile; fileRef = C1000000000000000000000A /* circular_route.json */; };
@@ -64,6 +65,7 @@
 		F752E28546F71532B695A3B0 /* DiningData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiningData.swift; sourceTree = "<group>"; };
 		C10000000000000000000002 /* CircularShuttle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/CircularShuttle.swift"; sourceTree = "<group>"; };
 		C10000000000000000000004 /* QuestModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/QuestModels.swift"; sourceTree = "<group>"; };
+		C1000000000000000000000C /* MapMarkerLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/MapMarkerLayout.swift"; sourceTree = "<group>"; };
 		C10000000000000000000006 /* CircularShuttleService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CircularShuttleService.swift"; sourceTree = "<group>"; };
 		C10000000000000000000008 /* QuestViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QuestViews.swift"; sourceTree = "<group>"; };
 		C1000000000000000000000A /* circular_route.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "Core/Resources/circular_route.json"; sourceTree = "<group>"; };
@@ -99,6 +101,7 @@
 				C10000000000000000000008 /* QuestViews.swift */,
 				C10000000000000000000006 /* CircularShuttleService.swift */,
 				C10000000000000000000004 /* QuestModels.swift */,
+				C1000000000000000000000C /* MapMarkerLayout.swift */,
 				C10000000000000000000002 /* CircularShuttle.swift */,
 				E6FD255F2ECB57ABE416FCDD /* Assets.xcassets */,
 				C37F690BF5CA084C0DAD6C3B /* ChajajwoApp.swift */,
@@ -222,6 +225,7 @@
 				C10000000000000000000007 /* QuestViews.swift in Sources */,
 				C10000000000000000000005 /* CircularShuttleService.swift in Sources */,
 				C10000000000000000000003 /* QuestModels.swift in Sources */,
+				C1000000000000000000000B /* MapMarkerLayout.swift in Sources */,
 				C10000000000000000000001 /* CircularShuttle.swift in Sources */,
 				F91F2A6C09D8B8C144B1BC8B /* ChajajwoApp.swift in Sources */,
 				D6A967127FDF55C2285BBF86 /* Components.swift in Sources */,
