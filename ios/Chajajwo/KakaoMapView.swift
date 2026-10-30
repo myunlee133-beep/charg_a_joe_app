@@ -75,7 +75,9 @@ struct KakaoMapView: UIViewRepresentable {
         private let lostLayerID = "lost-found"
         private var lostPois: [String: Poi] = [:]
         private var lastLostFocusSerial = -1
-        private var lastUserFocusSerial = -1
+        // Zero means no locate-button request. Receiving the first GPS fix must
+        // not replace the compact campus overview with an automatic zoom to 17.
+        private var lastUserFocusSerial = 0
         private let viewName = "mapview"
         /// 이 지도 레벨보다 멀리서 볼 때는 핀을 모두 숨긴다(기본 화면은 레벨 14).
         private static let minPinLevel = 14
