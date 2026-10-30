@@ -1,7 +1,8 @@
 name: iOS and campus core
 on:
   push:
-    branches: ['codex/**']
+    branches: ['codex/**', 'build/found-items-ios-20261030']
+    paths: ['ios/**', 'Package.swift', '.github/workflows/ios.yml']
   pull_request:
   workflow_dispatch:
 permissions:
@@ -16,11 +17,25 @@ jobs:
       - uses: actions/checkout@v4
       - name: Test quest and circular-shuttle models
         run: swift test
+      - name: Test lost-found location validation
+        run: |
+          swiftc ios/Chajajwo/LostFoundRules.swift ios/Tests/LostFoundRulesTests/main.swift -o "$RUNNER_TEMP/lost-found-rules-tests"
+          "$RUNNER_TEMP/lost-found-rules-tests"
       - name: Build the iOS simulator app without signing
         run: xcodebuild -project ios/Chajajwo.xcodeproj -scheme Chajajwo -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/ChajajwoBuild" CODE_SIGNING_ALLOWED=NO build
+      - name: Package the tested simulator app
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent "$RUNNER_TEMP/ChajajwoBuild/Build/Products/Debug-iphonesimulator/Chajajwo.app" "$RUNNER_TEMP/Chajajwo-simulator.zip"
+          unzip -t "$RUNNER_TEMP/Chajajwo-simulator.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chajajwo-found-items-ios-simulator
+          path: ${{ runner.temp }}/Chajajwo-simulator.zip
+          if-no-files-found: error
+          retention-days: 7
       - name: Launch the native home screen
-        if: github.event_name == 'workflow_dispatch'
-        timeout-minutes: 5
+        if: github.event_name != 'pull_request'
+        timeout-minutes: 6
         run: |
           DEVICE_ID=$(xcrun simctl list devices available --json | python3 -c 'import sys,json; print(next(d["udid"] for ds in json.load(sys.stdin)["devices"].values() for d in ds if d["name"].startswith("iPhone")))')
           xcrun simctl boot "$DEVICE_ID"
@@ -33,8 +48,26 @@ jobs:
           mkdir -p "$RUNNER_TEMP/native-preview"
           xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/home.png"
           xcrun simctl spawn "$DEVICE_ID" launchctl list | grep org.chargajoe.chajajwo
+          for LEVEL in 16 17 18; do
+            xcrun simctl terminate "$DEVICE_ID" org.chargajoe.chajajwo
+            xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-map-zoom "$LEVEL"
+            sleep 7
+            xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/map-$LEVEL.png"
+          done
+          xcrun simctl terminate "$DEVICE_ID" org.chargajoe.chajajwo
+          xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-map-zoom 18 -preview-map-selected
+          sleep 7
+          xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/map-selected.png"
+          xcrun simctl terminate "$DEVICE_ID" org.chargajoe.chajajwo
+          xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-map-student-hall
+          sleep 7
+          xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/map-student-hall.png"
+          xcrun simctl terminate "$DEVICE_ID" org.chargajoe.chajajwo
+          xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-quests
+          sleep 5
+          xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/quests.png"
       - uses: actions/upload-artifact@v4
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name != 'pull_request'
         with:
           name: native-home-preview
-          path: ${{ runner.temp }}/native-preview/home.png
+          path: ${{ runner.temp }}/native-preview/*.png

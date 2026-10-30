@@ -18,7 +18,12 @@ struct KakaoMapView: UIViewRepresentable {
     let lostFocusSerial: Int
     var quests: [Quest] = []
     var shuttle: CircularShuttleService? = nil  // 셔틀 핀은 SwiftUI를 거치지 않고 위치가 바뀔 때 바로 옮긴다
+    var selectedQuestID: String? = nil
+    var zoomRequest = 0
+    var onSelectLostGroup: ((FoundItemMapSelection) -> Void)? = nil
     var onQuestSelect: ((String) -> Void)? = nil
+    var onQuestGroupSelect: (([String]) -> Void)? = nil
+    var onQuestDeselect: (() -> Void)? = nil
     let onSelect: (String) -> Void
     let onSelectLost: (String) -> Void
 
@@ -50,6 +55,8 @@ struct KakaoMapView: UIViewRepresentable {
         private var controller: KMController?
         private var pois: [String: Poi] = [:]
         private var appliedStyle: [String: String] = [:]
+        private var placeTapHandlers: [String: DisposableEventHandler] = [:]
+        private var foodGeometry: [String: (CGSize, CGFloat)] = [:]
         private var addedStyles: Set<String> = []
         private var lastSelected: String?
         private var lastSheetOpen = false
@@ -59,17 +66,31 @@ struct KakaoMapView: UIViewRepresentable {
         private let layerID = "places"
         private let userLayerID = "user-location"
         private let questLayerID = "quests"
+        private let questLeaderLayerID = "quest-leaders"
         private let shuttleLayerID = "circular-shuttle"
         private var questPois: [String: Poi] = [:]
         private var questStyles: [String: String] = [:]
+        private var questTapHandlers: [String: DisposableEventHandler] = [:]
+        private var questOffsets: [String: CGPoint] = [:]
+        private var questLeaderPois: [String: Poi] = [:]
+        private var questLeaderOffsets: [String: CGPoint] = [:]
         private var shuttlePois: [String: Poi] = [:]
         private var questGroups: [QuestMapGroup] = []
+        private var lastZoomRequest = 0
+        private var lastQuestFocusID: String?
+        private var lastQuestTapAt = -Double.infinity
+        private var lastQuestTapID: String?
+        private var lastPlaceTapAt = -Double.infinity
         private var userDot: Poi?
         private var userDirection: Poi?
         private let lostLayerID = "lost-found"
         private var lostPois: [String: Poi] = [:]
+        private var lostGroups: [FoundItemMapGroup] = []
+        private var lostStyles: [String: String] = [:]
         private var lastLostFocusSerial = -1
-        private var lastUserFocusSerial = -1
+        // Zero means no locate-button request. Receiving the first GPS fix must
+        // not replace the compact campus overview with an automatic zoom to 17.
+        private var lastUserFocusSerial = 0
         private let viewName = "mapview"
         /// 이 지도 레벨보다 멀리서 볼 때는 핀을 모두 숨긴다(기본 화면은 레벨 14).
         private static let minPinLevel = 14
@@ -89,6 +110,10 @@ struct KakaoMapView: UIViewRepresentable {
         }
 
         func tearDown() {
+            questTapHandlers.values.forEach { $0.dispose() }
+            questTapHandlers.removeAll()
+            placeTapHandlers.values.forEach { $0.dispose() }
+            placeTapHandlers.removeAll()
             // The six-tab container removes the home view when changing tabs.
             // Release this engine before a later home view creates another one.
             controller?.pauseEngine()
@@ -97,6 +122,7 @@ struct KakaoMapView: UIViewRepresentable {
             controller?.resetEngine()
             controller = nil
             pois.removeAll(); buildingPois.removeAll(); questPois.removeAll(); shuttlePois.removeAll()
+            questLeaderPois.removeAll(); questLeaderOffsets.removeAll(); questOffsets.removeAll()
             userDot = nil; userDirection = nil
         }
 
@@ -110,8 +136,20 @@ struct KakaoMapView: UIViewRepresentable {
 
         func addViews() {
             // 위쪽 검색창·아래쪽 시트에 가려지지 않게 학생회관 일대를 중심에 둔다.
+            var initialLevel = 15
+            var initialCoordinate = CampusCoordinate(latitude: 37.4600, longitude: 126.9520)
+            #if DEBUG
+            let args = ProcessInfo.processInfo.arguments
+            if let index = args.firstIndex(of: "-preview-map-zoom"), index + 1 < args.count, let level = Int(args[index + 1]) {
+                initialLevel = min(20, max(7, level))
+            }
+            if args.contains("-preview-map-student-hall") {
+                initialLevel = 17
+                initialCoordinate = .init(latitude: 37.45925, longitude: 126.9506)
+            }
+            #endif
             let info = MapviewInfo(viewName: viewName, viewInfoName: "map",
-                                   defaultPosition: MapPoint(longitude: 126.9520, latitude: 37.4590), defaultLevel: 16)
+                                   defaultPosition: MapPoint(longitude: initialCoordinate.longitude, latitude: initialCoordinate.latitude), defaultLevel: initialLevel)
             controller?.addView(info)
         }
         func addViewSucceeded(_ viewName: String, viewInfoName: String) {
@@ -121,6 +159,8 @@ struct KakaoMapView: UIViewRepresentable {
             _ = manager.addLabelLayer(option: LabelLayerOptions(layerID: layerID, competitionType: .none,
                                                                 competitionUnit: .symbolFirst, orderType: .rank, zOrder: 20000)) // 지도 기본 글자(zOrder ~10000)보다 위에 그려야 이름표가 안 가려진다
             manager.getLabelLayer(layerID: layerID)?.setClickable(true) // 레이어에서도 켜야 핀 탭 이벤트가 온다
+            _ = manager.addLabelLayer(option: LabelLayerOptions(layerID: questLeaderLayerID,
+                competitionType: .none, competitionUnit: .symbolFirst, orderType: .rank, zOrder: 19000))
             _ = manager.addLabelLayer(option: LabelLayerOptions(
                 layerID: userLayerID, competitionType: .none,
                 competitionUnit: .symbolFirst, orderType: .rank, zOrder: 25000))
@@ -132,6 +172,7 @@ struct KakaoMapView: UIViewRepresentable {
             for (id, zOrder) in [(questLayerID, 22000), (shuttleLayerID, 24000)] {
                 _ = manager.addLabelLayer(option: LabelLayerOptions(layerID: id, competitionType: .none,
                     competitionUnit: .symbolFirst, orderType: .rank, zOrder: zOrder))
+                if id == questLayerID { manager.getLabelLayer(layerID: id)?.setClickable(true) }
             }
             refresh()
         }
@@ -147,19 +188,36 @@ struct KakaoMapView: UIViewRepresentable {
             guard let map = controller?.getView(viewName) as? KakaoMap else { return }
             let manager = map.getLabelManager()
             guard let layer = manager.getLabelLayer(layerID: layerID) else { return }
+            // Apply the current card's margins before creating camera updates or
+            // measuring labels; food -> quest selection otherwise uses stale margins.
+            if lastSheetOpen != parent.sheetOpen {
+                if parent.sheetOpen { map.setMargins(UIEdgeInsets(top: 0, left: 0, bottom: 190, right: 0)) }
+                else { map.resetMargins() }
+                lastSheetOpen = parent.sheetOpen
+            }
             // User marker is always visible, even at map levels where hub pins are hidden.
             refreshUserLocation(on: map, manager: manager)
             refreshLostPins(on: map, manager: manager)
             refreshQuests(on: map, manager: manager)
             refreshShuttles(manager: manager)
+            if parent.selectedQuestID != lastQuestFocusID {
+                lastQuestFocusID = parent.selectedQuestID
+                if let quest = parent.quests.first(where: { $0.id == parent.selectedQuestID }) {
+                    // Keep the selected name label clear of the search overlay
+                    // and the new bottom card, while preserving the current zoom.
+                    let update = CameraUpdate.make(target: MapPoint(longitude: quest.coordinate.longitude, latitude: quest.coordinate.latitude), mapView: map)
+                    map.animateCamera(cameraUpdate: update, options: CameraAnimationOptions(autoElevation: false, consecutive: false, durationInMillis: 300))
+                }
+            }
+            if parent.zoomRequest != lastZoomRequest {
+                let delta = parent.zoomRequest - lastZoomRequest
+                lastZoomRequest = parent.zoomRequest
+                let center = map.getPosition(CGPoint(x: map.viewRect.width / 2, y: map.viewRect.height / 2))
+                let update = CameraUpdate.make(target: center, zoomLevel: min(20, max(7, Int(map.zoomLevel) + delta)), mapView: map)
+                map.animateCamera(cameraUpdate: update, options: CameraAnimationOptions(autoElevation: false, consecutive: false, durationInMillis: 300))
+            }
             let visible = Set(parent.places.map(\.id))
             pinsVisible = map.zoomLevel >= Self.minPinLevel
-
-            if lastSheetOpen != parent.sheetOpen {
-                // 카드가 화면 아래쪽 대부분을 덮으므로, 열려 있을 땐 지도 아래쪽 여백을 줘서 중심을 위로 올린다.
-                if parent.sheetOpen { map.setMargins(UIEdgeInsets(top: 0, left: 0, bottom: 190, right: 0)) } else { map.resetMargins() }
-                lastSheetOpen = parent.sheetOpen
-            }
 
             for p in Place.all {
                 let count = parent.counts[p.id] ?? 0
@@ -179,6 +237,7 @@ struct KakaoMapView: UIViewRepresentable {
                     for t in texts { opt.addText(t) }
                     guard let poi = layer.addPoi(option: opt, at: MapPoint(longitude: p.lng, latitude: p.lat)) else { continue }
                     pois[p.id] = poi
+                    placeTapHandlers[p.id] = poi.addPoiTappedEventHandler(target: self, handler: Coordinator.placePoiTapped)
                     appliedStyle[p.id] = styleID
                 } else if appliedStyle[p.id] != styleID {
                     pois[p.id]?.changeTextAndStyle(texts: texts, styleID: styleID)
@@ -227,28 +286,41 @@ struct KakaoMapView: UIViewRepresentable {
         // MARK: 검증된 분실물센터와 회원 신고 위치. Existing Kakao map is reused.
         private func refreshLostPins(on map: KakaoMap, manager: LabelManager) {
             guard let layer = manager.getLabelLayer(layerID: lostLayerID) else { return }
-            let ids = Set(parent.lostPins.map(\.id))
-            for (id, poi) in lostPois where !ids.contains(id) { poi.hide() }
-            for pin in parent.lostPins {
-                let styleID: String
-                switch pin.kind {
-                case .center: styleID = "lf-center"
-                case .found: styleID = "lf-found"
-                case .lost: styleID = "lf-lost"
+            lostGroups = FoundItemMapGroup.groups(parent.lostPins.map {
+                .init(id: $0.id, title: $0.title, coordinate: .init(latitude: $0.latitude, longitude: $0.longitude), isCenter: $0.kind == .center)
+            }, zoom: Int(map.zoomLevel))
+            let ids = Set(lostGroups.map(\.id))
+            for id in Array(lostPois.keys) where !ids.contains(id) {
+                layer.removePoi(poiID: id); lostPois.removeValue(forKey: id); lostStyles.removeValue(forKey: id)
+            }
+            for group in lostGroups {
+                // Keep the count badge readable when a center shares an item's exact location.
+                if group.isCenter && lostGroups.contains(where: { other in
+                    !other.isCenter && other.entries.contains { $0.coordinate == group.coordinate }
+                }) {
+                    lostPois[group.id]?.hide()
+                    continue
                 }
+                let kind: LostFoundMapPin.Kind = group.isCenter ? .center : .found
+                let count = group.entries.count
+                let styleID = group.isCenter ? "lf-center" : "lf-found-\(count)"
                 if !addedStyles.contains(styleID) {
-                    manager.addPoiStyle(Self.lostPinStyle(id: styleID, kind: pin.kind))
+                    manager.addPoiStyle(Self.lostPinStyle(id: styleID, kind: kind, count: count))
                     addedStyles.insert(styleID)
                 }
-                let pos = MapPoint(longitude: pin.longitude, latitude: pin.latitude)
-                if lostPois[pin.id] == nil {
-                    let option = PoiOptions(styleID: styleID, poiID: pin.id)
-                    option.rank = pin.kind == .center ? 320 : 250
-                    option.clickable = false // coordinate hit-testing in SDK tap callback
-                    lostPois[pin.id] = layer.addPoi(option: option, at: pos)
+                if lostStyles[group.id] != styleID, lostPois[group.id] != nil {
+                    layer.removePoi(poiID: group.id); lostPois.removeValue(forKey: group.id)
                 }
-                lostPois[pin.id]?.position = pos
-                lostPois[pin.id]?.show()
+                let pos = MapPoint(longitude: group.coordinate.longitude, latitude: group.coordinate.latitude)
+                if lostPois[group.id] == nil {
+                    let option = PoiOptions(styleID: styleID, poiID: group.id)
+                    option.rank = group.isCenter ? 320 : 250
+                    option.clickable = false
+                    lostPois[group.id] = layer.addPoi(option: option, at: pos)
+                    lostStyles[group.id] = styleID
+                }
+                lostPois[group.id]?.position = pos
+                lostPois[group.id]?.show()
             }
             if parent.lostFocusSerial != lastLostFocusSerial, let id = parent.lostFocusID,
                let pin = parent.lostPins.first(where: { $0.id == id }) {
@@ -259,26 +331,61 @@ struct KakaoMapView: UIViewRepresentable {
                 lastLostFocusSerial = parent.lostFocusSerial
             }
         }
-        private static func lostPinStyle(id: String, kind: LostFoundMapPin.Kind) -> PoiStyle {
+        private static func lostPinStyle(id: String, kind: LostFoundMapPin.Kind, count: Int = 1) -> PoiStyle {
             PoiStyle(styleID: id, styles: [PerLevelPoiStyle(iconStyle:
-                PoiIconStyle(symbol: render(LostFoundPin(kind: kind)), anchorPoint: CGPoint(x: 0.5, y: 0.5)), level: 0)])
+                PoiIconStyle(symbol: render(LostFoundPin(kind: kind, count: count)), anchorPoint: CGPoint(x: 0.5, y: 0.5)), level: 0)])
         }
 
         private func refreshQuests(on map: KakaoMap, manager: LabelManager) {
             guard let layer = manager.getLabelLayer(layerID: questLayerID) else { return }
             questGroups = QuestMapGroup.groups(parent.quests, zoom: Int(map.zoomLevel))
+            let projection = screenProjection(on: map)
+            let footprints = questGroups.map { group -> MapMarkerFootprint in
+                let selected = group.quests.contains { $0.id == parent.selectedQuestID }
+                let pin = QuestMapPin(quest: group.quests[0], count: group.quests.count,
+                                      presentation: selected ? .detail : .at(zoom: Int(map.zoomLevel)), selected: selected)
+                return .init(id: group.id, anchor: projection?.point(for: group.coordinate) ?? .zero,
+                             size: pin.size, anchorY: pin.anchorY, priority: selected ? 1 : 0)
+            }
+            let foodObstacles: [CGRect] = map.zoomLevel < Self.minPinLevel ? [] : parent.places.filter { $0.type == .food }.map { place in
+                let key = "\(place.id)-\(parent.counts[place.id] ?? 0)"
+                if foodGeometry[key] == nil {
+                    let plain = Self.render(PinIcon(type: .food, count: parent.counts[place.id] ?? 0, selected: false))
+                    let named = Self.render(PinIcon(type: .food, count: parent.counts[place.id] ?? 0, selected: false, label: place.name))
+                    foodGeometry[key] = (named.size, plain.size.height / 2 / named.size.height)
+                }
+                let geometry = foodGeometry[key]!
+                return MapMarkerFootprint(id: place.id,
+                    anchor: projection?.point(for: .init(latitude: place.lat, longitude: place.lng)) ?? .zero,
+                    size: geometry.0, anchorY: geometry.1).frame
+            }
+            let foundObstacles = lostGroups.map { group -> CGRect in
+                let marker = Self.render(LostFoundPin(kind: group.isCenter ? .center : .found, count: group.entries.count))
+                return MapMarkerFootprint(id: group.id,
+                    anchor: projection?.point(for: group.coordinate) ?? .zero,
+                    size: marker.size, anchorY: 0.5).frame
+            }
+            let placements = projection == nil ? [:] : MapMarkerLayout.place(footprints, avoiding: foodObstacles + foundObstacles,
+                in: CGRect(origin: .zero, size: map.viewRect.size))
+            questOffsets = placements.mapValues(\.offset)
             let ids = Set(questGroups.map(\.id))
             for id in Array(questPois.keys) where !ids.contains(id) {
+                questTapHandlers.removeValue(forKey: id)?.dispose()
                 layer.removePoi(poiID: "quest-\(id)")
                 questPois.removeValue(forKey: id); questStyles.removeValue(forKey: id)
+                manager.getLabelLayer(layerID: questLeaderLayerID)?.removePoi(poiID: "leader-\(id)")
+                questLeaderPois.removeValue(forKey: id)
+                if questLeaderOffsets.removeValue(forKey: id) != nil { manager.removePoiStyle("quest-leader-\(id)") }
             }
             for group in questGroups {
                 let q = group.quests[0]
-                let color: Color = q.mode == .firstCome ? .cjTeal : .cjBlue
-                let styleID = "quest-dot-\(q.mode.rawValue)-\(group.quests.count)"
+                let reward = group.quests.map(\.reward).max() ?? q.reward
+                let selected = group.quests.contains { $0.id == parent.selectedQuestID }
+                let presentation = selected ? QuestMapPresentation.detail : .at(zoom: Int(map.zoomLevel))
+                let styleID = "quest-\(presentation.rawValue)-\(q.id)-\(q.category.rawValue)-\(reward)-\(group.quests.count)-\(selected)"
                 if !addedStyles.contains(styleID) {
-                    let icon = PoiIconStyle(symbol: Self.render(MapDot(color: color, count: group.quests.count > 1 ? group.quests.count : 0)),
-                                            anchorPoint: CGPoint(x: 0.5, y: 0.5))
+                    let pin = QuestMapPin(quest: q, count: group.quests.count, presentation: presentation, selected: selected)
+                    let icon = PoiIconStyle(symbol: Self.render(pin), anchorPoint: CGPoint(x: 0.5, y: pin.anchorY))
                     manager.addPoiStyle(PoiStyle(styleID: styleID, styles: [PerLevelPoiStyle(iconStyle: icon, level: 0)]))
                     addedStyles.insert(styleID)
                 }
@@ -286,15 +393,90 @@ struct KakaoMapView: UIViewRepresentable {
                 let point = MapPoint(longitude: coord.longitude, latitude: coord.latitude)
                 if questPois[group.id] == nil {
                     let option = PoiOptions(styleID: styleID, poiID: "quest-\(group.id)")
-                    option.rank = 300; option.clickable = false
+                    option.rank = 300; option.clickable = true
                     questPois[group.id] = layer.addPoi(option: option, at: point)
+                    questTapHandlers[group.id] = questPois[group.id]?.addPoiTappedEventHandler(target: self, handler: Coordinator.questPoiTapped)
                 } else if questStyles[group.id] != styleID {
                     questPois[group.id]?.changeTextAndStyle(texts: [], styleID: styleID)
                 }
                 questStyles[group.id] = styleID
                 questPois[group.id]?.position = point
+                let offset = questOffsets[group.id] ?? .zero
+                questPois[group.id]?.pixelOffset = offset
                 questPois[group.id]?.show()
+                refreshQuestLeader(group.id, at: point, offset: offset, manager: manager)
             }
+        }
+
+        private func screenProjection(on map: KakaoMap) -> CampusScreenProjection? {
+            let center = CGPoint(x: map.viewRect.width / 2, y: map.viewRect.height / 2)
+            let span = min(64, min(map.viewRect.width, map.viewRect.height) / 4)
+            func coordinate(_ point: CGPoint) -> CampusCoordinate {
+                let geo = map.getPosition(point).wgsCoord
+                return .init(latitude: geo.latitude, longitude: geo.longitude)
+            }
+            return CampusScreenProjection(center: center, origin: coordinate(center),
+                horizontal: coordinate(CGPoint(x: center.x + span, y: center.y)),
+                vertical: coordinate(CGPoint(x: center.x, y: center.y + span)), span: Double(span))
+        }
+
+        private func refreshQuestLeader(_ id: String, at point: MapPoint, offset: CGPoint, manager: LabelManager) {
+            guard let layer = manager.getLabelLayer(layerID: questLeaderLayerID) else { return }
+            guard hypot(offset.x, offset.y) > 1 else { questLeaderPois[id]?.hide(); return }
+            if questLeaderOffsets[id] != offset {
+                layer.removePoi(poiID: "leader-\(id)")
+                if questLeaderOffsets[id] != nil { manager.removePoiStyle("quest-leader-\(id)") }
+                manager.addPoiStyle(Self.questLeaderStyle(id: "quest-leader-\(id)", offset: offset))
+                let option = PoiOptions(styleID: "quest-leader-\(id)", poiID: "leader-\(id)")
+                option.clickable = false
+                questLeaderPois[id] = layer.addPoi(option: option, at: point)
+                questLeaderOffsets[id] = offset
+            }
+            questLeaderPois[id]?.position = point
+            questLeaderPois[id]?.show()
+        }
+
+        private static func questLeaderStyle(id: String, offset: CGPoint) -> PoiStyle {
+            let bounds = CGRect(x: min(0, offset.x) - 4, y: min(0, offset.y) - 4,
+                                width: abs(offset.x) + 8, height: abs(offset.y) + 8)
+            let origin = CGPoint(x: -bounds.minX, y: -bounds.minY)
+            let length = hypot(offset.x, offset.y)
+            let image = UIGraphicsImageRenderer(size: bounds.size).image { context in
+                let line = UIBezierPath()
+                line.move(to: CGPoint(x: origin.x + offset.x / length * min(10, length), y: origin.y + offset.y / length * min(10, length)))
+                line.addLine(to: CGPoint(x: origin.x + offset.x, y: origin.y + offset.y))
+                UIColor.white.setStroke(); line.lineWidth = 3; line.stroke()
+                context.cgContext.setLineDash(phase: 0, lengths: [3, 2])
+                UIColor(Color.cjTeal).setStroke(); line.lineWidth = 1.3; line.stroke()
+            }
+            let icon = PoiIconStyle(symbol: image, anchorPoint: CGPoint(x: origin.x / bounds.width, y: origin.y / bounds.height))
+            return PoiStyle(styleID: id, styles: [PerLevelPoiStyle(iconStyle: icon, level: 0)])
+        }
+
+        private func placePoiTapped(_ param: PoiInteractionEventParam) {
+            guard parent.places.contains(where: { $0.id == param.poiItem.itemID }) else { return }
+            lastPlaceTapAt = ProcessInfo.processInfo.systemUptime
+            dismissKeyboard(); parent.onSelect(param.poiItem.itemID)
+        }
+
+        private func questPoiTapped(_ param: PoiInteractionEventParam) {
+            guard let map = controller?.getView(viewName) as? KakaoMap,
+                  let group = questGroups.first(where: { "quest-\($0.id)" == param.poiItem.itemID }) else { return }
+            selectQuestGroup(group, on: map)
+        }
+
+        private func selectQuestGroup(_ group: QuestMapGroup, on map: KakaoMap) {
+            let now = ProcessInfo.processInfo.systemUptime
+            guard group.id != lastQuestTapID || now - lastQuestTapAt > 0.3 else { return }
+            lastQuestTapAt = now; lastQuestTapID = group.id
+            dismissKeyboard()
+            if group.quests.count == 1 { parent.onQuestSelect?(group.quests[0].id); return }
+            let coordinate = group.coordinate
+            if map.zoomLevel >= 20 || group.quests.allSatisfy({ $0.coordinate.distance(to: coordinate) < 5 }) {
+                parent.onQuestGroupSelect?(group.quests.map(\.id)); return
+            }
+            let update = CameraUpdate.make(target: MapPoint(longitude: coordinate.longitude, latitude: coordinate.latitude), zoomLevel: min(20, Int(map.zoomLevel) + 2), mapView: map)
+            map.animateCamera(cameraUpdate: update, options: CameraAnimationOptions(autoElevation: false, consecutive: false, durationInMillis: 450))
         }
 
         func shuttlesChanged() {
@@ -400,6 +582,8 @@ struct KakaoMapView: UIViewRepresentable {
         // ponytail: SDK의 핀 클릭 판정이 우리 핀에 안 먹어서, 탭 좌표를 지도 좌표로 바꿔 가장 가까운 핀을 직접 고른다.
         func kakaoMapDidTapped(kakaoMap: KakaoMap, point: CGPoint) {
             dismissKeyboard() // 지도를 누르면 키보드 내림. 제스처를 따로 얹으면 SDK 탭이 안 먹어서 SDK 콜백에서 처리한다.
+            // A POI tap can also emit a map tap. Keep one selection/zoom per touch.
+            if ProcessInfo.processInfo.systemUptime - max(lastQuestTapAt, lastPlaceTapAt) < 0.2 { return }
             // Hit-test lost-and-found pins independently of zoom and old hub pin visibility.
             // 점 중심이 앵커라서 탭한 지점을 그대로 기준으로 삼고, 반경은 화면 22pt 만큼의 거리.
             let probe = kakaoMap.getPosition(CGPoint(x: point.x, y: point.y)).wgsCoord
@@ -407,28 +591,48 @@ struct KakaoMapView: UIViewRepresentable {
             let k = cos(probe.latitude * .pi / 180)
             func dist(_ a: (Double, Double), _ b: (Double, Double)) -> Double { hypot(a.0 - b.0, (a.1 - b.1) * k) }
             let radius = dist((probe.latitude, probe.longitude), (edge.latitude, edge.longitude))
-            if let group = questGroups.min(by: {
+            // Match the hit area to each zoom-dependent marker, including its label.
+            if let group = questGroups.filter({
+                let selected = $0.quests.contains { $0.id == parent.selectedQuestID }
+                let pin = QuestMapPin(quest: $0.quests[0], count: $0.quests.count,
+                                      presentation: selected ? .detail : .at(zoom: Int(kakaoMap.zoomLevel)), selected: selected)
+                let width = max(44, pin.size.width), height = max(44, pin.size.height)
+                let offset = questOffsets[$0.id] ?? .zero
+                let hitRect = CGRect(x: point.x - offset.x - width / 2, y: point.y - offset.y - height * (1 - pin.anchorY), width: width, height: height)
+                    .intersection(CGRect(origin: .zero, size: kakaoMap.viewRect.size))
+                let corners = [CGPoint(x: hitRect.minX, y: hitRect.minY), CGPoint(x: hitRect.maxX, y: hitRect.minY),
+                               CGPoint(x: hitRect.maxX, y: hitRect.maxY), CGPoint(x: hitRect.minX, y: hitRect.maxY)]
+                    .map { kakaoMap.getPosition($0).wgsCoord }
+                let area = Path { path in
+                    path.move(to: CGPoint(x: corners[0].longitude, y: corners[0].latitude))
+                    for corner in corners.dropFirst() { path.addLine(to: CGPoint(x: corner.longitude, y: corner.latitude)) }
+                    path.closeSubpath()
+                }
+                return area.contains(CGPoint(x: $0.coordinate.longitude, y: $0.coordinate.latitude))
+            }).min(by: {
                 dist((probe.latitude, probe.longitude), ($0.coordinate.latitude, $0.coordinate.longitude)) <
                 dist((probe.latitude, probe.longitude), ($1.coordinate.latitude, $1.coordinate.longitude))
-            }), dist((probe.latitude, probe.longitude), (group.coordinate.latitude, group.coordinate.longitude)) <= radius * 1.5 {
-                if group.quests.count == 1 { parent.onQuestSelect?(group.quests[0].id) }
-                else {
-                    let coordinate = group.coordinate
-                    let update = CameraUpdate.make(target: MapPoint(longitude: coordinate.longitude, latitude: coordinate.latitude), zoomLevel: 18, mapView: kakaoMap)
-                    kakaoMap.animateCamera(cameraUpdate: update, options: CameraAnimationOptions(autoElevation: false, consecutive: false, durationInMillis: 450))
-                }
+            }) {
+                selectQuestGroup(group, on: kakaoMap)
                 return
             }
             let hit = parent.places
                 .map { ($0.id, dist((probe.latitude, probe.longitude), ($0.lat, $0.lng))) }
                 .filter { $0.1 <= radius }
                 .min { $0.1 < $1.1 }
-            let lostHit = parent.lostPins
-                .map { ($0.id, dist((probe.latitude, probe.longitude), ($0.latitude, $0.longitude))) }
-                .filter { $0.1 <= radius }
-                .min { $0.1 < $1.1 }
-            if let lostHit { parent.onSelectLost(lostHit.0); return }
+            let selectableLostGroups = lostGroups.filter { group in
+                !group.isCenter || !lostGroups.contains { other in !other.isCenter && other.entries.contains { $0.coordinate == group.coordinate } }
+            }
+            if let group = selectableLostGroups.min(by: {
+                dist((probe.latitude, probe.longitude), ($0.coordinate.latitude, $0.coordinate.longitude)) <
+                dist((probe.latitude, probe.longitude), ($1.coordinate.latitude, $1.coordinate.longitude))
+            }), dist((probe.latitude, probe.longitude), (group.coordinate.latitude, group.coordinate.longitude)) <= radius * (group.entries.count > 1 ? 2 : 1.5) {
+                if !group.isCenter, let select = parent.onSelectLostGroup { select(FoundItemMapSelection(group: group)) }
+                else if let first = group.entries.first { parent.onSelectLost(first.id) }
+                return
+            }
             if pinsVisible, let hit { parent.onSelect(hit.0) }
+            else { parent.onQuestDeselect?() }
         }
 
         // MARK: 핀 이미지
@@ -470,6 +674,65 @@ struct KakaoMapView: UIViewRepresentable {
             renderer.scale = 2
             return renderer.uiImage ?? UIImage()
         }
+    }
+}
+
+/// Reference flow: small count clusters, individual icons, then short labels.
+private struct QuestMapPin: View {
+    let quest: Quest
+    let count: Int
+    let presentation: QuestMapPresentation
+    let selected: Bool
+
+    var size: CGSize {
+        if count > 1 { return CGSize(width: 44, height: 44) }
+        switch presentation {
+        case .overview: return CGSize(width: 32, height: 32)
+        case .icon: return CGSize(width: 44, height: 52)
+        case .reward: return CGSize(width: 106, height: 48)
+        case .detail: return CGSize(width: 144, height: 66)
+        }
+    }
+    var anchorY: CGFloat { count > 1 || presentation == .overview ? 0.5 : (size.height - 6) / size.height }
+
+    var body: some View {
+        Group {
+            if count > 1 {
+                Text("\(count)").font(.system(size: 14, weight: .heavy)).foregroundStyle(Color.cjTealText)
+                    .frame(width: 32, height: 32).background(Color.cjSuccessFill, in: Circle())
+                    .overlay(Circle().stroke(Color.cjTeal.opacity(0.25), lineWidth: 5))
+            } else if presentation == .overview {
+                Image(systemName: quest.category.symbol).font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(.white).frame(width: 24, height: 24).background(quest.category.accent, in: Circle())
+                    .overlay(Circle().stroke(.white, lineWidth: 2))
+            } else {
+                VStack(spacing: -1) {
+                    if presentation == .icon {
+                        Image(systemName: quest.category.symbol).font(.system(size: 17, weight: .bold))
+                            .foregroundStyle(.white).frame(width: 34, height: 34)
+                            .background(quest.category.accent, in: Circle()).overlay(Circle().stroke(.white, lineWidth: 3))
+                    } else {
+                        HStack(spacing: 6) {
+                            Image(systemName: quest.category.symbol).font(.system(size: 14, weight: .bold))
+                            VStack(alignment: .leading, spacing: 3) {
+                                if presentation == .detail {
+                                    Text(quest.place).font(.system(size: 10, weight: .semibold)).lineLimit(1)
+                                }
+                                Text(quest.rewardText).font(.system(size: 12, weight: .heavy)).lineLimit(1).minimumScaleFactor(0.7)
+                            }
+                        }
+                        .foregroundStyle(selected ? Color.white : quest.category.accent)
+                        .padding(.horizontal, 9).frame(width: size.width - 10, height: size.height - 22)
+                        .background(selected ? quest.category.accent : Color.white, in: RoundedRectangle(cornerRadius: 12))
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(quest.category.accent, lineWidth: 1.5))
+                    }
+                    Image(systemName: "arrowtriangle.down.fill").font(.system(size: 10)).foregroundStyle(quest.category.accent)
+                        .frame(height: 9)
+                }
+            }
+        }
+        .shadow(color: .black.opacity(0.14), radius: 2, y: 1)
+        .frame(width: size.width, height: size.height)
     }
 }
 
@@ -563,6 +826,8 @@ private struct UserLocationDirection: View {
 
 /// Center, found-item, and lost-request pins are intentionally distinct.
 private struct LostFoundPin: View {
+    let count: Int
+    init(kind: LostFoundMapPin.Kind, count: Int = 1) { self.kind = kind; self.count = count }
     let kind: LostFoundMapPin.Kind
     private var accent: Color {
         switch kind {
@@ -571,5 +836,12 @@ private struct LostFoundPin: View {
         case .lost: Color(hex: 0xF26B1D)
         }
     }
-    var body: some View { MapDot(color: accent) }
+    var body: some View {
+        if count > 1 {
+            Label("\(count)개", systemImage: "shippingbox.fill")
+                .font(.system(size: 12, weight: .bold)).foregroundStyle(.white)
+                .padding(.horizontal, 10).padding(.vertical, 8)
+                .background(accent, in: Capsule()).overlay(Capsule().stroke(.white, lineWidth: 2))
+        } else { MapDot(color: accent) }
+    }
 }

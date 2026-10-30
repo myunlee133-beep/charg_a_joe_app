@@ -1,0 +1,30 @@
+name: Cloud iOS simulator build
+on:
+  push:
+    branches: ['codex/cloud-ios-simulator-20261028']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the existing iOS app for Simulator
+        run: |
+          xcodebuild -project ios/Chajajwo.xcodeproj -scheme Chajajwo -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/ChajajwoBuild" CODE_SIGNING_ALLOWED=NO ONLY_ACTIVE_ARCH=NO build
+      - name: Verify and archive the simulator app
+        run: |
+          APP_PATH="$RUNNER_TEMP/ChajajwoBuild/Build/Products/Debug-iphonesimulator/Chajajwo.app"
+          test -d "$APP_PATH"
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP_PATH/Info.plist"
+          file "$APP_PATH/Chajajwo"
+          ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" "$RUNNER_TEMP/Chajajwo-simulator.zip"
+          unzip -t "$RUNNER_TEMP/Chajajwo-simulator.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chajajwo-ios-simulator
+          path: ${{ runner.temp }}/Chajajwo-simulator.zip
+          if-no-files-found: error
+          retention-days: 3

@@ -24,8 +24,8 @@ final class CampusCoreTests: XCTestCase {
     func testNewCoordinatesInterpolateAndStopAtLastObservation() throws {
         let t = try tracker(); t.update([bus(136)], at: 0); let a = try XCTUnwrap(t.positions(at: 0).first)
         t.update([bus(138)], at: 5)
-        let middle = try XCTUnwrap(t.positions(at: 5.6).first)
-        let target = try XCTUnwrap(t.positions(at: 6.2).first)
+        let middle = try XCTUnwrap(t.positions(at: 7.5).first)
+        let target = try XCTUnwrap(t.positions(at: 10).first)
         XCTAssertGreaterThan(a.coordinate.distance(to: middle.coordinate), 0)
         XCTAssertGreaterThan(middle.coordinate.distance(to: target.coordinate), 0)
         XCTAssertEqual(t.positions(at: 18).first?.coordinate, target.coordinate)
@@ -38,10 +38,53 @@ final class CampusCoreTests: XCTestCase {
     }
     func testBackwardsJitterAndInvalidJumpDoNotMoveVehicle() throws {
         let t = try tracker(); t.update([bus(136)], at: 0); t.update([bus(138)], at: 5)
-        let valid = try XCTUnwrap(t.positions(at: 7).first)
+        let valid = try XCTUnwrap(t.positions(at: 10).first)
         t.update([bus(136)], at: 10); XCTAssertEqual(t.positions(at: 12).first?.coordinate, valid.coordinate)
         t.update([bus(239)], at: 15); XCTAssertTrue(t.positions(at: 15).isEmpty); XCTAssertEqual(t.heldCount, 1)
     }
+    func testContinuousFramesAcrossPollsWithoutJumpOrRewind() throws {
+        let t = try tracker(); t.update([bus(136)], at: 0)
+        t.update([bus(138)], at: 5)
+        var previous = try XCTUnwrap(t.positions(at: 5).first).coordinate
+        for frame in 1...200 {
+            let now = 5 + Double(frame) * 0.05
+            if frame == 100 {
+                let before = try XCTUnwrap(t.positions(at: now).first).coordinate
+                t.update([bus(140)], at: now)
+                XCTAssertEqual(t.positions(at: now).first?.coordinate, before)
+            }
+            let point = try XCTUnwrap(t.positions(at: now).first).coordinate
+            XCTAssertGreaterThan(previous.distance(to: point), 0.001, "frame \(frame) stalled")
+            XCTAssertLessThan(previous.distance(to: point), 2, "frame \(frame) jumped")
+            XCTAssertLessThan(point.latitude, previous.latitude, "frame \(frame) rewound")
+            previous = point
+        }
+    }
+
+    func testCoarseCheckpointsKeepMovingThroughRepeatedFeeds() throws {
+        let t = try tracker(); t.update([bus(136)], at: 0)
+        let origin = try XCTUnwrap(t.positions(at: 0).first).coordinate
+        for at in stride(from: 5.0, to: 30.0, by: 5.0) { t.update([bus(136)], at: at) }
+        t.update([bus(188)], at: 30)
+        XCTAssertEqual(t.positions(at: 30).first?.coordinate, origin)
+        var previous = origin
+        for second in 31...60 {
+            let now = Double(second)
+            let before = try XCTUnwrap(t.positions(at: now).first).coordinate
+            if second % 5 == 0 {
+                t.update([bus(188)], at: now)
+                XCTAssertEqual(t.positions(at: now).first?.coordinate, before)
+            }
+            XCTAssertGreaterThan(previous.distance(to: before), 1)
+            XCTAssertLessThan(previous.distance(to: before), 20)
+            previous = before
+        }
+        XCTAssertEqual(t.positions(at: 65).first?.coordinate, previous)
+        XCTAssertEqual(t.positions(at: 65).first?.changes, 1)
+        XCTAssertLessThan(previous.distance(to: t.route.stops[3].coordinate), 35)
+        XCTAssertTrue(t.positions(at: 80).isEmpty)
+    }
+
     func testBadObservationDoesNotEraseIdentityHistory() throws {
         let t = try tracker(); t.update([bus(136)], at: 0)
         t.update([.init(id: "100", x: 155, y: 200)], at: 5); XCTAssertTrue(t.positions(at: 5).isEmpty)
@@ -82,5 +125,56 @@ final class CampusCoreTests: XCTestCase {
         XCTAssertEqual(groups.flatMap(\.quests).map(\.id).sorted(), Quest.demo.map(\.id).sorted())
         XCTAssertTrue(QuestMapGroup.groups(Quest.demo, zoom: 17).allSatisfy { $0.quests.count == 1 })
         XCTAssertTrue(Quest.demo.allSatisfy(\.isValid))
+    }
+    func testMapProgressivelyRevealsQuestInformation() {
+        XCTAssertEqual(QuestMapPresentation.at(zoom: 13), .overview)
+        XCTAssertEqual(QuestMapPresentation.at(zoom: 15), .icon)
+        XCTAssertEqual(QuestMapPresentation.at(zoom: 16), .icon)
+        XCTAssertEqual(QuestMapPresentation.at(zoom: 17), .reward)
+        XCTAssertEqual(QuestMapPresentation.at(zoom: 18), .detail)
+        var previous = 0
+        for zoom in 7...20 {
+            let groups = QuestMapGroup.groups(Quest.demo, zoom: zoom)
+            XCTAssertEqual(groups.flatMap(\.quests).map(\.id).sorted(), Quest.demo.map(\.id).sorted())
+            XCTAssertGreaterThanOrEqual(groups.count, previous)
+            XCTAssertEqual(groups.map(\.id), QuestMapGroup.groups(Array(Quest.demo.reversed()), zoom: zoom).map(\.id))
+            previous = groups.count
+        }
+        XCTAssertLessThan(QuestMapGroup.groups(Quest.demo, zoom: 15).count, Quest.demo.count)
+    }
+    func testNearbyPinsAcrossOldGridBoundaryStillCluster() {
+        var first = Quest.demo[0], second = Quest.demo[1]
+        first.coordinate = .init(latitude: 37.46099, longitude: 126.951)
+        second.coordinate = .init(latitude: 37.46101, longitude: 126.951)
+        XCTAssertEqual(QuestMapGroup.groups([first, second], zoom: 16).count, 1)
+        second.coordinate = first.coordinate
+        XCTAssertEqual(QuestMapGroup.groups([first, second], zoom: 20).first?.quests.count, 2)
+    }
+    func testClusterDoesNotCollapseAChainOfSeparatePlaces() {
+        var quests = Array(Quest.demo.prefix(3))
+        for index in quests.indices {
+            quests[index].coordinate = .init(latitude: 37.46 + Double(index) * 0.0006, longitude: 126.951)
+        }
+        XCTAssertEqual(QuestMapGroup.groups(quests, zoom: 16).count, 2)
+        XCTAssertEqual(QuestMapGroup.groups(quests, zoom: 18).count, 3)
+    }
+}
+
+final class FoundItemMapTests: XCTestCase {
+    func testZoomKeepsEveryItemAndRevealsLocations() {
+        let rows = (0..<12).map { i in FoundItemMapEntry(id: "item-\(i)", title: "물건", coordinate: .init(latitude: 37.461 + Double(i) * 0.0001, longitude: 126.951), isCenter: false) }
+        let coarse = FoundItemMapGroup.groups(rows, zoom: 13)
+        let detail = FoundItemMapGroup.groups(rows, zoom: 20)
+        XCTAssertEqual(Set(coarse.flatMap { $0.entries.map(\.id) }), Set(rows.map(\.id)))
+        XCTAssertEqual(detail.count, rows.count)
+        XCTAssertLessThan(coarse.count, detail.count)
+    }
+    func testSameLocationPreservesCountAndCentersRemainIndependent() {
+        let geo = CampusCoordinate(latitude: 37.46, longitude: 126.95)
+        let rows = [FoundItemMapEntry(id: "center", title: "센터", coordinate: geo, isCenter: true), .init(id: "a", title: "지갑", coordinate: geo, isCenter: false), .init(id: "b", title: "우산", coordinate: geo, isCenter: false)]
+        let groups = FoundItemMapGroup.groups(rows, zoom: 20)
+        XCTAssertEqual(groups.count, 2)
+        XCTAssertEqual(groups.filter { !$0.isCenter }.first?.entries.count, 2)
+        XCTAssertTrue(FoundItemMapGroup.groups([.init(id: "bad", title: "", coordinate: .init(latitude: .nan, longitude: 0), isCenter: false)], zoom: 14).isEmpty)
     }
 }

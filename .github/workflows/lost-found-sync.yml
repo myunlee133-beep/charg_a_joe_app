@@ -1,0 +1,52 @@
+name: Sync MySNU lost and found
+
+on:
+  # Automatic collection intentionally disabled at the user's request.
+  # No MySNU session or Supabase server key has been stored in GitHub.
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Validate a configured source without writing to Supabase
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mysnu-lost-found-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test completeness and failure safeguards
+        run: python -m unittest discover -s crawler/lost_found/tests -v
+      - name: Validate configuration and synchronize
+        env:
+          MYSNU_SOURCE_MODE: ${{ vars.MYSNU_SOURCE_MODE || 'portal' }}
+          MYSNU_STORAGE_LOCATIONS: ${{ vars.MYSNU_STORAGE_LOCATIONS }}
+          MYSNU_FEED_URL: ${{ secrets.MYSNU_FEED_URL }}
+          MYSNU_COOKIE: ${{ secrets.MYSNU_COOKIE }}
+          MYSNU_FEED_TOKEN: ${{ secrets.MYSNU_FEED_TOKEN }}
+          MYSNU_VERIFIED_POLICE_LOCATIONS: ${{ vars.MYSNU_VERIFIED_POLICE_LOCATIONS }}
+          # Empty full-board snapshots require a deliberate operator opt-in.
+          MYSNU_ALLOW_CONFIRMED_EMPTY: ${{ vars.MYSNU_ALLOW_CONFIRMED_EMPTY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://iqalavbntvadqawkegfa.supabase.co' }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && 'true' || 'false' }}
+        shell: bash
+        run: |
+          if [ "$DRY_RUN" = "true" ]; then
+            python crawler/lost_found/sync_mysnu.py --dry-run
+          else
+            python crawler/lost_found/sync_mysnu.py --apply
+          fi

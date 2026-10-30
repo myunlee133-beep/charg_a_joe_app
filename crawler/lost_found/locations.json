@@ -1,0 +1,25 @@
+{
+  "checked_on": "2026-10-30",
+  "storage": [
+    {
+      "name": "서울대학교 분실물센터 · 101동 아시아연구소 1층",
+      "aliases": ["아시아연구소 1층 분실물센터"],
+      "latitude": 37.46328,
+      "longitude": 126.95015,
+      "source_url": "https://my.snu.ac.kr/p/ST050102/?b=1&px=7&dm=r&p=26689",
+      "coordinate_source": "ios/Chajajwo/Resources/campus_buildings.json: building 101"
+    }
+  ],
+  "police": [
+    {
+      "name": "관악경찰서",
+      "latitude": 37.47458392608702,
+      "longitude": 126.95105330444076,
+      "checked_on": "2026-10-30",
+      "source_url": "https://www.smpa.go.kr/user/nd63374.do",
+      "address": "서울 관악구 관악로5길 33",
+      "map_url": "https://map.kakao.com/?map_type=TYPE_MAP&hId=8434805&mode=place&urlLevel=3&urlX=489176&urlY=1104211",
+      "coordinate_method": "Kakao place 8434805 share URL: WCONGNAMUL / 2.5 -> EPSG:5181 -> EPSG:4326. Transform verified against Kakao official WTM sample."
+    }
+  ]
+}

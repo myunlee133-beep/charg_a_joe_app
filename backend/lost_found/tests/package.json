@@ -1,0 +1,7 @@
+{
+  "name": "chajajwo-unified-found-items-sql-tests",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node regression.mjs && node demo_regression.mjs" },
+  "devDependencies": { "@electric-sql/pglite": "0.5.13" }
+}

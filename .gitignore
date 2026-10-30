@@ -4,3 +4,9 @@ DerivedData/
 __pycache__/
 .pytest_cache/
 *.egg-info/
+.test-tools/
+.env
+.env.*
+!.env.example
+node_modules/
+__pycache__/
