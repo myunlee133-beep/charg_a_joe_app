@@ -2,6 +2,7 @@ name: iOS and campus core
 on:
   push:
     branches: ['codex/**', 'build/found-items-ios-20261030']
+    paths: ['ios/**', 'Package.swift', '.github/workflows/ios.yml']
   pull_request:
   workflow_dispatch:
 permissions:
@@ -16,6 +17,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Test quest and circular-shuttle models
         run: swift test
+      - name: Test lost-found location validation
+        run: |
+          swiftc ios/Chajajwo/LostFoundRules.swift ios/Tests/LostFoundRulesTests/main.swift -o "$RUNNER_TEMP/lost-found-rules-tests"
+          "$RUNNER_TEMP/lost-found-rules-tests"
       - name: Build the iOS simulator app without signing
         run: xcodebuild -project ios/Chajajwo.xcodeproj -scheme Chajajwo -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/ChajajwoBuild" CODE_SIGNING_ALLOWED=NO build
       - name: Launch the native home screen
