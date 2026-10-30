@@ -2,7 +2,7 @@ import SwiftUI
 
 // ponytail: 웹 버전처럼 기기 로컬 저장(UserDefaults). 여러 기기·운영팀 공유가 필요하면 Supabase(places, items, claims)로 교체.
 final class Store: ObservableObject {
-    enum Tab: Hashable { case home, dining, lostFound, community, me }
+    enum Tab: Hashable { case home, quests, dining, lostFound, community, me }
     enum HomeFilter { case all, quests, food, shuttle, hubs }
 
     // 화면 상태

@@ -60,14 +60,18 @@ struct HomeView: View {
         }
         .ignoresSafeArea(.keyboard) // 키보드가 올라와도 하단 시트가 같이 밀려 올라오지 않게
         .onAppear {
-            if scenePhase == .active { userLocation.start() }
+            if scenePhase == .active && store.tab == .home { userLocation.start() }
             Task { await lf.prepare() }
             if let id = store.lostPinID { selectedLostPinID = id }
         }
         .onChange(of: store.lostPinID) { _, newValue in selectedLostPinID = newValue }
         .onDisappear { userLocation.stop(); pendingUserFocus = false }
+        .onChange(of: store.tab) { _, tab in
+            if tab == .home && scenePhase == .active { userLocation.start() }
+            else { userLocation.stop(); pendingUserFocus = false; searchFocused = false }
+        }
         .onChange(of: scenePhase) { _, phase in
-            if phase == .active { userLocation.start() }
+            if phase == .active && store.tab == .home { userLocation.start() }
             else { userLocation.stop(); pendingUserFocus = false }
         }
         .onChange(of: userLocation.coordinate?.latitude) { _, _ in
