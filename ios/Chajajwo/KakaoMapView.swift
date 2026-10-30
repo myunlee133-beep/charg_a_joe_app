@@ -69,6 +69,7 @@ struct KakaoMapView: UIViewRepresentable {
         private var shuttlePois: [String: Poi] = [:]
         private var questGroups: [QuestMapGroup] = []
         private var lastZoomRequest = 0
+        private var lastQuestFocusID: String?
         private var userDot: Poi?
         private var userDirection: Poi?
         private let lostLayerID = "lost-found"
@@ -164,6 +165,15 @@ struct KakaoMapView: UIViewRepresentable {
             refreshLostPins(on: map, manager: manager)
             refreshQuests(on: map, manager: manager)
             refreshShuttles(manager: manager)
+            if parent.selectedQuestID != lastQuestFocusID {
+                lastQuestFocusID = parent.selectedQuestID
+                if let quest = parent.quests.first(where: { $0.id == parent.selectedQuestID }) {
+                    // Keep the selected name label clear of the search overlay
+                    // and the new bottom card, while preserving the current zoom.
+                    let update = CameraUpdate.make(target: MapPoint(longitude: quest.coordinate.longitude, latitude: quest.coordinate.latitude), mapView: map)
+                    map.animateCamera(cameraUpdate: update, options: CameraAnimationOptions(autoElevation: false, consecutive: false, durationInMillis: 300))
+                }
+            }
             if parent.zoomRequest != lastZoomRequest {
                 let delta = parent.zoomRequest - lastZoomRequest
                 lastZoomRequest = parent.zoomRequest

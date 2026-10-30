@@ -18,9 +18,17 @@ jobs:
         run: swift test
       - name: Build the iOS simulator app without signing
         run: xcodebuild -project ios/Chajajwo.xcodeproj -scheme Chajajwo -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/ChajajwoBuild" CODE_SIGNING_ALLOWED=NO build
+      - name: Package the verified app for Appetize
+        if: github.event_name != 'pull_request'
+        run: ditto -c -k --sequesterRsrc --keepParent "$RUNNER_TEMP/ChajajwoBuild/Build/Products/Debug-iphonesimulator/Chajajwo.app" "$RUNNER_TEMP/Chajajwo-simulator.zip"
+      - uses: actions/upload-artifact@v4
+        if: github.event_name != 'pull_request'
+        with:
+          name: Chajajwo-simulator
+          path: ${{ runner.temp }}/Chajajwo-simulator.zip
       - name: Launch the native home screen
         if: github.event_name != 'pull_request'
-        timeout-minutes: 5
+        timeout-minutes: 6
         run: |
           DEVICE_ID=$(xcrun simctl list devices available --json | python3 -c 'import sys,json; print(next(d["udid"] for ds in json.load(sys.stdin)["devices"].values() for d in ds if d["name"].startswith("iPhone")))')
           xcrun simctl boot "$DEVICE_ID"
@@ -52,11 +60,3 @@ jobs:
         with:
           name: native-home-preview
           path: ${{ runner.temp }}/native-preview/*.png
-      - name: Package the verified app for Appetize
-        if: github.event_name != 'pull_request'
-        run: ditto -c -k --sequesterRsrc --keepParent "$RUNNER_TEMP/ChajajwoBuild/Build/Products/Debug-iphonesimulator/Chajajwo.app" "$RUNNER_TEMP/Chajajwo-simulator.zip"
-      - uses: actions/upload-artifact@v4
-        if: github.event_name != 'pull_request'
-        with:
-          name: Chajajwo-simulator
-          path: ${{ runner.temp }}/Chajajwo-simulator.zip
