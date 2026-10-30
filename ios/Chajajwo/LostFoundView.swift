@@ -13,12 +13,12 @@ struct LostFoundView: View {
     @State private var showAuth = false
     @State private var selected: LostFoundRecord?
     @State private var category = "전체"
-    @State private var source = "전체"
+    @State private var storage = "전체"
     @State private var query = ""
     private var filtered: [LostFoundRecord] {
         lf.found.filter {
             (category == "전체" || $0.category == category) &&
-            (source == "전체" || $0.source == source) &&
+            (storage == "전체" || $0.storage.rawValue == storage) &&
             (query.isEmpty || "\($0.title) \($0.locationName) \($0.description)".localizedCaseInsensitiveContains(query))
         }
     }
@@ -26,7 +26,7 @@ struct LostFoundView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("마이스누·학교 담당자·사용자가 등록한 습득물을 한곳에서 확인해요.").font(.subheadline).foregroundStyle(.secondary)
+                    Text("운영진·사용자가 등록한 습득물을 현재 보관 장소별로 확인해요.").font(.subheadline).foregroundStyle(.secondary)
                     Button {
                         if lf.loggedIn { showEditor = true } else { showAuth = true }
                     } label: {
@@ -77,11 +77,14 @@ struct LostFoundView: View {
                     Text("전체 종류").tag("전체")
                     ForEach(LostFoundKind.allCases) { Text($0.rawValue).tag($0.rawValue) }
                 }
-                Picker("출처", selection: $source) {
-                    Text("모든 등록처").tag("전체"); Text("마이스누").tag("mysnu")
-                    Text("학교 담당자").tag("staff"); Text("사용자").tag("user")
+                Picker("보관 장소", selection: $storage) {
+                    Text("전체 보관 장소").tag("전체")
+                    ForEach(LostFoundStorage.allCases) { Text($0.rawValue).tag($0.rawValue) }
                 }
             }.font(.subheadline)
+            if storage == LostFoundStorage.police.rawValue {
+                Text(LostFoundRules.policeReceiptNotice).font(.footnote).foregroundStyle(.secondary)
+            }
             Text("\(filtered.count)건 · 등록일 기준").font(.caption).foregroundStyle(.secondary)
             if filtered.isEmpty && !lf.loading {
                 ContentUnavailableView("해당하는 습득물이 없어요", systemImage: "shippingbox", description: Text("검색 조건을 바꾸거나 나중에 다시 확인해 주세요."))
@@ -96,6 +99,9 @@ struct LostFoundView: View {
                             Text("등록일 \(LostFoundDate.label(item.registeredAt))").font(.caption).foregroundStyle(.secondary)
                             Text(item.locationName).font(.caption).foregroundStyle(.secondary)
                             Text(item.statusTitle).font(.caption.weight(.semibold)).foregroundStyle(Color.cjTealText)
+                            if item.status == "police" {
+                                Text("경찰서 이관 후 실제 수령 여부 확인 불가").font(.caption).foregroundStyle(.secondary)
+                            }
                         }
                         Spacer(minLength: 0)
                         Image(systemName: "chevron.right").font(.caption).foregroundStyle(.secondary)
@@ -345,11 +351,17 @@ struct LostFoundRecordDetail: View {
             Form {
                 Section(item.title) {
                     LabeledContent("종류", value: item.category)
-                    LabeledContent("등록처", value: item.sourceTitle)
+                    LabeledContent("등록자", value: item.sourceTitle)
                     LabeledContent("등록일", value: LostFoundDate.label(item.registeredAt))
                     LabeledContent("보관 상태", value: item.statusTitle)
                     LabeledContent("보관 장소", value: item.locationName)
                     Text(item.description.isEmpty ? "추가 설명 없음" : item.description)
+                }
+                if item.status == "police" {
+                    Section("경찰서 이관 안내") {
+                        Text(LostFoundRules.policeReceiptNotice)
+                        Text("앱의 수령 확인은 사용자가 직접 남긴 결과이며 경찰서의 수령 기록과 자동 연동되지 않습니다.").font(.caption).foregroundStyle(.secondary)
+                    }
                 }
                 Section("사진") {
                     if loading { ProgressView("상세 사진 확인 중") }

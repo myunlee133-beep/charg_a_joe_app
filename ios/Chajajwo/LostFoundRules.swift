@@ -2,6 +2,10 @@ import Foundation
 
 /// Shared client-side form checks. Supabase constraints independently validate writes.
 enum LostFoundRules {
+    static let policeReceiptNotice = "경찰서로 이관된 물품은 분실자가 실제로 수령했는지 앱에서 확인할 수 없습니다. 현재 보관·수령 가능 여부는 보관 중인 경찰서에 직접 확인해 주세요."
+    static func registrantTitle(source: String) -> String {
+        ["mysnu", "staff"].contains(source) ? "운영진" : "사용자"
+    }
     static let maximumPhotoBytes = 512 * 1024
     static let maximumLocationCharacters = 120
     static let categories = ["지갑", "전자기기", "학생증", "우산", "의류", "가방", "열쇠", "기타"]
@@ -38,4 +42,25 @@ enum LostFoundRules {
         latitude.isFinite && longitude.isFinite && (37.4...37.51).contains(latitude) && (126.9...127.0).contains(longitude)
     }
     static func validEventDate(_ date: Date, now: Date = Date()) -> Bool { date <= now.addingTimeInterval(300) }
+}
+
+/// Current custody location, independent of who registered or found the item.
+enum LostFoundStorage: String, CaseIterable, Identifiable {
+    case center101 = "101동 분실물센터"
+    case center67 = "67동 두레문예관"
+    case shuttle = "셔틀버스 분실물 보관소"
+    case other = "기타"
+    case police = "관악경찰서"
+    var id: String { rawValue }
+
+    static func classify(location: String, status: String) -> Self {
+        let name = location.replacingOccurrences(of: " ", with: "")
+        if name.contains("관악경찰서") { return .police }
+        // An unknown police destination must not be labeled as Gwanak or a campus center.
+        if status == "police" { return .other }
+        if name.range(of: "(?<![0-9])101동", options: .regularExpression) != nil || name.contains("아시아연구소") { return .center101 }
+        if name.range(of: "(?<![0-9])67동", options: .regularExpression) != nil || name.contains("두레문예관") || name.contains("두레학생문예관") { return .center67 }
+        if name.range(of: "(?<![0-9])331동", options: .regularExpression) != nil || name.contains("차량고") || name.contains("차량정비고") || name.contains("셔틀버스분실물보관소") { return .shuttle }
+        return .other
+    }
 }

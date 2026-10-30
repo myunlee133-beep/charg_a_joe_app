@@ -27,7 +27,12 @@ struct LostFoundCenter: Decodable, Identifiable {
               latitude: 37.46353, longitude: 126.94973, phone: nil, weekdayHours: nil,
               weekendHolidayNote: "운영시간·휴무일 공식 확인 불가: 방문 전 담당 부서에 확인",
               custodyNote: "67동 내 습득물만 2영업일 임시 보관하고 101동 분실물센터로 이관합니다.",
-              sourceUrl: "https://student.snu.ac.kr/%EC%86%8C%EC%8B%9D%C2%B7%EC%95%8C%EB%A6%BC/%EA%B3%B5%EC%A7%80%EC%82%AC%ED%95%AD/?mod=document&pageid=10&uid=153", checkedOn: "2026-10-28")
+              sourceUrl: "https://student.snu.ac.kr/%EC%86%8C%EC%8B%9D%C2%B7%EC%95%8C%EB%A6%BC/%EA%B3%B5%EC%A7%80%EC%82%AC%ED%95%AD/?mod=document&pageid=10&uid=153", checkedOn: "2026-10-28"),
+        .init(id: "snu331", name: "서울대 셔틀버스 분실물 보관소", building: "331동 차량정비고", room: "차량고 보관처 · 방문 전 확인",
+              latitude: 37.44937, longitude: 126.95014, phone: nil, weekdayHours: nil,
+              weekendHolidayNote: "현재 운영시간·휴무일 미확인: 셔틀버스 담당 부서에 방문 전 확인",
+              custodyNote: "2014년 공식 안내의 셔틀버스 습득물 임시 보관처입니다. 당시에는 해당 주간 차량고 보관 후 학생지원센터로 이관했으며 현재 보관처·이관 일정은 재확인이 필요합니다.",
+              sourceUrl: "https://aerospace.snu.ac.kr/board/notice?bbsidx=23230&bm=v", checkedOn: "2026-10-31")
     ]
 }
 
@@ -48,9 +53,8 @@ struct LostFoundRecord: Decodable, Identifiable {
     let mine: Bool
     var eventAt: String { registeredAt }
     var createdAt: String { registeredAt }
-    var sourceTitle: String {
-        switch source { case "mysnu": "마이스누"; case "staff": "학교 담당자"; default: "사용자 등록" }
-    }
+    var sourceTitle: String { LostFoundRules.registrantTitle(source: source) }
+    var storage: LostFoundStorage { .classify(location: locationName, status: status) }
     var statusTitle: String {
         switch status { case "received": "수령 완료"; case "police": "경찰서 이관"; default: "보관 중" }
     }
