@@ -36,6 +36,26 @@ struct Quest: Identifiable, Codable {
         .init(id: "q6", title: "경영대에 두고 온 우산 가져다주세요", category: .errand, mode: .firstCome, reward: 4000, place: "경영대학", building: "58동 · 1층 라운지", coordinate: .init(latitude: 37.4645, longitude: 126.9532), distance: 610, details: "58동에 둔 남색 장우산을 학생회관으로 가져다주세요.", requester: "비오는관악")
     ]
 }
+/// Progressive disclosure: a campus overview stays compact; labels appear nearby.
+enum QuestMapPresentation: String, CaseIterable {
+    case overview, icon, reward, detail
+    static func at(zoom: Int) -> Self {
+        switch zoom {
+        case ...14: .overview
+        case 15...16: .icon
+        case 17: .reward
+        default: .detail
+        }
+    }
+    var clusterRadius: Double {
+        switch self {
+        case .overview, .icon: 48
+        case .reward: 80
+        case .detail: 132
+        }
+    }
+}
+
 struct QuestMapGroup: Identifiable {
     let id: String
     let quests: [Quest]
@@ -44,11 +64,32 @@ struct QuestMapGroup: Identifiable {
               longitude: quests.map(\.coordinate.longitude).reduce(0, +) / Double(quests.count))
     }
     static func groups(_ quests: [Quest], zoom: Int) -> [Self] {
-        if zoom >= 17 { return quests.map { .init(id: $0.id, quests: [$0]) } }
-        let buckets = Dictionary(grouping: quests) { q in
-            "\(Int(floor(q.coordinate.latitude / 0.003)))-\(Int(floor(q.coordinate.longitude / 0.003)))"
+        // A fixed geographic grid both merged far-apart pins and split neighbours
+        // at arbitrary cell boundaries. Cluster by the current screen scale instead.
+        let scale = 256 * pow(2, Double(min(21, max(0, zoom))))
+        func point(_ coordinate: CampusCoordinate) -> (Double, Double) {
+            let latitude = min(85.05112878, max(-85.05112878, coordinate.latitude)) * .pi / 180
+            return ((coordinate.longitude + 180) / 360 * scale,
+                    (1 - log(tan(latitude) + 1 / cos(latitude)) / .pi) / 2 * scale)
         }
-        return buckets.keys.sorted().map { .init(id: $0, quests: buckets[$0]!.sorted { $0.id < $1.id }) }
+        let radius = QuestMapPresentation.at(zoom: zoom).clusterRadius
+        var groups: [[Quest]] = []
+        for quest in quests.filter(\.isValid).sorted(by: { $0.id < $1.id }) {
+            let p = point(quest.coordinate)
+            if let index = groups.firstIndex(where: { members in
+                // Bound a group's diameter to the marker footprint. A chain of
+                // neighbours must not collapse an entire street into one marker.
+                members.allSatisfy { member in
+                    let q = point(member.coordinate)
+                    let dx = abs(p.0 - q.0)
+                    return hypot(min(dx, scale - dx), p.1 - q.1) <= radius
+                }
+            }) { groups[index].append(quest) }
+            else { groups.append([quest]) }
+        }
+        return groups.map { members in
+            .init(id: members.count == 1 ? members[0].id : "cluster-" + members.map(\.id).joined(separator: "-"), quests: members)
+        }
     }
 }
 
@@ -65,7 +106,6 @@ struct QuestSession {
         progress[quest.id] = .resultPending; return true
     }
 }
-
 
 /// Clusters display coordinates without changing the stored item location.
 struct FoundItemMapEntry {

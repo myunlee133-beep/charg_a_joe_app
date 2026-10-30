@@ -7,6 +7,9 @@ struct HomeView: View {
     @EnvironmentObject var shuttle: CircularShuttleService
     @State private var selectedLostPinID: String?
     @State private var selectedLostItems: FoundItemMapSelection?
+    @State private var selectedMapQuest: Quest?
+    @State private var selectedQuestGroup: QuestMapGroup?
+    @State private var zoomRequest = 0
     @State private var query = ""
     @State private var focusedBuilding: CampusBuilding?
     @State private var focusSerial = 0
@@ -57,16 +60,35 @@ struct HomeView: View {
         .overlay(alignment: .bottom) { bottomContent }
         .sheet(item: $store.selectedQuest) { QuestDetailView(quest: $0) }
         .sheet(item: $selectedLostItems) { LostFoundView(mapSelection: $0) }
+        .sheet(item: $selectedQuestGroup) { group in
+            NavigationStack {
+                List(group.quests) { quest in
+                    NavigationLink { QuestDetailView(quest: quest) } label: { QuestRow(quest: quest) }
+                }
+                .navigationTitle("이 장소의 퀘스트 \(group.quests.count)개")
+                .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("닫기") { selectedQuestGroup = nil } } }
+            }
+        }
+        .onChange(of: store.homeFilter) { _, _ in selectedMapQuest = nil }
+        .onChange(of: quests.map(\.id)) { _, ids in
+            if let selectedMapQuest, !ids.contains(selectedMapQuest.id) { self.selectedMapQuest = nil }
+        }
         .onChange(of: store.sel) { _, _ in
             if store.open { focusedBuilding = nil }
         }
         .ignoresSafeArea(.keyboard) // 키보드가 올라와도 하단 시트가 같이 밀려 올라오지 않게
         .onAppear {
-            if scenePhase == .active { userLocation.start() }
+            if scenePhase == .active && store.tab == .home { userLocation.start() }
             Task { await lf.prepare() }
             if let id = store.lostPinID { selectedLostPinID = id }
+            #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("-preview-map-selected") { selectedMapQuest = store.quests.first }
+            #endif
         }
-        .onChange(of: store.lostPinID) { _, newValue in selectedLostPinID = newValue }
+        .onChange(of: store.lostPinID) { _, newValue in
+            selectedLostPinID = newValue
+            if newValue != nil { selectedMapQuest = nil }
+        }
         .task(id: scenePhase == .active && store.tab == .home) {
             guard scenePhase == .active && store.tab == .home else { return }
             while !Task.isCancelled {
@@ -76,8 +98,15 @@ struct HomeView: View {
             }
         }
         .onDisappear { userLocation.stop(); pendingUserFocus = false }
+        .onChange(of: store.tab) { _, tab in
+            if tab == .home && scenePhase == .active {
+                userLocation.start()
+                Task { await lf.prepare() }
+            }
+            else { userLocation.stop(); pendingUserFocus = false; searchFocused = false }
+        }
         .onChange(of: scenePhase) { _, phase in
-            if phase == .active { userLocation.start() }
+            if phase == .active && store.tab == .home { userLocation.start() }
             else { userLocation.stop(); pendingUserFocus = false }
         }
         .onChange(of: userLocation.coordinate?.latitude) { _, _ in
@@ -110,8 +139,10 @@ struct HomeView: View {
                      lostPins: lostPins, lostFocusID: store.lostPinID,
                      lostFocusSerial: store.lostFocusSerial,
                      quests: quests, shuttle: shuttle,
+                     selectedQuestID: selectedMapQuest?.id, zoomRequest: zoomRequest,
                      onSelectLostGroup: { selection in
                          searchFocused = false
+                         selectedMapQuest = nil
                          focusedBuilding = nil
                          selectedLostPinID = nil
                          store.closeSheet()
@@ -119,14 +150,21 @@ struct HomeView: View {
                      },
                      onQuestSelect: { id in
                          searchFocused = false
-                         store.selectedQuest = store.quests.first { $0.id == id }
+                         focusedBuilding = nil; selectedLostPinID = nil; store.closeSheet()
+                         selectedMapQuest = store.quests.first { $0.id == id }
+                     }, onQuestGroupSelect: { ids in
+                         selectedQuestGroup = .init(id: ids.joined(separator: "-"), quests: store.quests.filter { ids.contains($0.id) })
+                     }, onQuestDeselect: {
+                         selectedMapQuest = nil
                      }, onSelect: { id in
                          searchFocused = false
+                         selectedMapQuest = nil
                          focusedBuilding = nil
                          selectedLostPinID = nil
                          store.select(id)
                      }, onSelectLost: { id in
                          searchFocused = false
+                         selectedMapQuest = nil
                          focusedBuilding = nil
                          store.closeSheet()
                          selectedLostPinID = id
@@ -135,7 +173,9 @@ struct HomeView: View {
     }
 
     @ViewBuilder private var bottomContent: some View {
-        if let building = focusedBuilding {
+        if let quest = selectedMapQuest {
+            MapQuestPreview(quest: quest, onClose: { selectedMapQuest = nil }).padding(12)
+        } else if let building = focusedBuilding {
             buildingCard(building).padding(.horizontal, 12).padding(.bottom, 12)
         } else if let id = selectedLostPinID, let pin = lf.pins.first(where: { $0.id == id }) {
             lostPinCard(pin).padding(.horizontal, 12).padding(.bottom, 72)
@@ -176,6 +216,7 @@ struct HomeView: View {
     }
 
     private var locationButtonBottom: CGFloat {
+        if selectedMapQuest != nil { return 220 }
         if selectedLostPinID != nil { return 250 }
         if focusedBuilding != nil { return 190 }
         if store.lostMapOnly { return 166 }
@@ -188,6 +229,17 @@ struct HomeView: View {
     /// recenters on explicit request: panning/searching a building remains user-controlled.
     private var myLocationButton: some View {
         VStack(alignment: .trailing, spacing: 5) {
+            VStack(spacing: 0) {
+                Button { zoomRequest += 1 } label: { Image(systemName: "plus").frame(width: 44, height: 44) }
+                    .accessibilityLabel("지도 확대")
+                Divider().frame(width: 28)
+                Button { zoomRequest -= 1 } label: { Image(systemName: "minus").frame(width: 44, height: 44) }
+                    .accessibilityLabel("지도 축소")
+            }
+            .font(.system(size: 17, weight: .semibold)).foregroundStyle(Color.cjTealText)
+            .background(.white, in: RoundedRectangle(cornerRadius: 12))
+            .shadow(color: .black.opacity(0.12), radius: 4, y: 2)
+            .padding(.bottom, 5)
             if userLocation.approximateLocation && userLocation.coordinate != nil {
                 Text("대략적인 위치")
                     .font(.caption2.weight(.semibold))

@@ -32,17 +32,22 @@ struct ContentView: View {
     }
 
     var body: some View {
-        // 시스템(리퀴드 글라스) 탭 바 대신 평범한 탭 바. TabView는 탭 전환 시 화면 상태를 유지하려고 그대로 쓴다.
-        TabView(selection: $store.tab) {
-            Group { if store.showDining { DiningView() } else { HomeView() } }.toolbar(.hidden, for: .tabBar).tag(Store.Tab.home)
-            DiningView().toolbar(.hidden, for: .tabBar).tag(Store.Tab.dining)
-            LostFoundView().toolbar(.hidden, for: .tabBar).tag(Store.Tab.lostFound)
-            CommunityView().toolbar(.hidden, for: .tabBar).tag(Store.Tab.community)
-            MeView().toolbar(.hidden, for: .tabBar).tag(Store.Tab.me)
+        // Retain visited screens and their sessions without TabView's five-item
+        // limit, which otherwise moves the sixth destination into a More screen.
+        ZStack {
+            RetainedTab(selected: store.tab == .home) {
+                if store.showDining { DiningView() } else { HomeView() }
+            }
+            RetainedTab(selected: store.tab == .quests) { QuestsView() }
+            RetainedTab(selected: store.tab == .dining) { DiningView() }
+            RetainedTab(selected: store.tab == .lostFound) { LostFoundView() }
+            RetainedTab(selected: store.tab == .community) { CommunityView() }
+            RetainedTab(selected: store.tab == .me) { MeView() }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             HStack(spacing: 0) {
                 tab(.home, "홈", "house.fill")
+                tab(.quests, "퀘스트", "bolt.fill")
                 tab(.dining, "식당", "fork.knife")
                 tab(.lostFound, "분실물", "shippingbox.fill")
                 tab(.community, "사랑방", "bubble.left.and.bubble.right.fill")
@@ -52,6 +57,11 @@ struct ContentView: View {
             .background(Color.cjSurface.shadow(color: .black.opacity(0.06), radius: 5, y: -2).ignoresSafeArea(edges: .bottom))
         }
         .environmentObject(shuttle)
+        .onAppear {
+            #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("-preview-quests") { store.tab = .quests }
+            #endif
+        }
         .overlay(alignment: .bottom) {
             if let t = store.toastText {
                 Text(t)
@@ -85,5 +95,26 @@ struct ContentView: View {
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(store.tab == value ? .isSelected : [])
+    }
+}
+
+private struct RetainedTab<Content: View>: View {
+    let selected: Bool
+    @ViewBuilder var content: () -> Content
+    @State private var visited = false
+
+    var body: some View {
+        ZStack {
+            if selected || visited {
+                content()
+                    .opacity(selected ? 1 : 0)
+                    .allowsHitTesting(selected)
+                    .accessibilityHidden(!selected)
+                    .disabled(!selected)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear { if selected { visited = true } }
+        .onChange(of: selected) { _, value in if value { visited = true } }
     }
 }

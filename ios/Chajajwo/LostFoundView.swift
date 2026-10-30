@@ -63,6 +63,9 @@ struct LostFoundView: View {
                     }
                 }
                 .onAppear { Task { await lf.prepare() } }
+                .onChange(of: store.tab) { _, tab in
+                    if tab == .lostFound { Task { await lf.prepare() } }
+                }
                 .onChange(of: store.lostFocusSerial) { _, _ in
                     if mapSelection != nil { dismiss() }
                 }
