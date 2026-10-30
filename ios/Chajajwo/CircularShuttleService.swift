@@ -19,7 +19,18 @@ import SwiftUI
         generation = runID
         defer { if generation == runID { stop() } }
         guard let tracker else { status = "노선 정보를 불러오지 못했어요"; return }
+        animation?.cancel()
+        animation = Task { [weak self] in
+            // One render loop survives repeated feed coordinates and slow requests.
+            // Only native map POIs are updated; the SwiftUI screen stays untouched.
+            while !Task.isCancelled {
+                guard let self, self.generation == runID else { return }
+                self.positions = tracker.positions(at: ProcessInfo.processInfo.systemUptime)
+                do { try await Task.sleep(for: .milliseconds(50)) } catch { return }
+            }
+        }
         while !Task.isCancelled && generation == runID {
+            let requestStarted = ProcessInfo.processInfo.systemUptime
             do {
                 var request = URLRequest(url: URL(string: "https://chajajwo-web-mu.vercel.app/api/shuttle?route=41946")!)
                 request.cachePolicy = .reloadIgnoringLocalCacheData
@@ -35,24 +46,17 @@ import SwiftUI
                 heldCount = tracker.heldCount
                 positions = tracker.positions(at: ProcessInfo.processInfo.systemUptime)
                 status = feed.vehicles.isEmpty ? "제공된 차량 위치가 없어요" : (positions.isEmpty ? "위치 신뢰도 확인 중" : "교내순환 · 실시간 기반 추정 위치")
-                animation?.cancel()
-                animation = Task { [weak self] in
-                    // Ease between received points, then stop. Never predict onward.
-                    for _ in 0..<25 {
-                        do { try await Task.sleep(for: .milliseconds(50)) } catch { return }
-                        guard let self, self.generation == runID, !Task.isCancelled else { return }
-                        self.positions = tracker.positions(at: ProcessInfo.processInfo.systemUptime)
-                    }
-                }
             } catch {
                 guard !Task.isCancelled, generation == runID else { return }
-                animation?.cancel()
                 tracker.clear(); positions = []; heldCount = 0
                 status = "실시간 위치를 불러오지 못했어요"
             }
-            do { try await Task.sleep(for: .seconds(5)) } catch { return }
+            let delay = max(0, Self.pollInterval - (ProcessInfo.processInfo.systemUptime - requestStarted))
+            do { try await Task.sleep(for: .seconds(delay)) } catch { return }
         }
     }
+
+    private static let pollInterval = 5.0
 
     func stop() {
         generation = UUID()
