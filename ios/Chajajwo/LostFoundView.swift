@@ -59,9 +59,13 @@ struct LostFoundView: View {
                         ToolbarItem(placement: .topBarLeading) { Button("닫기") { dismiss() } }
                     }
                     ToolbarItem(placement: .topBarTrailing) {
-                    Button { Task { await lf.prepare(force: true) } } label: { Image(systemName: "arrow.clockwise") }.disabled(lf.loading)
-                } }
+                        Button { Task { await lf.prepare(force: true) } } label: { Image(systemName: "arrow.clockwise") }.disabled(lf.loading)
+                    }
+                }
                 .onAppear { Task { await lf.prepare() } }
+                .onChange(of: store.lostFocusSerial) { _, _ in
+                    if mapSelection != nil { dismiss() }
+                }
                 .task(id: scenePhase == .active && store.tab == .lostFound) {
                     guard scenePhase == .active && store.tab == .lostFound else { return }
                     while !Task.isCancelled {
