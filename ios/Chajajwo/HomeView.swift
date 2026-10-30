@@ -138,13 +138,13 @@ struct HomeView: View {
         if let building = focusedBuilding {
             buildingCard(building).padding(.horizontal, 12).padding(.bottom, 12)
         } else if let id = selectedLostPinID, let pin = lf.pins.first(where: { $0.id == id }) {
-            lostPinCard(pin).padding(.horizontal, 12).padding(.bottom, 12)
+            lostPinCard(pin).padding(.horizontal, 12).padding(.bottom, 72)
         } else if store.lostMapOnly {
             Button { store.tab = .lostFound } label: {
                 Label("습득물 등록·목록 보기", systemImage: "shippingbox")
                     .font(.subheadline.weight(.bold)).padding(16)
                     .frame(maxWidth: .infinity).background(Color.cjSurface, in: RoundedRectangle(cornerRadius: 15))
-            }.padding(.horizontal, 12).padding(.bottom, 12)
+            }.padding(.horizontal, 12).padding(.bottom, 72)
         } else if store.open, let place = Place.byID[store.sel], place.type != .hub {
             HomePlaceCard(place: place).padding(12)
         } else if store.open {
@@ -176,8 +176,9 @@ struct HomeView: View {
     }
 
     private var locationButtonBottom: CGFloat {
-        if focusedBuilding != nil || selectedLostPinID != nil { return 190 }
-        if store.lostMapOnly { return 106 }
+        if selectedLostPinID != nil { return 250 }
+        if focusedBuilding != nil { return 190 }
+        if store.lostMapOnly { return 166 }
         if store.homeFilter != .food && store.homeFilter != .hubs && store.homeFilter != .shuttle && store.questSheetCollapsed { return 140 }
         if store.open { return 350 }
         return store.homeFilter == .food || store.homeFilter == .hubs ? 140 : 318
