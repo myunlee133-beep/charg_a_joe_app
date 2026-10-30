@@ -3,6 +3,7 @@ import Foundation
 /// Shared client-side form checks. Supabase constraints independently validate writes.
 enum LostFoundRules {
     static let maximumPhotoBytes = 512 * 1024
+    static let maximumLocationCharacters = 120
     static let categories = ["지갑", "전자기기", "학생증", "우산", "의류", "가방", "열쇠", "기타"]
     static func validTitle(_ value: String) -> Bool { (2...100).contains(value.trimmingCharacters(in: .whitespacesAndNewlines).count) }
     static func validDescription(_ value: String, required: Bool) -> Bool {
@@ -13,7 +14,18 @@ enum LostFoundRules {
         (10...500).contains(value.trimmingCharacters(in: .whitespacesAndNewlines).count)
     }
     static func validLocation(_ value: String) -> Bool {
-        (2...160).contains(value.trimmingCharacters(in: .whitespacesAndNewlines).count)
+        (2...maximumLocationCharacters).contains(locationCharacterCount(value))
+    }
+    static func locationCharacterCount(_ value: String) -> Int {
+        // PostgreSQL char_length counts Unicode scalars, not composed graphemes.
+        value.trimmingCharacters(in: .whitespacesAndNewlines).unicodeScalars.count
+    }
+    static func locationName(buildingTitle: String?, detail: String, direct: Bool) -> String? {
+        let detail = detail.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !detail.isEmpty else { return nil }
+        if direct { return detail }
+        guard let buildingTitle else { return nil }
+        return "\(buildingTitle) · \(detail)"
     }
     static func validPhoto(_ data: Data?) -> Bool {
         guard let data else { return true }

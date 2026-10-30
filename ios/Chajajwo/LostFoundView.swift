@@ -183,6 +183,10 @@ private struct LostFoundLocationFields: View {
     @Binding var longitude: String
     @State private var query = ""
     let police: Bool
+    private var locationLength: Int {
+        let label = LostFoundRules.locationName(buildingTitle: building?.displayTitle, detail: detail, direct: direct) ?? detail
+        return LostFoundRules.locationCharacterCount(label)
+    }
     var body: some View {
         Section(police ? "이관한 경찰서의 실제 위치" : "현재 보관 장소") {
             Toggle("장소와 좌표 직접 입력", isOn: $direct)
@@ -199,6 +203,12 @@ private struct LostFoundLocationFields: View {
                     }
                 }
                 TextField("호실·보관 부서·건물 안 구체적 위치", text: $detail)
+            }
+            Text("장소명 \(locationLength)/\(LostFoundRules.maximumLocationCharacters)자 (건물명 포함)")
+                .font(.caption).foregroundStyle(.secondary)
+            if locationLength > LostFoundRules.maximumLocationCharacters {
+                Text("장소명은 건물 이름을 포함해 \(LostFoundRules.maximumLocationCharacters)자 이하로 줄여 주세요.")
+                    .font(.caption).foregroundStyle(.red)
             }
             Text(police ? "실제 이관한 경찰서 이름과 좌표를 입력하세요. 이전 보관 건물 위치를 그대로 사용하지 마세요." : "건물과 호실 또는 구체적 장소를 반드시 입력하세요. 지도에는 입력한 보관 위치가 표시됩니다.")
                 .font(.caption).foregroundStyle(.secondary)
@@ -283,15 +293,14 @@ private struct LostFoundEditor: View {
 
 private enum LostFoundLocation {
     static func make(building: CampusBuilding?, detail: String, direct: Bool, latitude: String, longitude: String, campusOnly: Bool) -> (String, Double, Double)? {
-        let detail = detail.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !detail.isEmpty else { return nil }
-        let label: String, lat: Double, lng: Double
+        guard let label = LostFoundRules.locationName(buildingTitle: building?.displayTitle, detail: detail, direct: direct) else { return nil }
+        let lat: Double, lng: Double
         if direct {
             guard let a = Double(latitude.trimmingCharacters(in: .whitespaces)), let b = Double(longitude.trimmingCharacters(in: .whitespaces)) else { return nil }
-            label = detail; lat = a; lng = b
+            lat = a; lng = b
         } else {
             guard let building else { return nil }
-            label = "\(building.displayTitle) · \(detail)"; lat = building.latitude; lng = building.longitude
+            lat = building.latitude; lng = building.longitude
         }
         let coordinateValid = campusOnly ? LostFoundRules.validCampusCoordinate(latitude: lat, longitude: lng) : LostFoundRules.validCoordinate(latitude: lat, longitude: lng)
         guard LostFoundRules.validLocation(label), coordinateValid else { return nil }
