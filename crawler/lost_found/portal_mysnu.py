@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 from datetime import datetime, timedelta, timezone
 from html.parser import HTMLParser
 from urllib.parse import parse_qs, urljoin, urlsplit
@@ -121,6 +122,20 @@ def request_html(url, cookie):
         raise SyncError("portal_network_or_http_failure") from error
 
 
+def portal_reader(cookie, minimum_interval=0.25):
+    """Space out sequential requests, including the final complete-list check."""
+    last_started = None
+    def fetch(url):
+        nonlocal last_started
+        if last_started is not None:
+            remaining = minimum_interval - (time.monotonic() - last_started)
+            if remaining > 0:
+                time.sleep(remaining)
+        last_started = time.monotonic()
+        return request_html(url, cookie)
+    return fetch
+
+
 def census(fetch):
     """Traverse links exposed by the board, verifying its count and every row."""
     url, page, expected_total, page_size = BOARD, 1, None, None
@@ -228,9 +243,8 @@ def storage_locations(raw):
     return result
 
 
-def collect_portal(fetch, places, storage, now):
-    before = census(fetch)
-    posts = [(row, *detail(row, fetch(row["url"]))) for row in before]
+def normalize_posts(posts, places, storage, now):
+    """Normalize inspected details; this alone never establishes completeness."""
     transfers, candidates = {}, []
     for row, body, stamp in posts:
         title = compact(row["title"]).strip("*")
@@ -283,9 +297,16 @@ def collect_portal(fetch, places, storage, now):
                      "registered_at": stamp.isoformat(), "status": "police" if police else "stored",
                      "location_name": location["name"], "latitude": location["latitude"],
                      "longitude": location["longitude"], "photo_url": None}, places, now))
+    require(bool(items), "portal_no_recognized_items")
+    return items
+
+
+def collect_portal(fetch, places, storage, now):
+    before = census(fetch)
+    posts = [(row, *detail(row, fetch(row["url"]))) for row in before]
+    items = normalize_posts(posts, places, storage, now)
     after = census(fetch)
     # Stable full-board IDs and metadata at both ends, rather than a recent-N
     # cap or a lone empty page. A changed portal triggers a whole-job retry.
     require(before == after, "portal_changed_during_collection")
-    require(bool(items), "portal_no_recognized_items")
     return items, True

@@ -6,6 +6,7 @@ operator authentication, location verification, and live-validation requirements
 from __future__ import annotations
 
 import argparse
+import getpass
 import json
 import math
 import os
@@ -231,11 +232,11 @@ def collect_snapshot(url: str, fetch, places: dict[str, dict], now: datetime,
 
 
 def run(environ: dict[str, str], *, dry_run: bool = False) -> dict:
-    mode = environ.get("MYSNU_SOURCE_MODE", "export")
+    mode = environ.get("MYSNU_SOURCE_MODE", "portal")
     require(mode in ("export", "portal"), "invalid_source_mode")
     if mode == "portal":
         # Lazy import avoids changing the export contract or requiring a browser.
-        from portal_mysnu import collect_portal, request_html, storage_locations
+        from portal_mysnu import collect_portal, portal_reader, storage_locations
         now = datetime.now(timezone.utc)
         try:
             defaults = json.loads(Path(__file__).with_name("locations.json").read_text(encoding="utf-8"))
@@ -249,7 +250,12 @@ def run(environ: dict[str, str], *, dry_run: bool = False) -> dict:
             raise SyncError("invalid_portal_location_configuration") from error
         cookie = environ.get("MYSNU_COOKIE", "")
         require(bool(cookie) and "\r" not in cookie and "\n" not in cookie, "portal_session_required")
-        items, complete = collect_portal(lambda u: request_html(u, cookie), places, storage, now)
+        try:
+            interval = float(environ.get("MYSNU_REQUEST_INTERVAL_SECONDS", "0.25"))
+        except ValueError as error:
+            raise SyncError("invalid_portal_request_interval") from error
+        require(math.isfinite(interval) and 0.25 <= interval <= 10, "invalid_portal_request_interval")
+        items, complete = collect_portal(portal_reader(cookie, interval), places, storage, now)
         return synchronize(items, complete, environ, dry_run=dry_run)
     url = environ.get("MYSNU_FEED_URL", "")
     require(bool(url), "mysnu_source_not_configured")
@@ -275,31 +281,58 @@ def run(environ: dict[str, str], *, dry_run: bool = False) -> dict:
     return synchronize(items, complete, environ, dry_run=dry_run)
 
 
-def synchronize(items: list[dict], complete: bool, environ: dict[str, str], *, dry_run: bool) -> dict:
-    result = {"items": len(items), "complete": complete, "dry_run": dry_run}
-    if dry_run:
-        return result
+def server_configuration(environ: dict[str, str]) -> tuple[str, dict[str, str]]:
+    """Validate settings before a long collection; never put a secret in a URL."""
     supabase = environ.get("SUPABASE_URL", "").rstrip("/")
     https_url(supabase)
     parsed = urlsplit(supabase)
     require(not parsed.path and not parsed.query, "invalid_supabase_origin")
-    key = environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
+    key = environ.get("SUPABASE_SECRET_KEY") or environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
     require(bool(key) and "\n" not in key and "\r" not in key, "service_role_key_required")
     # Client publishable/anon credentials cannot be used by this service-only RPC.
     require(not key.startswith("sb_publishable_"), "service_role_key_required")
-    response = request_json(supabase + "/rest/v1/rpc/lf_sync_mysnu", headers={
-        "apikey": key, "Authorization": "Bearer " + key}, data={
+    headers = {"apikey": key}
+    # Modern secret keys are opaque API keys, not bearer JWTs.
+    if not key.startswith("sb_secret_"):
+        headers["Authorization"] = "Bearer " + key
+    return supabase, headers
+
+
+def synchronize(items: list[dict], complete: bool, environ: dict[str, str], *, dry_run: bool) -> dict:
+    result = {"items": len(items), "complete": complete, "dry_run": dry_run}
+    if dry_run:
+        return result
+    supabase, headers = server_configuration(environ)
+    response = request_json(supabase + "/rest/v1/rpc/lf_sync_mysnu", headers=headers, data={
         "p_items": items, "p_complete": complete, "p_run_id": str(uuid.uuid4())})
     require(isinstance(response, dict) and response.get("ok") is True, "sync_rpc_not_confirmed")
+    result["sync"] = {name: response[name] for name in ("seen", "inserted", "updated", "removed")
+                      if type(response.get(name)) is int and response[name] >= 0}
     return result
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--dry-run", action="store_true", help="Validate the source without calling Supabase")
+    action = parser.add_mutually_exclusive_group()
+    action.add_argument("--dry-run", action="store_true", help="Validate the source without calling Supabase (default)")
+    action.add_argument("--apply", action="store_true", help="Write a validated full snapshot to Supabase")
+    parser.add_argument("--source-mode", choices=("portal", "export"), help="Default: actual MySNU portal")
+    parser.add_argument("--prompt-session", action="store_true", help="Enter approved credentials privately in a local terminal; never saved")
     args = parser.parse_args()
     try:
-        result = run(dict(os.environ), dry_run=args.dry_run)
+        settings = dict(os.environ)
+        if args.source_mode:
+            settings["MYSNU_SOURCE_MODE"] = args.source_mode
+        if args.prompt_session:
+            require(settings.get("MYSNU_SOURCE_MODE", "portal") == "portal", "prompt_requires_portal_mode")
+            require(sys.stdin.isatty() and sys.stderr.isatty(), "interactive_terminal_required")
+            if not settings.get("MYSNU_COOKIE"):
+                settings["MYSNU_COOKIE"] = getpass.getpass("Approved MySNU session cookie (hidden, not saved): ")
+            if args.apply and not (settings.get("SUPABASE_SECRET_KEY") or settings.get("SUPABASE_SERVICE_ROLE_KEY")):
+                settings["SUPABASE_SECRET_KEY"] = getpass.getpass("Supabase server secret/service-role key (hidden, not saved): ")
+        if args.apply:
+            server_configuration(settings)
+        result = run(settings, dry_run=not args.apply)
     except SyncError as error:
         print("Lost-found sync stopped: " + str(error), file=sys.stderr)
         return 1
