@@ -84,3 +84,22 @@ final class CampusCoreTests: XCTestCase {
         XCTAssertTrue(Quest.demo.allSatisfy(\.isValid))
     }
 }
+
+final class FoundItemMapTests: XCTestCase {
+    func testZoomKeepsEveryItemAndRevealsLocations() {
+        let rows = (0..<12).map { i in FoundItemMapEntry(id: "item-\(i)", title: "물건", coordinate: .init(latitude: 37.461 + Double(i) * 0.0001, longitude: 126.951), isCenter: false) }
+        let coarse = FoundItemMapGroup.groups(rows, zoom: 13)
+        let detail = FoundItemMapGroup.groups(rows, zoom: 20)
+        XCTAssertEqual(Set(coarse.flatMap { $0.entries.map(\.id) }), Set(rows.map(\.id)))
+        XCTAssertEqual(detail.count, rows.count)
+        XCTAssertLessThan(coarse.count, detail.count)
+    }
+    func testSameLocationPreservesCountAndCentersRemainIndependent() {
+        let geo = CampusCoordinate(latitude: 37.46, longitude: 126.95)
+        let rows = [FoundItemMapEntry(id: "center", title: "센터", coordinate: geo, isCenter: true), .init(id: "a", title: "지갑", coordinate: geo, isCenter: false), .init(id: "b", title: "우산", coordinate: geo, isCenter: false)]
+        let groups = FoundItemMapGroup.groups(rows, zoom: 20)
+        XCTAssertEqual(groups.count, 2)
+        XCTAssertEqual(groups.filter { !$0.isCenter }.first?.entries.count, 2)
+        XCTAssertTrue(FoundItemMapGroup.groups([.init(id: "bad", title: "", coordinate: .init(latitude: .nan, longitude: 0), isCenter: false)], zoom: 14).isEmpty)
+    }
+}
