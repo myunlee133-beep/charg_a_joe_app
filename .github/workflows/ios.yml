@@ -23,6 +23,16 @@ jobs:
           "$RUNNER_TEMP/lost-found-rules-tests"
       - name: Build the iOS simulator app without signing
         run: xcodebuild -project ios/Chajajwo.xcodeproj -scheme Chajajwo -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/ChajajwoBuild" CODE_SIGNING_ALLOWED=NO build
+      - name: Package the tested simulator app
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent "$RUNNER_TEMP/ChajajwoBuild/Build/Products/Debug-iphonesimulator/Chajajwo.app" "$RUNNER_TEMP/Chajajwo-simulator.zip"
+          unzip -t "$RUNNER_TEMP/Chajajwo-simulator.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chajajwo-found-items-ios-simulator
+          path: ${{ runner.temp }}/Chajajwo-simulator.zip
+          if-no-files-found: error
+          retention-days: 7
       - name: Launch the native home screen
         timeout-minutes: 5
         run: |
@@ -41,13 +51,3 @@ jobs:
         with:
           name: native-home-preview
           path: ${{ runner.temp }}/native-preview/home.png
-      - name: Package the tested simulator app
-        run: |
-          ditto -c -k --sequesterRsrc --keepParent "$RUNNER_TEMP/ChajajwoBuild/Build/Products/Debug-iphonesimulator/Chajajwo.app" "$RUNNER_TEMP/Chajajwo-simulator.zip"
-          unzip -t "$RUNNER_TEMP/Chajajwo-simulator.zip"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: chajajwo-found-items-ios-simulator
-          path: ${{ runner.temp }}/Chajajwo-simulator.zip
-          if-no-files-found: error
-          retention-days: 7
