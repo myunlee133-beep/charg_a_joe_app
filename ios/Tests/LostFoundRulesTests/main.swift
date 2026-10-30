@@ -15,6 +15,26 @@ private func expectNil<T>(_ actual: T?, file: StaticString = #filePath, line: UI
 }
 
 struct LostFoundRulesTests {
+    func testRegistrantLabelsKeepOriginalSourceSeparate() {
+        expectEqual(LostFoundRules.registrantTitle(source: "mysnu"), "운영진")
+        expectEqual(LostFoundRules.registrantTitle(source: "staff"), "운영진")
+        expectEqual(LostFoundRules.registrantTitle(source: "user"), "사용자")
+    }
+
+    func testFiveCurrentStorageGroups() {
+        expectEqual(LostFoundStorage.allCases.count, 5)
+        expectEqual(LostFoundStorage.classify(location: "서울대학교 분실물센터 · 101동 아시아연구소 1층", status: "stored"), .center101)
+        expectEqual(LostFoundStorage.classify(location: "67동 두레문예관 201호", status: "stored"), .center67)
+        expectEqual(LostFoundStorage.classify(location: "331동 차량정비고", status: "stored"), .shuttle)
+        expectEqual(LostFoundStorage.classify(location: "셔틀버스 분실물 보관소", status: "stored"), .shuttle)
+        expectEqual(LostFoundStorage.classify(location: "관악경찰서 유실물 담당", status: "police"), .police)
+        expectEqual(LostFoundStorage.classify(location: "학생회관 1층", status: "stored"), .other)
+        // Former custody or discovery site in a label must not override the current destination.
+        expectEqual(LostFoundStorage.classify(location: "관악경찰서 (이전 101동)", status: "police"), .police)
+        expectEqual(LostFoundStorage.classify(location: "101동 분실물센터 · 셔틀버스에서 발견", status: "stored"), .center101)
+        expectEqual(LostFoundStorage.classify(location: "다른 경찰서", status: "police"), .other)
+        expectEqual(LostFoundStorage.classify(location: "1101동", status: "stored"), .other)
+    }
     func testLocationLengthMatchesDatabaseBoundary() {
         expectFalse(LostFoundRules.validLocation("A"))
         expectTrue(LostFoundRules.validLocation("AB"))
@@ -53,6 +73,8 @@ struct LostFoundRulesTests {
 
 let tests = LostFoundRulesTests()
 let cases: [(String, () -> Void)] = [
+    ("registrant labels", tests.testRegistrantLabelsKeepOriginalSourceSeparate),
+    ("five custody locations", tests.testFiveCurrentStorageGroups),
     ("location database boundary", tests.testLocationLengthMatchesDatabaseBoundary),
     ("Korean and whitespace", tests.testKoreanAndSurroundingWhitespace),
     ("composed database characters", tests.testComposedCharactersUseDatabaseLength),
