@@ -36,7 +36,7 @@
 
 - 로컬 `build/found-items-integrated-20261031`에 두 원본 기능 브랜치의 병합 이력을 보존했습니다. 위 표의 기준 커밋과 각각 병합을 재검사해 충돌 0건, 통합 트리 변경 없음으로 확인했습니다.
 - Python 수집기 회귀 검사 54개 통과, 변경 Swift 파일 17개의 구문 검사 통과, SQL 파일 3개 구문 검사 통과. 이는 Swift 타입 검사나 iOS 실행 검사를 대체하지 않습니다.
-- 현재 Windows PC에는 Swift·Xcode 실행 환경이 없어 통합본의 Swift 검사 36개와 iOS 빌드·화면 검사는 미실행입니다. README의 기존 Appetize·빌드 성공 기록은 통합 전 수정본의 기록입니다.
+- 통합 소스 `fda9f5a6d16d87567945f292dafbd086b57346df`의 [GitHub 실행](https://github.com/myunlee133-beep/charg_a_joe_app/actions/runs/41099509447)에서 공통 모델 29개·입력 7개 검사와 iOS 빌드·앱 압축·산출물 저장이 통과했습니다. 2026-10-31 02:40(KST) 확인 시 시뮬레이터 실행 단계는 지연되어 진행 중으로, 통합본의 화면 실행 성공은 아직 검증하지 못했습니다. README의 기존 Appetize 성공 기록은 통합 전 수정본의 기록입니다.
 - 2026-10-31 사용자가 PC의 Git 인증을 직접 승인한 뒤, 일반 Git push로 [별도 통합 브랜치](https://github.com/myunlee133-beep/charg_a_joe_app/tree/build/found-items-integrated-20261031)에 실제 병합 이력을 반영했습니다. main·codex/shuttle·codex/quest는 변경하지 않았습니다. Appetize에는 아직 이 통합본을 반영하지 않았습니다. 앞서 취소한 CI 자동 게시 방식은 사용하지 않았으며 새 쓰기 권한이나 자동 게시 절차를 추가하지 않았습니다.
 - 후속 변경은 일반 Git push로 같은 통합 브랜치에 올리고 기존 읽기 전용 iOS 검증을 실행합니다. main이나 두 기능 브랜치를 강제 덮어쓰지 마세요.
 - 소스 ZIP만 업로드하면 실제 병합 부모 이력이 사라져 같은 충돌이 다시 나타날 수 있습니다. 원격 반영에는 이 로컬 저장소 또는 함께 제공하는 Git bundle의 통합 브랜치를 사용하세요.
