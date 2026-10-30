@@ -68,6 +68,8 @@ struct KakaoMapView: UIViewRepresentable {
         private var userDirection: Poi?
         private let lostLayerID = "lost-found"
         private var lostPois: [String: Poi] = [:]
+        private var lostGroups: [FoundItemMapGroup] = []
+        private var lostStyles: [String: String] = [:]
         private var lastLostFocusSerial = -1
         private var lastUserFocusSerial = -1
         private let viewName = "mapview"
@@ -227,28 +229,34 @@ struct KakaoMapView: UIViewRepresentable {
         // MARK: 검증된 분실물센터와 회원 신고 위치. Existing Kakao map is reused.
         private func refreshLostPins(on map: KakaoMap, manager: LabelManager) {
             guard let layer = manager.getLabelLayer(layerID: lostLayerID) else { return }
-            let ids = Set(parent.lostPins.map(\.id))
-            for (id, poi) in lostPois where !ids.contains(id) { poi.hide() }
-            for pin in parent.lostPins {
-                let styleID: String
-                switch pin.kind {
-                case .center: styleID = "lf-center"
-                case .found: styleID = "lf-found"
-                case .lost: styleID = "lf-lost"
-                }
+            lostGroups = FoundItemMapGroup.groups(parent.lostPins.map {
+                .init(id: $0.id, title: $0.title, coordinate: .init(latitude: $0.latitude, longitude: $0.longitude), isCenter: $0.kind == .center)
+            }, zoom: Int(map.zoomLevel))
+            let ids = Set(lostGroups.map(\.id))
+            for id in Array(lostPois.keys) where !ids.contains(id) {
+                layer.removePoi(poiID: id); lostPois.removeValue(forKey: id); lostStyles.removeValue(forKey: id)
+            }
+            for group in lostGroups {
+                let kind: LostFoundMapPin.Kind = group.isCenter ? .center : .found
+                let count = group.entries.count
+                let styleID = group.isCenter ? "lf-center" : "lf-found-\(count)"
                 if !addedStyles.contains(styleID) {
-                    manager.addPoiStyle(Self.lostPinStyle(id: styleID, kind: pin.kind))
+                    manager.addPoiStyle(Self.lostPinStyle(id: styleID, kind: kind, count: count))
                     addedStyles.insert(styleID)
                 }
-                let pos = MapPoint(longitude: pin.longitude, latitude: pin.latitude)
-                if lostPois[pin.id] == nil {
-                    let option = PoiOptions(styleID: styleID, poiID: pin.id)
-                    option.rank = pin.kind == .center ? 320 : 250
-                    option.clickable = false // coordinate hit-testing in SDK tap callback
-                    lostPois[pin.id] = layer.addPoi(option: option, at: pos)
+                if lostStyles[group.id] != styleID, lostPois[group.id] != nil {
+                    layer.removePoi(poiID: group.id); lostPois.removeValue(forKey: group.id)
                 }
-                lostPois[pin.id]?.position = pos
-                lostPois[pin.id]?.show()
+                let pos = MapPoint(longitude: group.coordinate.longitude, latitude: group.coordinate.latitude)
+                if lostPois[group.id] == nil {
+                    let option = PoiOptions(styleID: styleID, poiID: group.id)
+                    option.rank = group.isCenter ? 320 : 250
+                    option.clickable = false
+                    lostPois[group.id] = layer.addPoi(option: option, at: pos)
+                    lostStyles[group.id] = styleID
+                }
+                lostPois[group.id]?.position = pos
+                lostPois[group.id]?.show()
             }
             if parent.lostFocusSerial != lastLostFocusSerial, let id = parent.lostFocusID,
                let pin = parent.lostPins.first(where: { $0.id == id }) {
@@ -259,9 +267,9 @@ struct KakaoMapView: UIViewRepresentable {
                 lastLostFocusSerial = parent.lostFocusSerial
             }
         }
-        private static func lostPinStyle(id: String, kind: LostFoundMapPin.Kind) -> PoiStyle {
+        private static func lostPinStyle(id: String, kind: LostFoundMapPin.Kind, count: Int = 1) -> PoiStyle {
             PoiStyle(styleID: id, styles: [PerLevelPoiStyle(iconStyle:
-                PoiIconStyle(symbol: render(LostFoundPin(kind: kind)), anchorPoint: CGPoint(x: 0.5, y: 0.5)), level: 0)])
+                PoiIconStyle(symbol: render(LostFoundPin(kind: kind, count: count)), anchorPoint: CGPoint(x: 0.5, y: 0.5)), level: 0)])
         }
 
         private func refreshQuests(on map: KakaoMap, manager: LabelManager) {
@@ -423,11 +431,15 @@ struct KakaoMapView: UIViewRepresentable {
                 .map { ($0.id, dist((probe.latitude, probe.longitude), ($0.lat, $0.lng))) }
                 .filter { $0.1 <= radius }
                 .min { $0.1 < $1.1 }
-            let lostHit = parent.lostPins
-                .map { ($0.id, dist((probe.latitude, probe.longitude), ($0.latitude, $0.longitude))) }
-                .filter { $0.1 <= radius }
-                .min { $0.1 < $1.1 }
-            if let lostHit { parent.onSelectLost(lostHit.0); return }
+            if let group = lostGroups.min(by: {
+                dist((probe.latitude, probe.longitude), ($0.coordinate.latitude, $0.coordinate.longitude)) < dist((probe.latitude, probe.longitude), ($1.coordinate.latitude, $1.coordinate.longitude))
+            }), dist((probe.latitude, probe.longitude), (group.coordinate.latitude, group.coordinate.longitude)) <= radius * 1.5 {
+                if group.entries.count > 1 && kakaoMap.zoomLevel < 20 {
+                    let update = CameraUpdate.make(target: MapPoint(longitude: group.coordinate.longitude, latitude: group.coordinate.latitude), zoomLevel: min(20, Int(kakaoMap.zoomLevel) + 2), mapView: kakaoMap)
+                    kakaoMap.animateCamera(cameraUpdate: update, options: CameraAnimationOptions(autoElevation: false, consecutive: false, durationInMillis: 450))
+                } else if let first = group.entries.first { parent.onSelectLost(first.id) }
+                return
+            }
             if pinsVisible, let hit { parent.onSelect(hit.0) }
         }
 
@@ -563,6 +575,8 @@ private struct UserLocationDirection: View {
 
 /// Center, found-item, and lost-request pins are intentionally distinct.
 private struct LostFoundPin: View {
+    let count: Int
+    init(kind: LostFoundMapPin.Kind, count: Int = 1) { self.kind = kind; self.count = count }
     let kind: LostFoundMapPin.Kind
     private var accent: Color {
         switch kind {
@@ -571,5 +585,12 @@ private struct LostFoundPin: View {
         case .lost: Color(hex: 0xF26B1D)
         }
     }
-    var body: some View { MapDot(color: accent) }
+    var body: some View {
+        if count > 1 {
+            Label("\(count)개", systemImage: "shippingbox.fill")
+                .font(.system(size: 12, weight: .bold)).foregroundStyle(.white)
+                .padding(.horizontal, 10).padding(.vertical, 8)
+                .background(accent, in: Capsule()).overlay(Capsule().stroke(.white, lineWidth: 2))
+        } else { MapDot(color: accent) }
+    }
 }

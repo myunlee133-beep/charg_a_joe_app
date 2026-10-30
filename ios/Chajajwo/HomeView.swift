@@ -65,6 +65,14 @@ struct HomeView: View {
             if let id = store.lostPinID { selectedLostPinID = id }
         }
         .onChange(of: store.lostPinID) { _, newValue in selectedLostPinID = newValue }
+        .task(id: scenePhase == .active && store.tab == .home) {
+            guard scenePhase == .active && store.tab == .home else { return }
+            while !Task.isCancelled {
+                do { try await Task.sleep(for: .seconds(60)) } catch { return }
+                guard !Task.isCancelled else { return }
+                await lf.prepare(force: true)
+            }
+        }
         .onDisappear { userLocation.stop(); pendingUserFocus = false }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { userLocation.start() }
@@ -124,7 +132,7 @@ struct HomeView: View {
             lostPinCard(pin).padding(.horizontal, 12).padding(.bottom, 12)
         } else if store.lostMapOnly {
             Button { store.tab = .lostFound } label: {
-                Label("분실물 발견·분실 의뢰 등록하기", systemImage: "shippingbox")
+                Label("습득물 등록·목록 보기", systemImage: "shippingbox")
                     .font(.subheadline.weight(.bold)).padding(16)
                     .frame(maxWidth: .infinity).background(Color.cjSurface, in: RoundedRectangle(cornerRadius: 15))
             }.padding(.horizontal, 12).padding(.bottom, 12)
@@ -421,10 +429,10 @@ struct HomeView: View {
                 Text(center.weekendHolidayNote).font(.caption).foregroundStyle(.secondary)
                 if let phone = center.phone, let url = URL(string: "tel:\(phone)") { Link("전화 문의", destination: url) }
             } else {
-                Text(pin.kind == .found ? "회원이 등록한 습득 위치입니다." : "회원의 분실 추정 위치입니다.")
+                Text("물품의 현재 보관 위치입니다. 경찰서 이관 시 이관 장소를 표시합니다.")
                     .font(.caption).foregroundStyle(.secondary)
             }
-            Button("분실물 상세·신고 보기") { store.tab = .lostFound }
+            Button("습득물 상세·수령 확인") { store.tab = .lostFound }
                 .font(.subheadline.weight(.bold))
         }
         .padding(15)

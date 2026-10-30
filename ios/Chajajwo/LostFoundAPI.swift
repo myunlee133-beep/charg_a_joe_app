@@ -33,33 +33,49 @@ struct LostFoundCenter: Decodable, Identifiable {
 
 struct LostFoundRecord: Decodable, Identifiable {
     let id: UUID
+    let source: String
+    let sourceId: String?
     let category: String
     let title: String
     let description: String
     let locationName: String
     let latitude: Double
     let longitude: Double
-    let eventAt: String
-    let custody: String?
-    let centerId: String?
+    let registeredAt: String
     let status: String
-    let createdAt: String
+    let photoUrl: String?
+    let photoBase64: String?
     let mine: Bool
+    var eventAt: String { registeredAt }
+    var createdAt: String { registeredAt }
+    var sourceTitle: String {
+        switch source { case "mysnu": "마이스누"; case "staff": "학교 담당자"; default: "사용자 등록" }
+    }
+    var statusTitle: String {
+        switch status { case "received": "수령 완료"; case "police": "경찰서 이관"; default: "보관 중" }
+    }
 }
 
 struct LostFoundClaim: Decodable, Identifiable {
     let id: UUID
-    let foundId: UUID
-    let foundTitle: String
-    let proofNote: String
+    let itemId: UUID
+    let title: String
+    let proof: String
     let status: String
+    let mine: Bool
+    let canVerify: Bool
     let createdAt: String
-}
-struct LostFoundLead: Decodable {
-    let requestId: UUID
-    let foundId: UUID
-    let foundTitle: String
-    let createdAt: String
+    var statusTitle: String {
+        switch status {
+        case "pending": "소유자 확인 대기"
+        case "accepted": "소유자 확인됨 · 수령 결과를 남겨주세요"
+        case "rejected": "소유자 확인 거절"
+        case "received": "수령 완료"
+        case "not_mine": "내 물건이 아니에요"
+        case "not_received": "수령하지 않았어요"
+        default: status
+        }
+    }
 }
 
 enum LostFoundKind: String, CaseIterable, Identifiable {
@@ -70,7 +86,7 @@ enum LostFoundKind: String, CaseIterable, Identifiable {
 enum LostFoundType: String, Identifiable, CaseIterable {
     case found, lost
     var id: String { rawValue }
-    var title: String { self == .found ? "분실물을 발견했어요" : "물건을 잃어버렸어요" }
+    var title: String { "습득물 등록" }
 }
 struct LostFoundMapPin: Identifiable {
     enum Kind { case center, found, lost }
@@ -79,31 +95,37 @@ struct LostFoundMapPin: Identifiable {
     let latitude: Double
     let longitude: Double
     let kind: Kind
+    let count: Int
+    init(id: String, title: String, latitude: Double, longitude: Double, kind: Kind, count: Int = 1) {
+        self.id = id; self.title = title; self.latitude = latitude; self.longitude = longitude
+        self.kind = kind; self.count = count
+    }
 }
 
 @MainActor
 final class LostFoundAPI: ObservableObject {
     @Published private(set) var centers = LostFoundCenter.verified
     @Published private(set) var found: [LostFoundRecord] = []
-    @Published private(set) var lost: [LostFoundRecord] = []
-    @Published private(set) var inbox: [LostFoundClaim] = []
-    @Published private(set) var myClaims: [LostFoundClaim] = []
-    @Published private(set) var leads: [LostFoundLead] = []
+    @Published private(set) var claims: [LostFoundClaim] = []
     @Published private(set) var loggedIn = false
     @Published var error: String?
     @Published private(set) var loading = false
     private var account = CommunityAPI()
 
     var configured: Bool { account.configuration != nil }
+    var isModerator: Bool { account.profile?.isModerator == true }
+    var lost: [LostFoundRecord] { [] } // Legacy map signature; there are no lost-request records.
+    var inbox: [LostFoundClaim] { claims.filter(\.canVerify) }
+    var myClaims: [LostFoundClaim] { claims.filter(\.mine) }
     var pins: [LostFoundMapPin] {
         centers.map { .init(id: "center:\($0.id)", title: $0.name, latitude: $0.latitude, longitude: $0.longitude, kind: .center) }
-        + found.map { .init(id: "found:\($0.id.uuidString.lowercased())", title: $0.title, latitude: $0.latitude, longitude: $0.longitude, kind: .found) }
-        + lost.map { .init(id: "lost:\($0.id.uuidString.lowercased())", title: $0.title, latitude: $0.latitude, longitude: $0.longitude, kind: .lost) }
+        + found.filter { $0.status == "stored" || $0.status == "police" }.map {
+            .init(id: "found:\($0.id.uuidString.lowercased())", title: $0.title, latitude: $0.latitude, longitude: $0.longitude, kind: .found)
+        }
     }
     func center(_ id: String) -> LostFoundCenter? { centers.first { "center:\($0.id)" == id } }
     func record(_ id: String) -> LostFoundRecord? {
-        if id.hasPrefix("found:") { return found.first { "found:\($0.id.uuidString.lowercased())" == id } }
-        return lost.first { "lost:\($0.id.uuidString.lowercased())" == id }
+        found.first { "found:\($0.id.uuidString.lowercased())" == id || $0.id.uuidString.lowercased() == id.lowercased() }
     }
     private var loadedAt = Date.distantPast
     private var preparing = false
@@ -124,19 +146,15 @@ final class LostFoundAPI: ObservableObject {
         guard !loading else { return }
         loading = true; defer { loading = false }
         error = nil
-        guard configured else { return }
+        guard configured else { found = []; claims = []; error = "서버 설정이 없어 습득물 목록을 불러올 수 없습니다."; return }
         do {
             centers = try await account.rpc("lf_centers_list", [:], as: [LostFoundCenter].self, authenticated: false)
         } catch { self.error = "센터 데이터를 불러오지 못해 확인된 기본 정보로 표시합니다. \(error.localizedDescription)"; centers = LostFoundCenter.verified }
-        guard loggedIn else { found = []; lost = []; inbox = []; myClaims = []; leads = []; return }
+        guard loggedIn else { found = []; claims = []; return }
         do {
-            async let a: [LostFoundRecord] = account.rpc("lf_found_list", [:], as: [LostFoundRecord].self)
-            async let b: [LostFoundRecord] = account.rpc("lf_lost_list", [:], as: [LostFoundRecord].self)
-            found = try await a; lost = try await b
-            inbox = (try? await account.rpc("lf_my_claims_inbox", [:], as: [LostFoundClaim].self)) ?? []
-            myClaims = (try? await account.rpc("lf_my_claims", [:], as: [LostFoundClaim].self)) ?? []
-            leads = (try? await account.rpc("lf_my_leads", [:], as: [LostFoundLead].self)) ?? []
-        } catch { self.error = "습득물·분실 의뢰를 불러오지 못했습니다: \(error.localizedDescription)" }
+            found = try await account.rpc("lf_items_list", [:], as: [LostFoundRecord].self)
+            claims = try await account.rpc("lf_claims_list", [:], as: [LostFoundClaim].self)
+        } catch { self.error = "습득물 정보를 불러오지 못했습니다: \(error.localizedDescription)" }
     }
     func signIn(email: String, password: String) async throws {
         try await account.signIn(email: email, password: password)
@@ -149,45 +167,51 @@ final class LostFoundAPI: ObservableObject {
         if active { await refresh() }
         return active
     }
-    func add(_ type: LostFoundType, category: String, title: String, description: String,
-             building: CampusBuilding, eventAt: Date, custody: String = "finder", centerID: String? = nil) async throws {
+    func detail(_ id: UUID) async throws -> LostFoundRecord {
+        guard loggedIn else { throw CommunityError.message("로그인이 필요합니다.") }
+        return try await account.rpc("lf_item_detail", ["p_item_id": id.uuidString.lowercased()], as: LostFoundRecord.self)
+    }
+    func add(category: String, title: String, description: String, locationName: String,
+             latitude: Double, longitude: Double, photo: Data?) async throws {
         guard loggedIn else { throw CommunityError.message("로그인이 필요합니다.") }
         guard LostFoundRules.categories.contains(category), LostFoundRules.validTitle(title),
-              LostFoundRules.validDescription(description, required: type == .lost),
-              LostFoundRules.validCampusCoordinate(latitude: building.latitude, longitude: building.longitude),
-              LostFoundRules.validEventDate(eventAt) else {
+              LostFoundRules.validDescription(description, required: false),
+              LostFoundRules.validLocation(locationName),
+              LostFoundRules.validCampusCoordinate(latitude: latitude, longitude: longitude),
+              LostFoundRules.validPhoto(photo) else {
             throw CommunityError.message("입력한 물품 정보나 건물 위치가 올바르지 않습니다.")
         }
-        let iso = ISO8601DateFormatter().string(from: eventAt)
-        let common: [String: Any] = ["p_category": category, "p_title": title,
-            "p_description": description, "p_location_name": building.name,
-            "p_latitude": building.latitude, "p_longitude": building.longitude, "p_event_at": iso]
-        var params = common
-        let fn: String
-        if type == .found {
-            fn = "lf_found_create"
-            params["p_custody"] = custody
-            params["p_center_id"] = centerID ?? (NSNull() as Any)
-        } else { fn = "lf_lost_create" }
-        let _: UUID = try await account.rpc(fn, params, as: UUID.self)
-        await refresh()
-    }
-    func setStatus(_ type: LostFoundType, id: UUID, status: String) async throws {
-        let _: Bool = try await account.rpc(type == .found ? "lf_found_status" : "lf_lost_status",
-             ["p_id":id.uuidString.lowercased(),"p_status":status],as:Bool.self)
+        let params: [String: Any] = ["p_category": category, "p_title": title,
+            "p_description": description, "p_location_name": locationName,
+            "p_latitude": latitude, "p_longitude": longitude,
+            "p_photo_base64": photo.map { $0.base64EncodedString() as Any } ?? NSNull()]
+        let _: UUID = try await account.rpc("lf_item_create", params, as: UUID.self)
         await refresh()
     }
     func claim(foundID: UUID, proof: String) async throws {
         guard LostFoundRules.validProof(proof) else { throw CommunityError.message("확인 내용을 10~500자로 적어주세요.") }
-        let _: Bool = try await account.rpc("lf_claim_create", ["p_found_id":foundID.uuidString.lowercased(),"p_proof_note":proof],as:Bool.self)
+        let _: UUID = try await account.rpc("lf_claim_interest", ["p_item_id":foundID.uuidString.lowercased(), "p_proof":proof.trimmingCharacters(in: .whitespacesAndNewlines)], as:UUID.self)
         await refresh()
     }
     func resolveClaim(_ id: UUID, accepted: Bool) async throws {
-        let _: Bool = try await account.rpc("lf_claim_resolve", ["p_claim_id":id.uuidString.lowercased(),"p_status":accepted ? "accepted":"rejected"],as:Bool.self)
+        let ok: Bool = try await account.rpc("lf_claim_verify", ["p_claim_id":id.uuidString.lowercased(), "p_is_owner":accepted], as:Bool.self)
+        guard ok else { throw CommunityError.message("확인 권한이나 요청 상태가 변경되었습니다. 새로고침해 주세요.") }
         await refresh()
     }
-    func link(foundID: UUID, requestID: UUID) async throws {
-        let _: Bool = try await account.rpc("lf_lead_create", ["p_found_id":foundID.uuidString.lowercased(),"p_request_id":requestID.uuidString.lowercased()],as:Bool.self)
+    func completeClaim(_ id: UUID, outcome: String) async throws {
+        guard ["received", "not_mine", "not_received"].contains(outcome) else { throw CommunityError.message("수령 결과가 올바르지 않습니다.") }
+        let ok: Bool = try await account.rpc("lf_claim_complete", ["p_claim_id":id.uuidString.lowercased(), "p_outcome":outcome], as:Bool.self)
+        guard ok else { throw CommunityError.message("수령 결과를 저장하지 못했습니다. 요청 상태를 확인해 주세요.") }
+        await refresh()
+    }
+    func transfer(_ id: UUID, locationName: String, latitude: Double, longitude: Double) async throws {
+        guard LostFoundRules.validLocation(locationName),
+              LostFoundRules.validCoordinate(latitude: latitude, longitude: longitude) else {
+            throw CommunityError.message("경찰서 이름과 실제 위치를 정확히 입력해 주세요.")
+        }
+        let ok: Bool = try await account.rpc("lf_item_transfer", ["p_item_id":id.uuidString.lowercased(),
+            "p_location_name":locationName, "p_latitude":latitude, "p_longitude":longitude], as:Bool.self)
+        guard ok else { throw CommunityError.message("이관 권한이나 물품 상태가 변경되었습니다.") }
         await refresh()
     }
 }

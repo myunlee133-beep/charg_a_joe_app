@@ -1,68 +1,111 @@
 import SwiftUI
+import PhotosUI
+import UIKit
+import ImageIO
+import UniformTypeIdentifiers
 
 struct LostFoundView: View {
+    @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject private var store: Store
     @EnvironmentObject private var lf: LostFoundAPI
-    @State private var section: Int = 0
-    @State private var editor: LostFoundType?
-    @State private var selected: LostFoundRecord?
+    @State private var section = 0
+    @State private var showEditor = false
     @State private var showAuth = false
-
+    @State private var selected: LostFoundRecord?
+    @State private var category = "전체"
+    @State private var source = "전체"
+    @State private var query = ""
+    private var filtered: [LostFoundRecord] {
+        lf.found.filter {
+            (category == "전체" || $0.category == category) &&
+            (source == "전체" || $0.source == source) &&
+            (query.isEmpty || "\($0.title) \($0.locationName) \($0.description)".localizedCaseInsensitiveContains(query))
+        }
+    }
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("학교 안에서 발견하거나 잃어버린 물건을 공유해요.")
-                        .font(.subheadline).foregroundStyle(.secondary)
-                    HStack(spacing: 10) {
-                        action("분실물을 발견했어요", icon: "shippingbox.fill", type: .found)
-                        action("물건을 잃어버렸어요", icon: "magnifyingglass", type: .lost)
-                    }
-                    Picker("목록", selection: $section) {
-                        Text("분실물센터").tag(0)
-                        Text("발견된 물건").tag(1)
-                        Text("찾는 물건").tag(2)
+                    Text("마이스누·학교 담당자·사용자가 등록한 습득물을 한곳에서 확인해요.").font(.subheadline).foregroundStyle(.secondary)
+                    Button {
+                        if lf.loggedIn { showEditor = true } else { showAuth = true }
+                    } label: {
+                        Label("습득물 등록", systemImage: "shippingbox.fill").font(.headline)
+                            .frame(maxWidth: .infinity).padding(16).foregroundStyle(Color.cjTealText)
+                            .background(Color.cjSurface, in: RoundedRectangle(cornerRadius: 14))
+                    }.buttonStyle(.plain)
+                    Picker("보기", selection: $section) {
+                        Text("습득물 목록").tag(0); Text("수령 확인").tag(1); Text("분실물센터").tag(2)
                     }.pickerStyle(.segmented)
-                    if let error = lf.error {
-                        Text(error).font(.footnote).foregroundStyle(.orange)
+                    if let error = lf.error { Text(error).font(.footnote).foregroundStyle(.orange) }
+                    if lf.loading { ProgressView("최신 정보 확인 중") }
+                    if section == 2 { centers }
+                    else if !lf.loggedIn {
+                        ContentUnavailableView("로그인이 필요해요", systemImage: "person.crop.circle", description: Text("습득물 정보와 비공개 수령 확인은 로그인 후 이용할 수 있어요."))
+                        Button("로그인") { showAuth = true }.buttonStyle(.borderedProminent)
+                    } else if section == 0 { records }
+                    else {
+                        Text("소유자 확인 후 실제 수령 결과를 남겨주세요.").font(.subheadline).foregroundStyle(.secondary)
+                        if lf.claims.isEmpty && !lf.loading { ContentUnavailableView("수령 확인 요청이 없어요", systemImage: "checkmark.shield", description: Text("내 물건 같은 습득물의 상세 화면에서 확인을 요청할 수 있어요.")) }
+                        ForEach(lf.claims) { LostFoundClaimCard(claim: $0) }
                     }
-                    if section == 0 { centerList }
-                    if section == 1 { recordList(lf.found, type: .found) }
-                    if section == 2 { recordList(lf.lost, type: .lost) }
-                    if lf.loggedIn && (!lf.inbox.isEmpty || !lf.myClaims.isEmpty || !lf.leads.isEmpty) { myResponses }
-                    if !lf.loggedIn {
-                        Button("로그인하고 습득물·분실 의뢰 보기") { showAuth = true }
-                            .frame(maxWidth: .infinity).padding(14)
-                            .background(Color.cjTeal.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
+                }.padding(16)
+            }.background(Color(uiColor: .systemGroupedBackground)).navigationTitle("분실물")
+                .toolbar { ToolbarItem(placement: .topBarTrailing) {
+                    Button { Task { await lf.prepare(force: true) } } label: { Image(systemName: "arrow.clockwise") }.disabled(lf.loading)
+                } }
+                .onAppear { Task { await lf.prepare() } }
+                .task(id: scenePhase == .active && store.tab == .lostFound) {
+                    guard scenePhase == .active && store.tab == .lostFound else { return }
+                    while !Task.isCancelled {
+                        do { try await Task.sleep(for: .seconds(60)) } catch { return }
+                        guard !Task.isCancelled else { return }
+                        await lf.prepare(force: true)
                     }
                 }
-                .padding(16)
-            }
-            .background(Color(uiColor: .systemGroupedBackground))
-            .navigationTitle("분실물")
-            .toolbar { ToolbarItem(placement: .topBarTrailing) { Button { Task { await lf.prepare(force: true) } } label: { Image(systemName: "arrow.clockwise") } } }
-            .onAppear { Task { await lf.prepare() } } // .task와 달리 탭을 넘겨도 받던 요청이 취소되지 않는다
-            .refreshable { await lf.prepare(force: true) }
-            .sheet(item: $editor) { kind in LostFoundEditor(type: kind) }
-            .sheet(item: $selected) { record in LostFoundRecordDetail(record: record, type: section == 1 ? .found : .lost) }
-            .sheet(isPresented: $showAuth) { LostFoundAuthView() }
+                .refreshable { await lf.prepare(force: true) }
+                .sheet(isPresented: $showEditor) { LostFoundEditor() }
+                .sheet(item: $selected) { LostFoundRecordDetail(record: $0, type: .found) }
+                .sheet(isPresented: $showAuth) { LostFoundAuthView() }
         }
     }
-    private func action(_ title: String, icon: String, type: LostFoundType) -> some View {
-        Button {
-            if lf.loggedIn { editor = type }
-            else { showAuth = true }
-        } label: {
-            VStack(alignment: .leading, spacing: 9) {
-                Image(systemName: icon).font(.title2)
-                Text(title).font(.subheadline.weight(.semibold)).multilineTextAlignment(.leading)
+    private var records: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            TextField("제목·보관 장소 검색", text: $query).textFieldStyle(.roundedBorder)
+            HStack {
+                Picker("종류", selection: $category) {
+                    Text("전체 종류").tag("전체")
+                    ForEach(LostFoundKind.allCases) { Text($0.rawValue).tag($0.rawValue) }
+                }
+                Picker("출처", selection: $source) {
+                    Text("모든 등록처").tag("전체"); Text("마이스누").tag("mysnu")
+                    Text("학교 담당자").tag("staff"); Text("사용자").tag("user")
+                }
+            }.font(.subheadline)
+            Text("\(filtered.count)건 · 등록일 기준").font(.caption).foregroundStyle(.secondary)
+            if filtered.isEmpty && !lf.loading {
+                ContentUnavailableView("해당하는 습득물이 없어요", systemImage: "shippingbox", description: Text("검색 조건을 바꾸거나 나중에 다시 확인해 주세요."))
             }
-            .foregroundStyle(Color.cjTealText).frame(maxWidth: .infinity, minHeight: 100, alignment: .leading)
-            .padding(.horizontal, 14).background(Color.cjSurface, in: RoundedRectangle(cornerRadius: 14))
+            ForEach(filtered) { item in
+                Button { selected = item } label: {
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "shippingbox").font(.title2).foregroundStyle(Color.cjTeal).frame(width: 32)
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(item.title).font(.headline)
+                            Text("\(item.category) · \(item.sourceTitle)").font(.subheadline)
+                            Text("등록일 \(LostFoundDate.label(item.registeredAt))").font(.caption).foregroundStyle(.secondary)
+                            Text(item.locationName).font(.caption).foregroundStyle(.secondary)
+                            Text(item.statusTitle).font(.caption.weight(.semibold)).foregroundStyle(Color.cjTealText)
+                        }
+                        Spacer(minLength: 0)
+                        Image(systemName: "chevron.right").font(.caption).foregroundStyle(.secondary)
+                    }.foregroundStyle(.primary).frame(maxWidth: .infinity, alignment: .leading).padding(14)
+                        .background(Color.cjSurface, in: RoundedRectangle(cornerRadius: 13))
+                }.buttonStyle(.plain)
+            }
         }
-        .buttonStyle(.plain)
     }
-    private var centerList: some View {
+    private var centers: some View {
         VStack(spacing: 10) {
             ForEach(lf.centers) { center in
                 VStack(alignment: .leading, spacing: 7) {
@@ -72,84 +115,28 @@ struct LostFoundView: View {
                     Text(center.weekendHolidayNote).font(.caption).foregroundStyle(.secondary)
                     Text(center.custodyNote).font(.caption)
                     HStack {
-                        Button("지도에서 보기") { focus("center:\(center.id)") }
+                        Button("지도에서 보기") {
+                            store.showDining = false; store.lostMapOnly = true; store.lostPinID = "center:\(center.id)"
+                            store.lostFocusSerial += 1; store.tab = .home
+                        }
                         if let phone = center.phone, let tel = URL(string: "tel:\(phone)") { Link("전화", destination: tel) }
-                        if let source = URL(string: center.sourceUrl) { Link("공식 안내", destination: source) }
+                        if let url = URL(string: center.sourceUrl), url.scheme == "https" { Link("공식 안내", destination: url) }
                     }.font(.footnote.weight(.semibold)).buttonStyle(.bordered)
                     Text("확인 기준: \(center.checkedOn)").font(.caption2).foregroundStyle(.secondary)
-                }.frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(15).background(Color.cjSurface, in: RoundedRectangle(cornerRadius: 13))
+                }.frame(maxWidth: .infinity, alignment: .leading).padding(15)
+                    .background(Color.cjSurface, in: RoundedRectangle(cornerRadius: 13))
             }
         }
     }
-    private func recordList(_ items: [LostFoundRecord], type: LostFoundType) -> some View {
-        VStack(spacing: 9) {
-            if !lf.loggedIn { Text("게시물 조회는 로그인 후 이용할 수 있어요.").foregroundStyle(.secondary).padding(24) }
-            else if items.isEmpty { ContentUnavailableView("등록된 물건이 없어요", systemImage: "shippingbox", description: Text("첫 신고를 등록해 주세요.")) }
-            ForEach(lf.loggedIn ? items : []) { item in
-                Button { selected = item } label: {
-                    HStack(alignment: .top, spacing: 12) {
-                        Image(systemName: type == .found ? "shippingbox" : "magnifyingglass")
-                            .foregroundStyle(Color.cjTeal).frame(width: 32, height: 32)
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text(item.title).font(.headline)
-                            Text("\(item.category) · \(item.locationName)").font(.subheadline).foregroundStyle(.secondary)
-                            Text(type == .found ? "회원이 등록한 습득 정보" : "회원이 등록한 분실 추정 장소")
-                                .font(.caption2).foregroundStyle(.secondary)
-                        }
-                        Spacer()
-                        Image(systemName: "chevron.right").foregroundStyle(.secondary)
-                    }.frame(maxWidth: .infinity, alignment: .leading).padding(14)
-                        .background(Color.cjSurface, in: RoundedRectangle(cornerRadius: 13))
-                }.buttonStyle(.plain)
-            }
-        }
-    }
-    private var myResponses: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            if !lf.myClaims.isEmpty {
-                Text("내가 보낸 소유권 확인 요청").font(.headline)
-                ForEach(lf.myClaims) { claim in
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(claim.foundTitle).font(.subheadline.weight(.semibold))
-                            Text(claim.status == "pending" ? "확인 대기" : claim.status == "accepted" ? "신고자가 확인했어요" : "요청이 반려되었어요")
-                                .font(.caption).foregroundStyle(.secondary)
-                        }
-                        Spacer()
-                    }
-                    .padding(12).frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.cjSurface, in: RoundedRectangle(cornerRadius: 12))
-                }
-            }
-            if !lf.inbox.isEmpty { Text("내 습득물에 도착한 확인 요청").font(.headline) }
-            ForEach(lf.inbox) { claim in
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(claim.foundTitle).font(.subheadline.weight(.bold))
-                    Text("비공개 소유권 확인: \(claim.proofNote)").font(.footnote)
-                    Text(claim.status == "pending" ? "확인 대기" : claim.status == "accepted" ? "승인" : "반려")
-                        .font(.caption).foregroundStyle(.secondary)
-                    if claim.status == "pending" {
-                        HStack {
-                            Button("확인") { Task { try? await lf.resolveClaim(claim.id, accepted: true) } }
-                            Button("반려", role: .destructive) { Task { try? await lf.resolveClaim(claim.id, accepted: false) } }
-                        }.buttonStyle(.bordered)
-                    }
-                }.padding(12).frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.cjSurface, in: RoundedRectangle(cornerRadius: 12))
-            }
-            if !lf.leads.isEmpty { Text("내 분실 의뢰 관련 제보").font(.headline) }
-            ForEach(lf.leads.indices, id: \.self) { i in
-                Text("관련 습득물: \(lf.leads[i].foundTitle)").font(.subheadline)
-            }
-        }
-    }
-    private func focus(_ id: String) {
-        store.showDining = false
-        store.lostMapOnly = true
-        store.lostPinID = id
-        store.lostFocusSerial += 1
-        store.tab = .home
+}
+
+private enum LostFoundDate {
+    static func label(_ value: String) -> String {
+        let parser = ISO8601DateFormatter(); parser.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        guard let date = parser.date(from: value) ?? ISO8601DateFormatter().date(from: value) else { return String(value.prefix(10)) }
+        let formatter = DateFormatter(); formatter.locale = Locale(identifier: "ko_KR")
+        formatter.timeZone = TimeZone(identifier: "Asia/Seoul"); formatter.dateFormat = "yyyy.MM.dd HH:mm"
+        return formatter.string(from: date)
     }
 }
 
@@ -165,17 +152,16 @@ private struct LostFoundAuthView: View {
         NavigationStack {
             Form {
                 Section("사랑방과 같은 계정을 사용합니다") {
-                    TextField("이메일", text: $email).keyboardType(.emailAddress)
-                        .textInputAutocapitalization(.never).autocorrectionDisabled()
+                    TextField("이메일", text: $email).keyboardType(.emailAddress).textInputAutocapitalization(.never).autocorrectionDisabled()
                     SecureField("비밀번호", text: $password)
                     if let message { Text(message).font(.footnote) }
-                    Button(signup ? "회원가입" : "로그인") { Task { await submit() } }
-                        .disabled(working || !email.contains("@") || password.count < 6)
-                    Button(signup ? "기존 계정으로 로그인" : "계정이 없나요? 회원가입") { signup.toggle(); message = nil }
+                    Button(signup ? "회원가입" : "로그인") { Task { await submit() } }.disabled(working || !email.contains("@") || password.count < 6)
+                    Button(signup ? "기존 계정으로 로그인" : "계정이 없나요? 회원가입") { signup.toggle(); message = nil }.disabled(working)
                 }
-            }.navigationTitle("찾아줘 계정")
-                .toolbar { ToolbarItem(placement: .cancellationAction) { Button("닫기") { dismiss() } } }
-        }
+            }.navigationTitle("찾아줘 계정").toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("닫기") { dismiss() }.disabled(working) }
+            }
+        }.interactiveDismissDisabled(working)
     }
     private func submit() async {
         working = true; defer { working = false }
@@ -188,156 +174,270 @@ private struct LostFoundAuthView: View {
     }
 }
 
+/// Keep the place label and coordinates together; a label alone cannot move a map pin.
+private struct LostFoundLocationFields: View {
+    @Binding var building: CampusBuilding?
+    @Binding var detail: String
+    @Binding var direct: Bool
+    @Binding var latitude: String
+    @Binding var longitude: String
+    @State private var query = ""
+    let police: Bool
+    var body: some View {
+        Section(police ? "이관한 경찰서의 실제 위치" : "현재 보관 장소") {
+            Toggle("장소와 좌표 직접 입력", isOn: $direct)
+            if direct {
+                TextField(police ? "경찰서 이름과 보관 부서" : "구체적인 장소 이름", text: $detail)
+                TextField("위도 (예: 37.46328)", text: $latitude).keyboardType(.numbersAndPunctuation)
+                TextField("경도 (예: 126.95015)", text: $longitude).keyboardType(.numbersAndPunctuation)
+            } else {
+                TextField("건물 이름 또는 동 번호 검색", text: $query)
+                if let building { Text("선택: \(building.displayTitle)").foregroundStyle(Color.cjTealText) }
+                if !query.isEmpty {
+                    ForEach(Array(CampusBuildingCatalog.search(query).prefix(10))) { place in
+                        Button(place.displayTitle) { building = place; query = "" }
+                    }
+                }
+                TextField("호실·보관 부서·건물 안 구체적 위치", text: $detail)
+            }
+            Text(police ? "실제 이관한 경찰서 이름과 좌표를 입력하세요. 이전 보관 건물 위치를 그대로 사용하지 마세요." : "건물과 호실 또는 구체적 장소를 반드시 입력하세요. 지도에는 입력한 보관 위치가 표시됩니다.")
+                .font(.caption).foregroundStyle(.secondary)
+        }
+    }
+}
+
 private struct LostFoundEditor: View {
     @EnvironmentObject private var lf: LostFoundAPI
     @Environment(\.dismiss) private var dismiss
-    let type: LostFoundType
     @State private var category = "지갑"
     @State private var title = ""
     @State private var description = ""
-    @State private var eventAt = Date()
-    @State private var buildingQuery = ""
     @State private var building: CampusBuilding?
-    @State private var custody = "finder"
-    @State private var centerID = "snu101"
+    @State private var locationDetail = ""
+    @State private var latitude = ""
+    @State private var longitude = ""
+    @State private var direct = false
     @State private var working = false
+    @State private var photoLoading = false
+    @State private var selectedPhoto: PhotosPickerItem?
+    @State private var photo: Data?
+    @State private var photoError: String?
     @State private var error: String?
+    private var location: (String, Double, Double)? {
+        LostFoundLocation.make(building: building, detail: locationDetail, direct: direct, latitude: latitude, longitude: longitude, campusOnly: true)
+    }
     var body: some View {
         NavigationStack {
             Form {
-                Section(type.title) {
-                    Picker("물품 종류", selection: $category) {
-                        ForEach(LostFoundKind.allCases) { item in Text(item.rawValue).tag(item.rawValue) }
+                Section("습득물 정보") {
+                    Picker("물품 종류", selection: $category) { ForEach(LostFoundKind.allCases) { Text($0.rawValue).tag($0.rawValue) } }
+                    TextField("물건 이름 (2~100자)", text: $title)
+                    TextField("공개 가능한 외형 설명 (선택)", text: $description, axis: .vertical).lineLimit(2...5)
+                    Text("등록일은 서버에서 자동 기록합니다. 학교 담당자 또는 사용자 등록 여부는 로그인 계정 권한으로 결정됩니다.").font(.caption).foregroundStyle(.secondary)
+                }
+                LostFoundLocationFields(building: $building, detail: $locationDetail, direct: $direct, latitude: $latitude, longitude: $longitude, police: false)
+                Section("사진 (선택)") {
+                    PhotosPicker(selection: $selectedPhoto, matching: .images) { Label(photo == nil ? "사진 선택" : "사진 변경", systemImage: "photo") }.disabled(working)
+                    if photoLoading { ProgressView("사진 준비 중") }
+                    if let photo, let image = UIImage(data: photo) {
+                        Image(uiImage: image).resizable().scaledToFit().frame(maxHeight: 220)
                     }
-                    TextField("물건 이름", text: $title)
-                    TextField(type == .found ? "공개 가능한 외형 설명 (선택)" : "물건 특징 (색상·형태 등)", text: $description, axis: .vertical)
-                        .lineLimit(2...4)
-                    DatePicker(type == .found ? "발견 시각" : "마지막 확인 시각", selection: $eventAt, in: ...Date())
-                }
-                Section(type == .found ? "발견한 장소" : "마지막으로 확인한 장소") {
-                    TextField("건물 이름 또는 동 번호 검색", text: $buildingQuery)
-                    if let building { Text("선택: \(building.displayTitle)").foregroundStyle(Color.cjTealText) }
-                    if !buildingQuery.isEmpty {
-                        ForEach(Array(CampusBuildingCatalog.search(buildingQuery).prefix(7))) { place in
-                            Button(place.displayTitle) { building = place; buildingQuery = "" }
-                        }
+                    if selectedPhoto != nil || photo != nil {
+                        Button("사진 제거", role: .destructive) { selectedPhoto = nil; self.photo = nil; photoError = nil }
                     }
-                    Text("서울대 건물 데이터에서 위치를 선택합니다. 지도에는 실제 습득 위치 또는 분실 추정 위치로 표시됩니다.")
-                        .font(.caption).foregroundStyle(.secondary)
+                    if let photoError { Text(photoError).font(.footnote).foregroundStyle(.red) }
+                    Text("사진은 JPEG 512KB 이하로 줄여 전송합니다. 카드·신분증의 개인정보가 보이지 않게 선택하세요.").font(.caption).foregroundStyle(.secondary)
                 }
-                if type == .found {
-                    Section("현재 물건 상태") {
-                        Picker("보관 상황", selection: $custody) {
-                            Text("제가 보관 중이에요").tag("finder")
-                            Text("분실물센터에 인계했어요").tag("center")
-                            Text("발견 사실만 제보해요").tag("sighting")
-                        }
-                        if custody == "center" {
-                            Picker("인계한 보관처", selection: $centerID) {
-                                ForEach(lf.centers) { center in Text(center.name).tag(center.id) }
-                            }
-                        }
-                        Text("실제 인계하지 않았다면 보관처 인계를 선택하지 마세요. 신분증 번호·학번 등 개인정보를 적지 마세요.")
-                            .font(.caption).foregroundStyle(.secondary)
+                if let error { Text(error).font(.footnote).foregroundStyle(.red) }
+            }.disabled(working).navigationTitle("습득물 등록").navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) { Button("취소") { dismiss() }.disabled(working) }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("등록") { Task { await submit() } }
+                            .disabled(working || photoLoading || photoError != nil || !LostFoundRules.validTitle(title) || !LostFoundRules.validDescription(description, required: false) || location == nil)
                     }
-                }
-                Section {
-                    Text("실명, 학번, 연락처, 카드·학생증 번호와 비밀번호를 공개 설명에 입력하지 마세요.")
-                        .font(.caption).foregroundStyle(.secondary)
-                }
-                if let error { Text(error).foregroundStyle(.red).font(.footnote) }
-            }
-            .navigationTitle(type.title).navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("취소") { dismiss() } }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("등록") { Task { await submit() } }
-                        .disabled(working || !LostFoundRules.validTitle(title) || !LostFoundRules.validDescription(description, required: type == .lost) || building == nil)
-                }
-            }
-        }
+                }.task(id: selectedPhoto) { await loadPhoto() }
+        }.interactiveDismissDisabled(working)
+    }
+    private func loadPhoto() async {
+        guard let selectedPhoto else { photo = nil; photoLoading = false; return }
+        photoLoading = true; photo = nil; photoError = nil
+        defer { if selectedPhoto == self.selectedPhoto { photoLoading = false } }
+        do {
+            guard let original = try await selectedPhoto.loadTransferable(type: Data.self) else { throw CommunityError.message("선택한 사진을 읽을 수 없습니다. 다른 사진을 선택하세요.") }
+            guard !Task.isCancelled, selectedPhoto == self.selectedPhoto else { return }
+            guard let compressed = LostFoundPhoto.jpeg(original) else { throw CommunityError.message("사진을 JPEG 512KB 이하로 변환할 수 없습니다. 다른 사진을 선택하세요.") }
+            guard !Task.isCancelled, selectedPhoto == self.selectedPhoto else { return }
+            photo = compressed
+        } catch { if !Task.isCancelled, selectedPhoto == self.selectedPhoto { photoError = error.localizedDescription } }
     }
     private func submit() async {
-        guard let building else { return }
+        guard let location else { return }
         working = true; defer { working = false }
         do {
-            try await lf.add(type, category: category, title: title.trimmingCharacters(in: .whitespacesAndNewlines),
-                description: description.trimmingCharacters(in: .whitespacesAndNewlines), building: building,
-                eventAt: eventAt, custody: custody, centerID: custody == "center" ? centerID : nil)
+            try await lf.add(category: category, title: title.trimmingCharacters(in: .whitespacesAndNewlines), description: description.trimmingCharacters(in: .whitespacesAndNewlines), locationName: location.0, latitude: location.1, longitude: location.2, photo: photo)
             dismiss()
         } catch { self.error = error.localizedDescription }
     }
 }
 
-private struct LostFoundRecordDetail: View {
+private enum LostFoundLocation {
+    static func make(building: CampusBuilding?, detail: String, direct: Bool, latitude: String, longitude: String, campusOnly: Bool) -> (String, Double, Double)? {
+        let detail = detail.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !detail.isEmpty else { return nil }
+        let label: String, lat: Double, lng: Double
+        if direct {
+            guard let a = Double(latitude.trimmingCharacters(in: .whitespaces)), let b = Double(longitude.trimmingCharacters(in: .whitespaces)) else { return nil }
+            label = detail; lat = a; lng = b
+        } else {
+            guard let building else { return nil }
+            label = "\(building.displayTitle) · \(detail)"; lat = building.latitude; lng = building.longitude
+        }
+        let coordinateValid = campusOnly ? LostFoundRules.validCampusCoordinate(latitude: lat, longitude: lng) : LostFoundRules.validCoordinate(latitude: lat, longitude: lng)
+        guard LostFoundRules.validLocation(label), coordinateValid else { return nil }
+        return (label, lat, lng)
+    }
+}
+
+private enum LostFoundPhoto {
+    static func jpeg(_ data: Data) -> Data? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
+        for size in [1600, 1100, 800, 500] {
+            guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, [
+                kCGImageSourceCreateThumbnailFromImageAlways: true,
+                kCGImageSourceCreateThumbnailWithTransform: true,
+                kCGImageSourceThumbnailMaxPixelSize: size
+            ] as CFDictionary) else { return nil }
+            for quality in [0.82, 0.6, 0.4] {
+                let result = NSMutableData()
+                guard let destination = CGImageDestinationCreateWithData(result, UTType.jpeg.identifier as CFString, 1, nil) else { return nil }
+                CGImageDestinationAddImage(destination, image, [kCGImageDestinationLossyCompressionQuality: quality] as CFDictionary)
+                if CGImageDestinationFinalize(destination), LostFoundRules.validPhoto(result as Data) { return result as Data }
+            }
+        }
+        return nil
+    }
+}
+
+struct LostFoundRecordDetail: View {
     @EnvironmentObject private var lf: LostFoundAPI
     @EnvironmentObject private var store: Store
     @Environment(\.dismiss) private var dismiss
     let record: LostFoundRecord
-    let type: LostFoundType
+    let type: LostFoundType // Existing map callers retain this argument; the screen only handles found items.
+    @State private var loaded: LostFoundRecord?
     @State private var showClaim = false
-    @State private var selectedRequest: UUID?
+    @State private var showTransfer = false
+    @State private var loading = false
     @State private var error: String?
+    private var item: LostFoundRecord { loaded ?? lf.found.first { $0.id == record.id } ?? record }
     var body: some View {
         NavigationStack {
             Form {
-                Section(record.title) {
-                    LabeledContent("종류", value: record.category)
-                    LabeledContent(type == .found ? "발견 장소" : "분실 추정 장소", value: record.locationName)
-                    Text(record.description.isEmpty ? "추가 설명 없음" : record.description)
-                    Text("회원 등록 정보이며 공식 확인을 의미하지 않습니다.")
-                        .font(.footnote).foregroundStyle(.secondary)
-                    if type == .found { Text(record.custody == "center" ? "센터 인계(회원 신고)" : record.custody == "sighting" ? "발견 사실 제보" : "습득자 보관 중(회원 신고)") }
+                Section(item.title) {
+                    LabeledContent("종류", value: item.category)
+                    LabeledContent("등록처", value: item.sourceTitle)
+                    LabeledContent("등록일", value: LostFoundDate.label(item.registeredAt))
+                    LabeledContent("보관 상태", value: item.statusTitle)
+                    LabeledContent("보관 장소", value: item.locationName)
+                    Text(item.description.isEmpty ? "추가 설명 없음" : item.description)
+                }
+                Section("사진") {
+                    if loading { ProgressView("상세 사진 확인 중") }
+                    if let encoded = item.photoBase64, let data = Data(base64Encoded: encoded), LostFoundRules.validPhoto(data), let image = UIImage(data: data) {
+                        Image(uiImage: image).resizable().scaledToFit().frame(maxHeight: 360)
+                    } else if let raw = item.photoUrl, let url = URL(string: raw), url.scheme == "https" {
+                        AsyncImage(url: url) { phase in
+                            if let image = phase.image { image.resizable().scaledToFit().frame(maxHeight: 360) }
+                            else if phase.error != nil { Text("사진을 불러오지 못했습니다.").foregroundStyle(.secondary) }
+                            else { ProgressView() }
+                        }
+                    } else if !loading { Text("등록된 사진이 없습니다.").foregroundStyle(.secondary) }
                 }
                 Section {
-                    Button("지도에서 위치 보기") {
-                        store.showDining = false
-                        store.lostMapOnly = true
-                        store.lostPinID = "\(type.rawValue):\(record.id.uuidString.lowercased())"
-                        store.lostFocusSerial += 1
-                        store.tab = .home
-                        dismiss()
+                    Button("지도에서 보관 위치 보기") {
+                        store.showDining = false; store.lostMapOnly = true
+                        store.lostPinID = "found:\(item.id.uuidString.lowercased())"
+                        store.lostFocusSerial += 1; store.tab = .home; dismiss()
                     }
                 }
-                if type == .found && !record.mine {
-                    Section("소유자 확인") {
-                        Button("내 물건 같아요") { showClaim = true }
-                        Text("사진에 보이지 않는 특징 등을 비공개로 제출해 주세요. 최종 소유권 확인은 신고자 또는 공식 보관처가 진행합니다.")
-                            .font(.caption).foregroundStyle(.secondary)
+                if item.status != "received" && !item.mine {
+                    Section("소유자 확인 후 수령") {
+                        Button("내 물건 같아요") { showClaim = true }.disabled(!lf.loggedIn)
+                        Text("비공개 특징을 제출하면 보관자 또는 학교 담당자가 소유자를 확인합니다. 확인을 받아도 수령 완료로 바뀌지 않으며, 실제 수령 결과를 직접 남겨야 합니다.").font(.caption).foregroundStyle(.secondary)
                     }
                 }
-                if type == .found && record.mine && !lf.lost.isEmpty {
-                    Section("분실 의뢰에 발견 사실 연결") {
-                        Picker("관련 의뢰", selection: $selectedRequest) {
-                            Text("선택해 주세요").tag(UUID?.none)
-                            ForEach(lf.lost.filter { !$0.mine }) { other in Text(other.title).tag(Optional(other.id)) }
-                        }
-                        Button("의뢰자에게 제보") { Task { await link() } }.disabled(selectedRequest == nil)
+                ForEach(lf.claims.filter { $0.itemId == item.id }) { claim in
+                    Section { LostFoundClaimCard(claim: claim) }
+                }
+                if (item.mine || lf.isModerator) && item.status != "received" {
+                    Section("보관 장소 관리") {
+                        Button("경찰서 이관 및 위치 변경") { showTransfer = true }
+                        Text("실제 이관한 경우에만 경찰서 이름과 좌표를 입력하세요.").font(.caption).foregroundStyle(.secondary)
                     }
                 }
-                if record.mine {
-                    Section("내 등록 관리") {
-                        Button(type == .found ? "수령 완료 처리" : "찾았어요 · 완료 처리") {
-                            Task { await updateStatus(type == .found ? "returned" : "resolved") }
-                        }
-                        Button("목록에서 종료", role: .destructive) { Task { await updateStatus("closed") } }
-                    }
-                }
-                if let error { Text(error).font(.footnote).foregroundStyle(.red) }
-            }
-            .navigationTitle(type == .found ? "습득물 정보" : "분실 의뢰")
-            .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("닫기") { dismiss() } } }
-            .sheet(isPresented: $showClaim) { LostFoundClaimEditor(itemID: record.id) }
+                if let error { Section { Text(error).font(.footnote).foregroundStyle(.red) } }
+            }.navigationTitle("습득물 정보").navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) { Button("닫기") { dismiss() } }
+                    ToolbarItem(placement: .topBarLeading) { Button("새로고침") { Task { await reload() } }.disabled(loading) }
+                }.task(id: lf.claims.filter { $0.itemId == record.id }.map { "\($0.id):\($0.status)" }.joined(separator: "|")) { await reload() }
+                .sheet(isPresented: $showClaim, onDismiss: { Task { await reload() } }) { LostFoundClaimEditor(itemID: item.id) }
+                .sheet(isPresented: $showTransfer, onDismiss: { Task { await reload() } }) { LostFoundTransferEditor(itemID: item.id) }
         }
     }
-    private func updateStatus(_ status: String) async {
-        do { try await lf.setStatus(type, id: record.id, status: status); dismiss() }
-        catch { self.error = error.localizedDescription }
+    private func reload() async {
+        loading = true; error = nil; defer { loading = false }
+        do { loaded = try await lf.detail(record.id) } catch { self.error = error.localizedDescription }
     }
-    private func link() async {
-        guard let requestID = selectedRequest else { return }
-        do { try await lf.link(foundID: record.id, requestID: requestID); dismiss() }
-        catch { self.error = error.localizedDescription }
+}
+
+private struct LostFoundClaimCard: View {
+    @EnvironmentObject private var lf: LostFoundAPI
+    let claim: LostFoundClaim
+    @State private var busy = false
+    @State private var action: String?
+    @State private var error: String?
+    private var current: LostFoundClaim { lf.claims.first { $0.id == claim.id } ?? claim }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 9) {
+            Text(current.title).font(.headline)
+            Text(current.statusTitle).font(.subheadline).foregroundStyle(Color.cjTealText)
+            Text("요청일 \(LostFoundDate.label(current.createdAt))").font(.caption).foregroundStyle(.secondary)
+            Text("비공개 확인 내용: \(current.proof)").font(.footnote)
+            if current.canVerify && current.status == "pending" {
+                HStack {
+                    Button("소유자 확인") { action = "verify" }
+                    Button("소유자가 아니에요", role: .destructive) { action = "reject" }
+                }.buttonStyle(.bordered)
+            }
+            if current.mine && ["pending", "accepted"].contains(current.status) {
+                Text("보관자에게 확인받은 뒤 실제 수령 여부를 선택하세요.").font(.caption).foregroundStyle(.secondary)
+                if current.status == "accepted" { Button("수령했어요") { action = "received" }.buttonStyle(.borderedProminent) }
+                HStack {
+                    Button("내 물건이 아니에요") { action = "not_mine" }
+                    Button("수령하지 않았어요") { action = "not_received" }
+                }.buttonStyle(.bordered)
+            }
+            if busy { ProgressView("저장 중") }
+            if let error { Text(error).font(.footnote).foregroundStyle(.red) }
+        }.frame(maxWidth: .infinity, alignment: .leading).padding(13)
+            .background(Color.cjSurface, in: RoundedRectangle(cornerRadius: 12)).disabled(busy)
+            .confirmationDialog("확인 결과를 저장할까요?", isPresented: Binding(get: { action != nil }, set: { if !$0 { action = nil } }), titleVisibility: .visible) {
+                if let action {
+                    Button(action == "verify" ? "소유자로 확인" : action == "reject" ? "확인 거절" : action == "received" ? "실제 수령 완료" : action == "not_mine" ? "내 물건 아님" : "수령하지 않음") { Task { await save(action) } }
+                }
+                Button("취소", role: .cancel) { action = nil }
+            } message: {
+                Text(action == "received" ? "실제로 물건을 받았을 때만 수령 완료를 선택하세요. 완료한 물건은 지도에서 제외됩니다." : "소유자 확인과 실제 수령 결과는 별도로 기록됩니다.")
+            }
+    }
+    private func save(_ action: String) async {
+        busy = true; error = nil; self.action = nil; defer { busy = false }
+        do {
+            if action == "verify" || action == "reject" { try await lf.resolveClaim(current.id, accepted: action == "verify") }
+            else { try await lf.completeClaim(current.id, outcome: action) }
+        } catch { self.error = error.localizedDescription }
     }
 }
 
@@ -352,15 +452,12 @@ private struct LostFoundClaimEditor: View {
         NavigationStack {
             Form {
                 Section("비공개 소유권 확인") {
-                    TextField("사진에 없는 특징이나 소유 사실을 적어주세요", text: $proof, axis: .vertical).lineLimit(3...6)
-                    Text("이 내용은 습득물 신고자에게만 전달됩니다. 주민등록번호·학번·비밀번호를 입력하지 마세요.")
-                        .font(.caption).foregroundStyle(.secondary)
+                    TextField("사진에 없는 특징이나 소유 사실 (10~500자)", text: $proof, axis: .vertical).lineLimit(3...6)
+                    Text("확인 내용은 보관자·학교 담당자에게 전달됩니다. 주민등록번호·학번·비밀번호를 입력하지 마세요.").font(.caption).foregroundStyle(.secondary)
                 }
                 if let error { Text(error).foregroundStyle(.red) }
-            }
-            .navigationTitle("내 물건 같아요")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("취소") { dismiss() } }
+            }.disabled(busy).navigationTitle("내 물건 같아요").toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("취소") { dismiss() }.disabled(busy) }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("확인 요청") { Task {
                         busy = true; defer { busy = false }
@@ -369,6 +466,40 @@ private struct LostFoundClaimEditor: View {
                     } }.disabled(busy || !LostFoundRules.validProof(proof))
                 }
             }
-        }
+        }.interactiveDismissDisabled(busy)
+    }
+}
+
+private struct LostFoundTransferEditor: View {
+    @EnvironmentObject private var lf: LostFoundAPI
+    @Environment(\.dismiss) private var dismiss
+    let itemID: UUID
+    @State private var building: CampusBuilding?
+    @State private var detail = ""
+    @State private var latitude = ""
+    @State private var longitude = ""
+    @State private var direct = true
+    @State private var busy = false
+    @State private var confirmed = false
+    @State private var error: String?
+    private var location: (String, Double, Double)? { LostFoundLocation.make(building: building, detail: detail, direct: direct, latitude: latitude, longitude: longitude, campusOnly: false) }
+    var body: some View {
+        NavigationStack {
+            Form {
+                LostFoundLocationFields(building: $building, detail: $detail, direct: $direct, latitude: $latitude, longitude: $longitude, police: true)
+                Section { Toggle("실제로 해당 경찰서로 이관했습니다", isOn: $confirmed) }
+                if let error { Text(error).foregroundStyle(.red) }
+            }.disabled(busy).navigationTitle("경찰서 이관").toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("취소") { dismiss() }.disabled(busy) }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("이관 저장") { Task {
+                        guard let location else { return }
+                        busy = true; defer { busy = false }
+                        do { try await lf.transfer(itemID, locationName: location.0, latitude: location.1, longitude: location.2); dismiss() }
+                        catch { self.error = error.localizedDescription }
+                    } }.disabled(busy || !confirmed || location == nil)
+                }
+            }
+        }.interactiveDismissDisabled(busy)
     }
 }
