@@ -1,0 +1,36 @@
+name: Appetize preview
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  appetize:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the iOS simulator app without signing
+        run: xcodebuild -project ios/Chajajwo.xcodeproj -scheme Chajajwo -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/ChajajwoBuild" CODE_SIGNING_ALLOWED=NO build
+      - name: Zip the .app for Appetize
+        run: |
+          cd "$RUNNER_TEMP/ChajajwoBuild/Build/Products/Debug-iphonesimulator"
+          ditto -c -k --sequesterRsrc --keepParent Chajajwo.app "$RUNNER_TEMP/Chajajwo-simulator.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Chajajwo-simulator
+          path: ${{ runner.temp }}/Chajajwo-simulator.zip
+      - name: Upload to Appetize
+        env:
+          APPETIZE_API_TOKEN: ${{ secrets.APPETIZE_API_TOKEN }}
+          APPETIZE_PUBLIC_KEY: ${{ vars.APPETIZE_PUBLIC_KEY }}
+        run: |
+          if [ -z "$APPETIZE_API_TOKEN" ]; then
+            echo "APPETIZE_API_TOKEN secret is not set; download the Chajajwo-simulator artifact and upload it at https://appetize.io/upload"
+            exit 0
+          fi
+          URL="https://api.appetize.io/v1/apps${APPETIZE_PUBLIC_KEY:+/$APPETIZE_PUBLIC_KEY}"
+          RESPONSE=$(curl -sS --fail-with-body -X POST "$URL" \
+            -H "X-API-KEY: $APPETIZE_API_TOKEN" \
+            -F "file=@$RUNNER_TEMP/Chajajwo-simulator.zip" \
+            -F "platform=ios")
+          KEY=$(echo "$RESPONSE" | python3 -c 'import sys,json; print(json.load(sys.stdin)["publicKey"])')
+          echo "Appetize: https://appetize.io/app/$KEY" | tee -a "$GITHUB_STEP_SUMMARY"
