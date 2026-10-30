@@ -97,3 +97,26 @@ struct FoundItemMapGroup: Identifiable {
         return result
     }
 }
+
+/// A map selection follows custody locations so refresh includes arrivals and excludes moved items.
+struct FoundItemMapSelection: Identifiable {
+    let id: String
+    let title: String
+    let coordinates: Set<CampusCoordinate>
+
+    init(group: FoundItemMapGroup) {
+        id = group.id
+        title = "지도에서 선택한 분실물"
+        coordinates = Set(group.entries.filter { !$0.isCenter && $0.coordinate.isValid }.map(\.coordinate))
+    }
+
+    init(id: String, title: String, coordinate: CampusCoordinate) {
+        self.id = id; self.title = title
+        coordinates = coordinate.isValid ? [coordinate] : []
+    }
+
+    func contains(latitude: Double, longitude: Double) -> Bool {
+        let coordinate = CampusCoordinate(latitude: latitude, longitude: longitude)
+        return coordinate.isValid && coordinates.contains(coordinate)
+    }
+}
