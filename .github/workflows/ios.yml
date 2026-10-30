@@ -52,6 +52,10 @@ jobs:
           sleep 7
           xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/map-selected.png"
           xcrun simctl terminate "$DEVICE_ID" org.chargajoe.chajajwo
+          xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-map-student-hall
+          sleep 7
+          xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/map-student-hall.png"
+          xcrun simctl terminate "$DEVICE_ID" org.chargajoe.chajajwo
           xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-quests
           sleep 5
           xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/quests.png"

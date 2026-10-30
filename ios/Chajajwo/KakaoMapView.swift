@@ -54,6 +54,8 @@ struct KakaoMapView: UIViewRepresentable {
         private var controller: KMController?
         private var pois: [String: Poi] = [:]
         private var appliedStyle: [String: String] = [:]
+        private var placeTapHandlers: [String: DisposableEventHandler] = [:]
+        private var foodGeometry: [String: (CGSize, CGFloat)] = [:]
         private var addedStyles: Set<String> = []
         private var lastSelected: String?
         private var lastSheetOpen = false
@@ -63,16 +65,21 @@ struct KakaoMapView: UIViewRepresentable {
         private let layerID = "places"
         private let userLayerID = "user-location"
         private let questLayerID = "quests"
+        private let questLeaderLayerID = "quest-leaders"
         private let shuttleLayerID = "circular-shuttle"
         private var questPois: [String: Poi] = [:]
         private var questStyles: [String: String] = [:]
         private var questTapHandlers: [String: DisposableEventHandler] = [:]
+        private var questOffsets: [String: CGPoint] = [:]
+        private var questLeaderPois: [String: Poi] = [:]
+        private var questLeaderOffsets: [String: CGPoint] = [:]
         private var shuttlePois: [String: Poi] = [:]
         private var questGroups: [QuestMapGroup] = []
         private var lastZoomRequest = 0
         private var lastQuestFocusID: String?
         private var lastQuestTapAt = -Double.infinity
         private var lastQuestTapID: String?
+        private var lastPlaceTapAt = -Double.infinity
         private var userDot: Poi?
         private var userDirection: Poi?
         private let lostLayerID = "lost-found"
@@ -102,6 +109,8 @@ struct KakaoMapView: UIViewRepresentable {
         func tearDown() {
             questTapHandlers.values.forEach { $0.dispose() }
             questTapHandlers.removeAll()
+            placeTapHandlers.values.forEach { $0.dispose() }
+            placeTapHandlers.removeAll()
             // The six-tab container removes the home view when changing tabs.
             // Release this engine before a later home view creates another one.
             controller?.pauseEngine()
@@ -110,6 +119,7 @@ struct KakaoMapView: UIViewRepresentable {
             controller?.resetEngine()
             controller = nil
             pois.removeAll(); buildingPois.removeAll(); questPois.removeAll(); shuttlePois.removeAll()
+            questLeaderPois.removeAll(); questLeaderOffsets.removeAll(); questOffsets.removeAll()
             userDot = nil; userDirection = nil
         }
 
@@ -124,14 +134,19 @@ struct KakaoMapView: UIViewRepresentable {
         func addViews() {
             // 위쪽 검색창·아래쪽 시트에 가려지지 않게 학생회관 일대를 중심에 둔다.
             var initialLevel = 15
+            var initialCoordinate = CampusCoordinate(latitude: 37.4600, longitude: 126.9520)
             #if DEBUG
             let args = ProcessInfo.processInfo.arguments
             if let index = args.firstIndex(of: "-preview-map-zoom"), index + 1 < args.count, let level = Int(args[index + 1]) {
                 initialLevel = min(20, max(7, level))
             }
+            if args.contains("-preview-map-student-hall") {
+                initialLevel = 17
+                initialCoordinate = .init(latitude: 37.45925, longitude: 126.9506)
+            }
             #endif
             let info = MapviewInfo(viewName: viewName, viewInfoName: "map",
-                                   defaultPosition: MapPoint(longitude: 126.9520, latitude: 37.4600), defaultLevel: initialLevel)
+                                   defaultPosition: MapPoint(longitude: initialCoordinate.longitude, latitude: initialCoordinate.latitude), defaultLevel: initialLevel)
             controller?.addView(info)
         }
         func addViewSucceeded(_ viewName: String, viewInfoName: String) {
@@ -141,6 +156,8 @@ struct KakaoMapView: UIViewRepresentable {
             _ = manager.addLabelLayer(option: LabelLayerOptions(layerID: layerID, competitionType: .none,
                                                                 competitionUnit: .symbolFirst, orderType: .rank, zOrder: 20000)) // 지도 기본 글자(zOrder ~10000)보다 위에 그려야 이름표가 안 가려진다
             manager.getLabelLayer(layerID: layerID)?.setClickable(true) // 레이어에서도 켜야 핀 탭 이벤트가 온다
+            _ = manager.addLabelLayer(option: LabelLayerOptions(layerID: questLeaderLayerID,
+                competitionType: .none, competitionUnit: .symbolFirst, orderType: .rank, zOrder: 19000))
             _ = manager.addLabelLayer(option: LabelLayerOptions(
                 layerID: userLayerID, competitionType: .none,
                 competitionUnit: .symbolFirst, orderType: .rank, zOrder: 25000))
@@ -216,6 +233,7 @@ struct KakaoMapView: UIViewRepresentable {
                     for t in texts { opt.addText(t) }
                     guard let poi = layer.addPoi(option: opt, at: MapPoint(longitude: p.lng, latitude: p.lat)) else { continue }
                     pois[p.id] = poi
+                    placeTapHandlers[p.id] = poi.addPoiTappedEventHandler(target: self, handler: Coordinator.placePoiTapped)
                     appliedStyle[p.id] = styleID
                 } else if appliedStyle[p.id] != styleID {
                     pois[p.id]?.changeTextAndStyle(texts: texts, styleID: styleID)
@@ -304,11 +322,37 @@ struct KakaoMapView: UIViewRepresentable {
         private func refreshQuests(on map: KakaoMap, manager: LabelManager) {
             guard let layer = manager.getLabelLayer(layerID: questLayerID) else { return }
             questGroups = QuestMapGroup.groups(parent.quests, zoom: Int(map.zoomLevel))
+            let projection = screenProjection(on: map)
+            let footprints = questGroups.map { group -> MapMarkerFootprint in
+                let selected = group.quests.contains { $0.id == parent.selectedQuestID }
+                let pin = QuestMapPin(quest: group.quests[0], count: group.quests.count,
+                                      presentation: selected ? .detail : .at(zoom: Int(map.zoomLevel)), selected: selected)
+                return .init(id: group.id, anchor: projection?.point(for: group.coordinate) ?? .zero,
+                             size: pin.size, anchorY: pin.anchorY, priority: selected ? 1 : 0)
+            }
+            let obstacles: [CGRect] = map.zoomLevel < Self.minPinLevel ? [] : parent.places.filter { $0.type == .food }.map { place in
+                let key = "\(place.id)-\(parent.counts[place.id] ?? 0)"
+                if foodGeometry[key] == nil {
+                    let plain = Self.render(PinIcon(type: .food, count: parent.counts[place.id] ?? 0, selected: false))
+                    let named = Self.render(PinIcon(type: .food, count: parent.counts[place.id] ?? 0, selected: false, label: place.name))
+                    foodGeometry[key] = (named.size, plain.size.height / 2 / named.size.height)
+                }
+                let geometry = foodGeometry[key]!
+                return MapMarkerFootprint(id: place.id,
+                    anchor: projection?.point(for: .init(latitude: place.lat, longitude: place.lng)) ?? .zero,
+                    size: geometry.0, anchorY: geometry.1).frame
+            }
+            let placements = projection == nil ? [:] : MapMarkerLayout.place(footprints, avoiding: obstacles,
+                in: CGRect(origin: .zero, size: map.viewRect.size))
+            questOffsets = placements.mapValues(\.offset)
             let ids = Set(questGroups.map(\.id))
             for id in Array(questPois.keys) where !ids.contains(id) {
                 questTapHandlers.removeValue(forKey: id)?.dispose()
                 layer.removePoi(poiID: "quest-\(id)")
                 questPois.removeValue(forKey: id); questStyles.removeValue(forKey: id)
+                manager.getLabelLayer(layerID: questLeaderLayerID)?.removePoi(poiID: "leader-\(id)")
+                questLeaderPois.removeValue(forKey: id)
+                if questLeaderOffsets.removeValue(forKey: id) != nil { manager.removePoiStyle("quest-leader-\(id)") }
             }
             for group in questGroups {
                 let q = group.quests[0]
@@ -334,8 +378,62 @@ struct KakaoMapView: UIViewRepresentable {
                 }
                 questStyles[group.id] = styleID
                 questPois[group.id]?.position = point
+                let offset = questOffsets[group.id] ?? .zero
+                questPois[group.id]?.pixelOffset = offset
                 questPois[group.id]?.show()
+                refreshQuestLeader(group.id, at: point, offset: offset, manager: manager)
             }
+        }
+
+        private func screenProjection(on map: KakaoMap) -> CampusScreenProjection? {
+            let center = CGPoint(x: map.viewRect.width / 2, y: map.viewRect.height / 2)
+            let span = min(64, min(map.viewRect.width, map.viewRect.height) / 4)
+            func coordinate(_ point: CGPoint) -> CampusCoordinate {
+                let geo = map.getPosition(point).wgsCoord
+                return .init(latitude: geo.latitude, longitude: geo.longitude)
+            }
+            return CampusScreenProjection(center: center, origin: coordinate(center),
+                horizontal: coordinate(CGPoint(x: center.x + span, y: center.y)),
+                vertical: coordinate(CGPoint(x: center.x, y: center.y + span)), span: Double(span))
+        }
+
+        private func refreshQuestLeader(_ id: String, at point: MapPoint, offset: CGPoint, manager: LabelManager) {
+            guard let layer = manager.getLabelLayer(layerID: questLeaderLayerID) else { return }
+            guard hypot(offset.x, offset.y) > 1 else { questLeaderPois[id]?.hide(); return }
+            if questLeaderOffsets[id] != offset {
+                layer.removePoi(poiID: "leader-\(id)")
+                if questLeaderOffsets[id] != nil { manager.removePoiStyle("quest-leader-\(id)") }
+                manager.addPoiStyle(Self.questLeaderStyle(id: "quest-leader-\(id)", offset: offset))
+                let option = PoiOptions(styleID: "quest-leader-\(id)", poiID: "leader-\(id)")
+                option.clickable = false
+                questLeaderPois[id] = layer.addPoi(option: option, at: point)
+                questLeaderOffsets[id] = offset
+            }
+            questLeaderPois[id]?.position = point
+            questLeaderPois[id]?.show()
+        }
+
+        private static func questLeaderStyle(id: String, offset: CGPoint) -> PoiStyle {
+            let bounds = CGRect(x: min(0, offset.x) - 4, y: min(0, offset.y) - 4,
+                                width: abs(offset.x) + 8, height: abs(offset.y) + 8)
+            let origin = CGPoint(x: -bounds.minX, y: -bounds.minY)
+            let length = hypot(offset.x, offset.y)
+            let image = UIGraphicsImageRenderer(size: bounds.size).image { context in
+                let line = UIBezierPath()
+                line.move(to: CGPoint(x: origin.x + offset.x / length * min(10, length), y: origin.y + offset.y / length * min(10, length)))
+                line.addLine(to: CGPoint(x: origin.x + offset.x, y: origin.y + offset.y))
+                UIColor.white.setStroke(); line.lineWidth = 3; line.stroke()
+                context.cgContext.setLineDash(phase: 0, lengths: [3, 2])
+                UIColor(Color.cjTeal).setStroke(); line.lineWidth = 1.3; line.stroke()
+            }
+            let icon = PoiIconStyle(symbol: image, anchorPoint: CGPoint(x: origin.x / bounds.width, y: origin.y / bounds.height))
+            return PoiStyle(styleID: id, styles: [PerLevelPoiStyle(iconStyle: icon, level: 0)])
+        }
+
+        private func placePoiTapped(_ param: PoiInteractionEventParam) {
+            guard parent.places.contains(where: { $0.id == param.poiItem.itemID }) else { return }
+            lastPlaceTapAt = ProcessInfo.processInfo.systemUptime
+            dismissKeyboard(); parent.onSelect(param.poiItem.itemID)
         }
 
         private func questPoiTapped(_ param: PoiInteractionEventParam) {
@@ -462,7 +560,7 @@ struct KakaoMapView: UIViewRepresentable {
         func kakaoMapDidTapped(kakaoMap: KakaoMap, point: CGPoint) {
             dismissKeyboard() // 지도를 누르면 키보드 내림. 제스처를 따로 얹으면 SDK 탭이 안 먹어서 SDK 콜백에서 처리한다.
             // A POI tap can also emit a map tap. Keep one selection/zoom per touch.
-            if ProcessInfo.processInfo.systemUptime - lastQuestTapAt < 0.2 { return }
+            if ProcessInfo.processInfo.systemUptime - max(lastQuestTapAt, lastPlaceTapAt) < 0.2 { return }
             // Hit-test lost-and-found pins independently of zoom and old hub pin visibility.
             // 점 중심이 앵커라서 탭한 지점을 그대로 기준으로 삼고, 반경은 화면 22pt 만큼의 거리.
             let probe = kakaoMap.getPosition(CGPoint(x: point.x, y: point.y)).wgsCoord
@@ -476,7 +574,8 @@ struct KakaoMapView: UIViewRepresentable {
                 let pin = QuestMapPin(quest: $0.quests[0], count: $0.quests.count,
                                       presentation: selected ? .detail : .at(zoom: Int(kakaoMap.zoomLevel)), selected: selected)
                 let width = max(44, pin.size.width), height = max(44, pin.size.height)
-                let hitRect = CGRect(x: point.x - width / 2, y: point.y - height * (1 - pin.anchorY), width: width, height: height)
+                let offset = questOffsets[$0.id] ?? .zero
+                let hitRect = CGRect(x: point.x - offset.x - width / 2, y: point.y - offset.y - height * (1 - pin.anchorY), width: width, height: height)
                     .intersection(CGRect(origin: .zero, size: kakaoMap.viewRect.size))
                 let corners = [CGPoint(x: hitRect.minX, y: hitRect.minY), CGPoint(x: hitRect.maxX, y: hitRect.minY),
                                CGPoint(x: hitRect.maxX, y: hitRect.maxY), CGPoint(x: hitRect.minX, y: hitRect.maxY)]
