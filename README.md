@@ -2,6 +2,8 @@
 
 ## 셔틀·퀘스트·분실물 통합
 
+2026-10-31 실제 병합 이력을 보존한 [GitHub 통합 브랜치](https://github.com/myunlee133-beep/charg_a_joe_app/tree/build/found-items-integrated-20261031)에 반영했습니다. 기존 main과 두 기능 브랜치는 보존합니다. Appetize의 현재 실행본은 통합 전 빌드입니다.
+
 `codex/shuttle`과 `codex/quest`의 변경을 함께 보존해 충돌을 해결했습니다. 연속 셔틀 보간, 퀘스트 탭·지도 배치, 분실물 숫자·위치별 목록을 함께 제공합니다. 공통 모델 29개와 입력 7개 검사, iOS 빌드·실행·지도 및 퀘스트 화면 캡처를 위한 검증 절차를 통합했습니다. 이 로컬 통합본의 Swift 검사·iOS 빌드는 아직 실행하지 못했습니다. [병합 기준과 보존 내용](BRANCH_COMPATIBILITY.md)을 확인하세요.
 
 ## 통합 습득물 변경

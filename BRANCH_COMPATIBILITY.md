@@ -37,6 +37,6 @@
 - 로컬 `build/found-items-integrated-20261031`에 두 원본 기능 브랜치의 병합 이력을 보존했습니다. 위 표의 기준 커밋과 각각 병합을 재검사해 충돌 0건, 통합 트리 변경 없음으로 확인했습니다.
 - Python 수집기 회귀 검사 54개 통과, 변경 Swift 파일 17개의 구문 검사 통과, SQL 파일 3개 구문 검사 통과. 이는 Swift 타입 검사나 iOS 실행 검사를 대체하지 않습니다.
 - 현재 Windows PC에는 Swift·Xcode 실행 환경이 없어 통합본의 Swift 검사 36개와 iOS 빌드·화면 검사는 미실행입니다. README의 기존 Appetize·빌드 성공 기록은 통합 전 수정본의 기록입니다.
-- GitHub와 Appetize에는 이 통합본을 반영하지 않았습니다. Git 연결 도구의 쓰기 권한과 PC의 Git 인증이 없어 로컬 병합 이력을 원격에 전송하지 못했습니다. 별도로 준비한 CI 자동 게시 방식은 자동 승인 검토에서 거부되어 취소했으며 저장소의 빌드 권한을 변경하지 않았습니다.
-- 원격에 반영할 때는 Git 인증 후 이 로컬 통합 브랜치를 일반 `git push -u origin build/found-items-integrated-20261031` 방식으로 전송하고 기존 읽기 전용 iOS 검증을 실행해야 합니다. main이나 두 기능 브랜치를 강제 덮어쓰지 마세요.
+- 2026-10-31 사용자가 PC의 Git 인증을 직접 승인한 뒤, 일반 Git push로 [별도 통합 브랜치](https://github.com/myunlee133-beep/charg_a_joe_app/tree/build/found-items-integrated-20261031)에 실제 병합 이력을 반영했습니다. main·codex/shuttle·codex/quest는 변경하지 않았습니다. Appetize에는 아직 이 통합본을 반영하지 않았습니다. 앞서 취소한 CI 자동 게시 방식은 사용하지 않았으며 새 쓰기 권한이나 자동 게시 절차를 추가하지 않았습니다.
+- 후속 변경은 일반 Git push로 같은 통합 브랜치에 올리고 기존 읽기 전용 iOS 검증을 실행합니다. main이나 두 기능 브랜치를 강제 덮어쓰지 마세요.
 - 소스 ZIP만 업로드하면 실제 병합 부모 이력이 사라져 같은 충돌이 다시 나타날 수 있습니다. 원격 반영에는 이 로컬 저장소 또는 함께 제공하는 Git bundle의 통합 브랜치를 사용하세요.
