@@ -3,7 +3,6 @@ import SwiftUI
 struct QuestBottomSheet: View {
     @EnvironmentObject var store: Store
     let quests: [Quest]
-    @State private var expanded = false
     @State private var mode: QuestMode?
     @State private var highReward = false
     @State private var creating = false
@@ -13,45 +12,21 @@ struct QuestBottomSheet: View {
             highReward ? $0.reward > $1.reward : $0.distance < $1.distance
         }
     }
-    private var collapsed: Bool { store.questSheetCollapsed }
-    /// 아래로 쓸면 한 단계씩 내려가고(펼침 → 기본 → 접힘), 위로 쓸면 올라간다.
-    private var swipe: some Gesture {
-        DragGesture(minimumDistance: 12).onEnded { value in
-            let up = value.translation.height < 0
-            withAnimation(.easeInOut(duration: 0.25)) {
-                if up { if collapsed { store.questSheetCollapsed = false } else { expanded = true } }
-                else { if expanded { expanded = false } else { store.questSheetCollapsed = true } }
-            }
-        }
-    }
     var body: some View {
-        VStack(spacing: 12) {
-            VStack(spacing: 12) {
-                Button {
-                    withAnimation(.easeInOut(duration: 0.25)) {
-                        if collapsed { store.questSheetCollapsed = false } else { expanded.toggle() }
-                    }
-                } label: {
-                    Capsule().fill(Color.cjHandle).frame(width: 40, height: 4)
-                        .frame(maxWidth: .infinity).frame(height: 20).contentShape(Rectangle())
+        SwipeSheet(detent: $store.questSheet, normalHeight: 265) {
+            HStack {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("내 주변 퀘스트 \(rows.count)").font(.title3.weight(.heavy))
+                    Text("학생회관 기준 · 시연 퀘스트").font(.caption).foregroundStyle(Color.cjSub)
                 }
-                .accessibilityLabel(collapsed || !expanded ? "퀘스트 목록 펼치기" : "퀘스트 목록 접기")
-                HStack {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("내 주변 퀘스트 \(rows.count)").font(.title3.weight(.heavy))
-                        Text("학생회관 기준 · 시연 퀘스트").font(.caption).foregroundStyle(Color.cjSub)
-                    }
-                    Spacer()
-                    Button { creating = true } label: {
-                        Label("등록", systemImage: "plus").font(.subheadline.weight(.bold))
-                            .padding(.horizontal, 12).padding(.vertical, 9)
-                            .foregroundStyle(.white).background(Color.cjTeal, in: Capsule())
-                    }
+                Spacer()
+                Button { creating = true } label: {
+                    Label("등록", systemImage: "plus").font(.subheadline.weight(.bold))
+                        .padding(.horizontal, 12).padding(.vertical, 9)
+                        .foregroundStyle(.white).background(Color.cjTeal, in: Capsule())
                 }
             }
-            .contentShape(Rectangle())
-            .gesture(swipe)
-            if !collapsed {
+        } content: {
             HStack(spacing: 8) {
                 modeButton("전체", nil)
                 modeButton("선착순", .firstCome)
@@ -72,12 +47,7 @@ struct QuestBottomSheet: View {
                 }
             }
             .scrollIndicators(.hidden)
-            }
         }
-        .padding(.horizontal, 18).padding(.bottom, 8)
-        .frame(height: collapsed ? nil : (expanded ? min(580, UIScreen.main.bounds.height * 0.65) : 265))
-        .background(Color.cjSurface, in: UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24))
-        .shadow(color: .black.opacity(0.13), radius: 10, y: -3)
         .sheet(isPresented: $creating) { CreateQuestView() }
     }
     private func modeButton(_ title: String, _ value: QuestMode?) -> some View {
@@ -248,8 +218,9 @@ struct HomePlaceCard: View {
     @EnvironmentObject var store: Store
     @EnvironmentObject var shuttle: CircularShuttleService
     let place: Place
+    @Binding var detent: SheetDetent
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        SwipeSheet(detent: $detent) {
             HStack {
                 PlaceIcon(type: place.type)
                 Text(place.name).font(.headline)
@@ -257,19 +228,10 @@ struct HomePlaceCard: View {
                 Button { store.closeSheet() } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(Color.cjSub).padding(6) }
                     .accessibilityLabel("장소 정보 닫기")
             }
-            if place.type == .food {
-                Text(place.building.isEmpty ? "교내 식당" : place.building).font(.subheadline).foregroundStyle(Color.cjSub)
-                Text("식단과 운영 시간은 식당 탭에서 확인하세요.").font(.subheadline)
-                Button { store.tab = .dining } label: {
-                    Label("식단 보러 가기", systemImage: "fork.knife").frame(maxWidth: .infinity).padding(12)
-                        .background(Color.cjSuccessFill, in: RoundedRectangle(cornerRadius: 12))
-                }
-            } else {
-                ShuttleStatusContent()
-            }
+        } content: {
+            ShuttleStatusContent() // 정류장 전용. 식당은 SheetView의 식단 시트로 연다.
             Link(destination: place.directionsURL) { Label("길찾기", systemImage: "arrow.triangle.turn.up.right.diamond") }.font(.subheadline)
         }
-        .padding(18).background(Color.cjSurface, in: RoundedRectangle(cornerRadius: 22)).shadow(radius: 6)
     }
 }
 
