@@ -35,18 +35,19 @@ import SwiftUI
                 heldCount = tracker.heldCount
                 positions = tracker.positions(at: ProcessInfo.processInfo.systemUptime)
                 status = feed.vehicles.isEmpty ? "제공된 차량 위치가 없어요" : (positions.isEmpty ? "위치 신뢰도 확인 중" : "교내순환 · 실시간 기반 추정 위치")
-                animation?.cancel()
-                animation = Task { [weak self] in
-                    // Ease between received points, then stop. Never predict onward.
-                    for _ in 0..<25 {
-                        do { try await Task.sleep(for: .milliseconds(50)) } catch { return }
-                        guard let self, self.generation == runID, !Task.isCancelled else { return }
-                        self.positions = tracker.positions(at: ProcessInfo.processInfo.systemUptime)
+                if animation == nil {
+                    // 피드 사이에도 노선을 따라 계속 미끄러지게 20fps로 위치를 다시 계산한다(범위·속도 제한은 tracker가 처리).
+                    animation = Task { [weak self] in
+                        while !Task.isCancelled {
+                            do { try await Task.sleep(for: .milliseconds(50)) } catch { return }
+                            guard let self, self.generation == runID else { return }
+                            self.positions = tracker.positions(at: ProcessInfo.processInfo.systemUptime)
+                        }
                     }
                 }
             } catch {
                 guard !Task.isCancelled, generation == runID else { return }
-                animation?.cancel()
+                animation?.cancel(); animation = nil
                 tracker.clear(); positions = []; heldCount = 0
                 status = "실시간 위치를 불러오지 못했어요"
             }

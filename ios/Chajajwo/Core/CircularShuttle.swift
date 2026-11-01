@@ -79,17 +79,16 @@ struct ShuttlePosition: Identifiable {
 /// Port of the reviewed Android/TypeScript tracker. Pixel matching is separate
 /// from road metres. Query times never imply an operator GPS measurement time.
 final class CircularShuttleTracker {
-    static let interpolation = 1.2
     static let staleAfter = 20.0
+    /// 마지막으로 움직임이 확인된 뒤 이 시간 동안만 추정 속도로 계속 달린다. 그 뒤엔 멈춰서 새 위치를 기다린다.
+    static let cruiseFor = 30.0
     private struct Bus {
-        var id: String, x: Double, y: Double, diagram: Double, road: Double, fromRoad: Double
-        var animationAt: Double, movedAt: Double, seenAt: Double
+        var id: String, x: Double, y: Double, diagram: Double, road: Double
+        /// 화면에 보이는 도로 거리. road(관측값)를 따라잡고, 움직이는 중이면 다음 정류장까지 앞서 달린다.
+        var shown: Double, tick: Double, speed = 0.0
+        var movedAt: Double, seenAt: Double
         var changes = 0
         var visible = true
-        func display(at now: Double) -> Double {
-            let t = min(1, max(0, (now - animationAt) / CircularShuttleTracker.interpolation))
-            return fromRoad + (road - fromRoad) * t * t * (3 - 2 * t)
-        }
     }
     let route: CircularRoute
     private var buses: [String: Bus] = [:]
@@ -172,7 +171,7 @@ final class CircularShuttleTracker {
             }
             guard var bus = old else {
                 let road = roadDistance(atDiagram: match.distance)
-                next[row.id] = Bus(id: row.id, x: row.x, y: row.y, diagram: match.distance, road: road, fromRoad: road, animationAt: now, movedAt: now, seenAt: now)
+                next[row.id] = Bus(id: row.id, x: row.x, y: row.y, diagram: match.distance, road: road, shown: road, tick: now, movedAt: now, seenAt: now)
                 continue
             }
             bus.visible = true
@@ -184,9 +183,11 @@ final class CircularShuttleTracker {
                     bus.visible = false; heldCount += 1; next[row.id] = bus; continue
                 }
                 if road - bus.road > 0.01 {
-                    bus.fromRoad = delta > 38 ? road : bus.display(at: now)
+                    let measured = min(9, (road - bus.road) / seconds)
+                    bus.speed = bus.changes == 0 ? measured : (bus.speed + measured) / 2
+                    if delta > 38 { bus.shown = road }
                     bus.diagram = max(bus.diagram, match.distance); bus.road = road
-                    bus.animationAt = now; bus.movedAt = now; bus.changes += 1
+                    bus.movedAt = now; bus.changes += 1
                     bus.x = row.x; bus.y = row.y
                 }
             }
@@ -194,9 +195,25 @@ final class CircularShuttleTracker {
         }
         buses = next
     }
+    /// 관측 위치(road)를 빠르게 따라잡고, 최근에 움직인 차는 추정 속도로 현재 구간 끝(다음 정류장)까지만 앞서 달린다.
+    private func advance(_ id: String, to now: Double) {
+        guard var bus = buses[id] else { return }
+        let dt = min(0.5, max(0, now - bus.tick)); bus.tick = now
+        let gap = bus.road - bus.shown
+        if gap > 150 { bus.shown = bus.road } else {
+            var v = 0.0
+            if gap > 0 { v = min(14, max(bus.speed, gap / 2)) }
+            else if bus.changes > 0 && now - bus.movedAt < Self.cruiseFor { v = max(bus.speed, 2) }
+            let (i, _) = segment(bus.diagram)
+            let end = floor(bus.diagram / totalDiagramDistance) * totalRoadDistance + roadStarts[i] + roadLengths[i]
+            bus.shown = min(bus.shown + v * dt, gap > 0 ? bus.road : max(end, bus.road))
+        }
+        buses[id] = bus
+    }
     func positions(at now: Double) -> [ShuttlePosition] {
-        buses.values.filter { $0.visible && now - $0.seenAt < Self.staleAfter }.sorted { $0.id < $1.id }.map { bus in
-            let distance = bus.display(at: now), point = coordinate(at: distance)
+        for id in buses.keys { advance(id, to: now) }
+        return buses.values.filter { $0.visible && now - $0.seenAt < Self.staleAfter }.sorted { $0.id < $1.id }.map { bus in
+            let distance = bus.shown, point = coordinate(at: distance)
             let (index, t) = segment(bus.diagram)
             return ShuttlePosition(id: bus.id, coordinate: point, bearingRadians: point.bearing(to: coordinate(at: distance + 5)),
                                    nextStop: route.stops[(index + (t > 0.999 ? 2 : 1)) % route.stops.count].name,

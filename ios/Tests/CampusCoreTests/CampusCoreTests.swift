@@ -21,15 +21,22 @@ final class CampusCoreTests: XCTestCase {
         XCTAssertEqual(t.positions(at: 6).first?.coordinate, start.coordinate)
         XCTAssertNil(t.positions(at: 6).first?.movementAge)
     }
-    func testNewCoordinatesInterpolateAndStopAtLastObservation() throws {
+    func testNewCoordinatesGlideThenCruiseUpToNextStopAndStop() throws {
         let t = try tracker(); t.update([bus(136)], at: 0); let a = try XCTUnwrap(t.positions(at: 0).first)
         t.update([bus(138)], at: 5)
         let middle = try XCTUnwrap(t.positions(at: 5.6).first)
         let target = try XCTUnwrap(t.positions(at: 6.2).first)
         XCTAssertGreaterThan(a.coordinate.distance(to: middle.coordinate), 0)
         XCTAssertGreaterThan(middle.coordinate.distance(to: target.coordinate), 0)
-        XCTAssertEqual(t.positions(at: 18).first?.coordinate, target.coordinate)
         XCTAssertEqual(target.changes, 1)
+        // 새 관측이 없어도 최근에 움직인 차는 다음 정류장 쪽으로 계속 가되, 정류장을 넘지 않고 cruiseFor 뒤엔 멈춘다.
+        let stop = try XCTUnwrap(t.route.stops.first { $0.name == "농생대" }).coordinate
+        var last = target, now = 6.2
+        while now < 19 { now += 0.1; last = try XCTUnwrap(t.positions(at: now).first) }
+        XCTAssertLessThan(last.coordinate.distance(to: stop), target.coordinate.distance(to: stop))
+        t.update([bus(138)], at: 19.5)
+        let held = try XCTUnwrap(t.positions(at: 38).first)
+        XCTAssertEqual(try XCTUnwrap(t.positions(at: 39).first).coordinate, held.coordinate)
     }
     func testSmallChangesAccumulate() throws {
         let t = try tracker(); t.update([bus(136)], at: 0); t.update([bus(136.4)], at: 5)
@@ -39,7 +46,7 @@ final class CampusCoreTests: XCTestCase {
     func testBackwardsJitterAndInvalidJumpDoNotMoveVehicle() throws {
         let t = try tracker(); t.update([bus(136)], at: 0); t.update([bus(138)], at: 5)
         let valid = try XCTUnwrap(t.positions(at: 7).first)
-        t.update([bus(136)], at: 10); XCTAssertEqual(t.positions(at: 12).first?.coordinate, valid.coordinate)
+        t.update([bus(136)], at: 10); XCTAssertEqual(t.positions(at: 12).first?.changes, valid.changes)
         t.update([bus(239)], at: 15); XCTAssertTrue(t.positions(at: 15).isEmpty); XCTAssertEqual(t.heldCount, 1)
     }
     func testBadObservationDoesNotEraseIdentityHistory() throws {

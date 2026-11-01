@@ -11,7 +11,7 @@ final class Store: ObservableObject {
     @Published var quests = Quest.demo
     @Published var questSession = QuestSession()
     @Published var selectedQuest: Quest?
-    @Published var questSheetCollapsed = false
+    @Published var questSheet = SheetDetent.normal  // 다른 시트를 열었다 닫아도 접어 둔 상태를 유지
     @Published var showDining = false   // 홈 탭 안에서 지도 대신 식당 화면을 보여준다
     @Published var lostMapOnly = false
     @Published var lostPinID: String?
