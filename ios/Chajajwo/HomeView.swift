@@ -17,6 +17,8 @@ struct HomeView: View {
     @State private var userFocusSerial = 0
     @State private var pendingUserFocus = false
     @State private var showLocationSettings = false
+    @State private var placeSheet = SheetDetent.normal  // 건물·분실물 핀·정류장·식단 시트 단계
+    @State private var bottomHeight: CGFloat = 0        // 하단 시트 높이. 내 위치 버튼을 그 위에 둔다
     @FocusState private var searchFocused: Bool
 
     private var searchResults: [CampusBuilding] { CampusBuildingCatalog.search(query) }
@@ -54,9 +56,13 @@ struct HomeView: View {
         .overlay(alignment: .bottomTrailing) {
             myLocationButton
                 .padding(.trailing, 16)
-                .padding(.bottom, locationButtonBottom)
+                .padding(.bottom, bottomHeight + 16) // 지금 떠 있는 하단 시트 바로 위
         }
-        .overlay(alignment: .bottom) { bottomContent }
+        .overlay(alignment: .bottom) {
+            VStack(spacing: 0) { bottomContent } // 시트가 없을 때도 높이 0으로 재도록 감싼다
+                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { bottomHeight = $0 }
+        }
+        .onChange(of: placeSheetKey) { _, _ in placeSheet = .normal }
         .sheet(item: $store.selectedQuest) { QuestDetailView(quest: $0) }
         .sheet(item: $selectedQuestGroup) { group in
             NavigationStack {
@@ -148,56 +154,26 @@ struct HomeView: View {
             .ignoresSafeArea(edges: .top)
     }
 
+    // 칩(퀘스트·분실물·식당·셔틀)으로 거른 지도에는 하단 시트를 띄우지 않는다. 핀을 누르면 그 핀의 시트가 뜬다.
     @ViewBuilder private var bottomContent: some View {
         if let quest = selectedMapQuest {
             MapQuestPreview(quest: quest, onClose: { selectedMapQuest = nil }).padding(12)
         } else if let building = focusedBuilding {
-            buildingCard(building).padding(.horizontal, 12).padding(.bottom, 12)
+            buildingCard(building)
         } else if let id = selectedLostPinID, let pin = lf.pins.first(where: { $0.id == id }) {
-            lostPinCard(pin).padding(.horizontal, 12).padding(.bottom, 12)
-        } else if store.lostMapOnly {
-            Button { store.tab = .lostFound } label: {
-                Label("분실물 발견·분실 의뢰 등록하기", systemImage: "shippingbox")
-                    .font(.subheadline.weight(.bold)).padding(16)
-                    .frame(maxWidth: .infinity).background(Color.cjSurface, in: RoundedRectangle(cornerRadius: 15))
-            }.padding(.horizontal, 12).padding(.bottom, 12)
-        } else if store.open, let place = Place.byID[store.sel], place.type != .hub {
-            HomePlaceCard(place: place).padding(12)
-        } else if store.open {
-            SheetView().padding(.horizontal, 12)
-        } else if store.homeFilter == .shuttle {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Text("교내순환").font(.title3.weight(.heavy))
-                    Spacer()
-                    Button("전체 보기") { store.homeFilter = .all }
-                }
-                ShuttleStatusContent()
-            }.padding(20).frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.cjSurface, in: UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24))
-                .shadow(radius: 6)
-        } else if store.homeFilter == .food || store.homeFilter == .hubs {
-            HStack(spacing: 12) {
-                PlaceIcon(type: store.homeFilter == .food ? .food : .hub)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(store.homeFilter == .food ? "교내 식당 위치" : "분실물 보관 거점").font(.headline)
-                    Text("지도에서 장소를 눌러 확인하세요").font(.caption).foregroundStyle(Color.cjSub)
-                }
-                Spacer()
-                if store.homeFilter == .food { Button("식단 보기") { store.tab = .dining }.font(.subheadline.weight(.semibold)) }
-            }.padding(20).background(Color.cjSurface, in: UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24)).shadow(radius: 6)
-        } else {
+            lostPinCard(pin)
+        } else if store.open, let place = Place.byID[store.sel], place.type == .stop {
+            HomePlaceCard(place: place, detent: $placeSheet)
+        } else if store.open { // 식당은 날짜별 아침·점심·저녁 식단 시트, 거점은 보관 물품 시트
+            SheetView(detent: $placeSheet)
+        } else if store.homeFilter == .all && !store.lostMapOnly {
             QuestBottomSheet(quests: quests)
         }
     }
 
-    private var locationButtonBottom: CGFloat {
-        if selectedMapQuest != nil { return 220 }
-        if focusedBuilding != nil || selectedLostPinID != nil { return 190 }
-        if store.lostMapOnly { return 106 }
-        if store.homeFilter != .food && store.homeFilter != .hubs && store.homeFilter != .shuttle && store.questSheetCollapsed { return 140 }
-        if store.open { return 350 }
-        return store.homeFilter == .food || store.homeFilter == .hubs ? 140 : 318
+    /// 지금 떠 있는 장소 시트. 다른 장소를 고르면 시트를 기본 높이로 다시 연다.
+    private var placeSheetKey: String {
+        "\(focusedBuilding?.id ?? "")|\(selectedLostPinID ?? "")|\(store.open ? store.sel : "")"
     }
 
     /// Standard map-app locate button. GPS is displayed continuously, but camera only
@@ -303,7 +279,7 @@ struct HomeView: View {
                     } label: {
                         Label("분실물", systemImage: "shippingbox.fill")
                             .font(.subheadline.weight(.medium))
-                            .foregroundStyle(store.lostMapOnly ? .white : Color.cjTealText)
+                            .foregroundStyle(store.lostMapOnly ? Color.white : Color.primary)
                             .padding(.horizontal, 16).frame(height: 38)
                             .background(store.lostMapOnly ? Color.cjTeal : Color.cjSurface, in: Capsule())
                     }
@@ -418,7 +394,7 @@ struct HomeView: View {
     }
 
     private func buildingCard(_ building: CampusBuilding) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+        SwipeSheet(detent: $placeSheet) {
             HStack(alignment: .top, spacing: 8) {
                 Image(systemName: "building.2.crop.circle.fill")
                     .font(.title2).foregroundStyle(Color.cjTeal)
@@ -436,6 +412,7 @@ struct HomeView: View {
                 }
                 .accessibilityLabel("건물 위치 닫기")
             }
+        } content: {
             if let url = building.directionsURL {
                 Link(destination: url) {
                     Label("길찾기", systemImage: "arrow.triangle.turn.up.right.diamond.fill")
@@ -446,13 +423,10 @@ struct HomeView: View {
                 }
             }
         }
-        .padding(16)
-        .background(Color.cjSurface, in: RoundedRectangle(cornerRadius: 16))
-        .shadow(radius: 8, y: 4)
     }
 
     private func lostPinCard(_ pin: LostFoundMapPin) -> some View {
-        VStack(alignment: .leading, spacing: 9) {
+        SwipeSheet(detent: $placeSheet) {
             HStack {
                 Image(systemName: pin.kind == .center ? "cross.case.fill" : "shippingbox.fill")
                     .foregroundStyle(Color.cjTeal)
@@ -460,6 +434,7 @@ struct HomeView: View {
                 Spacer()
                 Button { selectedLostPinID = nil } label: { Image(systemName: "xmark.circle.fill") }
             }
+        } content: {
             if let center = lf.center(pin.id) {
                 Text("\(center.building) · \(center.room)").font(.subheadline)
                 Text(center.weekdayHours ?? "운영시간 확인 필요").font(.caption).foregroundStyle(Color.cjTealText)
@@ -472,10 +447,6 @@ struct HomeView: View {
             Button("분실물 상세·신고 보기") { store.tab = .lostFound }
                 .font(.subheadline.weight(.bold))
         }
-        .padding(15)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.cjSurface, in: RoundedRectangle(cornerRadius: 16))
-        .shadow(radius: 5)
     }
 
     private func search() {

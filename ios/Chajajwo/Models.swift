@@ -11,6 +11,8 @@ extension Color {
     static let cjTeal = Color(hex: 0x0f7f74)
     static let cjOrange = Color(hex: 0xf26b1d)
     static let cjBlue = Color(hex: 0x1e7be0)
+    static let cjBerry = Color(hex: 0xa63d66)
+    static let cjShuttle = Color(hex: 0x365fc7)
     /// Keep text, surfaces, and borders in the same system appearance.
     private static func adaptive(light: UInt32, dark: UInt32) -> Color {
         func uiColor(_ hex: UInt32) -> UIColor {
@@ -32,6 +34,7 @@ extension Color {
     static let cjTealText = adaptive(light: 0x0f7f74, dark: 0x64d9ca)
     static let cjOrangeText = adaptive(light: 0xc4500f, dark: 0xffb17a)
     static let cjBlueText = adaptive(light: 0x1e7be0, dark: 0x8bbdff)
+    static let cjBerryText = adaptive(light: 0xa63d66, dark: 0xf0a0bf)
     static let cjOrangeFill = adaptive(light: 0xfdd3b8, dark: 0x4a2d1c)
     static let cjSuccessFill = adaptive(light: 0xe4f3f1, dark: 0x173c36)
     static let cjSuccessText = adaptive(light: 0x0b6158, dark: 0x8ce2d2)
@@ -39,8 +42,8 @@ extension Color {
 
 enum PlaceType {
     case hub, food, stop
-    var color: Color { switch self { case .hub: .cjTeal; case .food: .cjOrange; case .stop: .cjBlue } }
-    var textColor: Color { switch self { case .hub: .cjTealText; case .food: .cjOrangeText; case .stop: .cjBlueText } }
+    var color: Color { switch self { case .hub: .cjTeal; case .food: .cjBerry; case .stop: .cjShuttle } }
+    var textColor: Color { switch self { case .hub: .cjTealText; case .food: .cjBerryText; case .stop: .cjBlueText } }
     var symbol: String { switch self { case .hub: "checkmark"; case .food: "fork.knife"; case .stop: "bus.fill" } }
     var chipTitle: String { switch self { case .hub: "보관 거점"; case .food: "식당"; case .stop: "셔틀" } }
 }

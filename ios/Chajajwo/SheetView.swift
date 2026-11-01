@@ -5,36 +5,41 @@ struct SheetView: View {
     @State private var secret = ""
     @State private var contact = ""
     @State private var menuDate = Date()
+    @Binding var detent: SheetDetent  // 식단 시트의 펼침·기본·접힘
 
     private var place: Place { Place.byID[store.sel] ?? Place.all[0] }
     private var item: Item? { store.itemID.flatMap { id in store.items.first { $0.id == id } } }
     private var hubItems: [Item] { store.items.filter { $0.hub == place.id } }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            if store.open {
-                Capsule().fill(Color.cjHandle).frame(width: 40, height: 4).frame(maxWidth: .infinity).padding(.bottom, 12)
-                header
-                Divider()
-                if place.type == .food {
+        Group {
+            if store.open && place.type == .food {
+                SwipeSheet(detent: $detent, normalHeight: 400) { header } content: {
+                    Divider()
                     foodBody
-                } else {
-                    ViewThatFits(in: .vertical) {
-                        content
-                        ScrollView { content }
-                    }
-                    .frame(maxHeight: 380)
                 }
             } else {
-                peek
+                VStack(alignment: .leading, spacing: 0) {
+                    if store.open {
+                        Capsule().fill(Color.cjHandle).frame(width: 40, height: 4).frame(maxWidth: .infinity).padding(.bottom, 12)
+                        header
+                        Divider()
+                        ViewThatFits(in: .vertical) {
+                            content
+                            ScrollView { content }
+                        }
+                        .frame(maxHeight: 380)
+                    } else {
+                        peek
+                    }
+                }
+                .padding(.horizontal, 20).padding(.top, store.open ? 10 : 16).padding(.bottom, 18)
+                .background(Color.cjSurface, in: UnevenRoundedRectangle(topLeadingRadius: 22, topTrailingRadius: 22))
+                .shadow(color: .black.opacity(0.16), radius: 10, y: -2)
             }
         }
-        .padding(.horizontal, 20).padding(.top, store.open ? 10 : 16).padding(.bottom, 18)
-        .frame(height: store.open && place.type == .food ? 470 : nil)
         .onChange(of: store.sel) { _, _ in menuDate = Date() }
         .onChange(of: store.open) { _, isOpen in if isOpen { menuDate = Date() } }
-        .background(Color.cjSurface, in: UnevenRoundedRectangle(topLeadingRadius: 22, topTrailingRadius: 22))
-        .shadow(color: .black.opacity(0.16), radius: 10, y: -2)
     }
 
     // MARK: 접힌 상태
@@ -134,15 +139,15 @@ struct SheetView: View {
                         if hasCourt { foodCourtRow }
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, 30)  // 화살표(시트 가장자리 44pt) 자리를 비운다
                 }
                 .overlay(alignment: .leading) {
                     dayButton(-1, label: "전날", symbol: "chevron.left")
-                        .offset(x: -32)
+                        .offset(x: -18)
                 }
                 .overlay(alignment: .trailing) {
                     dayButton(1, label: "다음날", symbol: "chevron.right")
-                        .offset(x: 32)
+                        .offset(x: 18)
                 }
             }
 

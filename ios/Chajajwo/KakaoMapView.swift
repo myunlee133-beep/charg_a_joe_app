@@ -91,6 +91,7 @@ struct KakaoMapView: UIViewRepresentable {
         private let viewName = "mapview"
         /// 이 지도 레벨보다 멀리서 볼 때는 핀을 모두 숨긴다(기본 화면은 레벨 14).
         private static let minPinLevel = 14
+        private static let minShuttleLevel = 15
         private var pinsVisible = false
 
         init(_ parent: KakaoMapView) { self.parent = parent }
@@ -196,7 +197,7 @@ struct KakaoMapView: UIViewRepresentable {
             refreshUserLocation(on: map, manager: manager)
             refreshLostPins(on: map, manager: manager)
             refreshQuests(on: map, manager: manager)
-            refreshShuttles(manager: manager)
+            refreshShuttles(on: map, manager: manager)
             if parent.selectedQuestID != lastQuestFocusID {
                 lastQuestFocusID = parent.selectedQuestID
                 if let quest = parent.quests.first(where: { $0.id == parent.selectedQuestID }) {
@@ -459,20 +460,24 @@ struct KakaoMapView: UIViewRepresentable {
 
         func shuttlesChanged() {
             guard let map = controller?.getView(viewName) as? KakaoMap else { return }
-            refreshShuttles(manager: map.getLabelManager())
+            refreshShuttles(on: map, manager: map.getLabelManager())
         }
 
-        private func refreshShuttles(manager: LabelManager) {
+        private func refreshShuttles(on map: KakaoMap, manager: LabelManager) {
             guard let layer = manager.getLabelLayer(layerID: shuttleLayerID) else { return }
             let positions = parent.shuttle?.positions ?? []
             let ids = Set(positions.map(\.id))
             for id in Array(shuttlePois.keys) where !ids.contains(id) {
                 layer.removePoi(poiID: "circular-\(id)"); shuttlePois.removeValue(forKey: id)
             }
-            let styleID = "campus-circular-vehicle-s"
+            guard map.zoomLevel >= Self.minShuttleLevel else {
+                for poi in shuttlePois.values { poi.hide() }
+                return
+            }
+            let styleID = "campus-circular-vehicle-small"
             if !addedStyles.contains(styleID) {
-                let image = UIGraphicsImageRenderer(size: CGSize(width: 28, height: 42)).image { _ in
-                    UIImage(named: "CampusShuttle")?.draw(in: CGRect(x: 0, y: 0, width: 28, height: 42))
+                let image = UIGraphicsImageRenderer(size: CGSize(width: 18, height: 27)).image { _ in
+                    UIImage(named: "CampusShuttle")?.draw(in: CGRect(x: 0, y: 0, width: 18, height: 27))
                 }
                 let icon = PoiIconStyle(symbol: image, anchorPoint: CGPoint(x: 0.5, y: 0.5))
                 manager.addPoiStyle(PoiStyle(styleID: styleID, styles: [PerLevelPoiStyle(iconStyle: icon, level: 0)]))
@@ -595,7 +600,12 @@ struct KakaoMapView: UIViewRepresentable {
                 return
             }
             let hit = parent.places
-                .map { ($0.id, dist((probe.latitude, probe.longitude), ($0.lat, $0.lng))) }
+                .map { place -> (String, Double) in
+                    // 새 마커는 끝이 좌표에 놓이므로 터치 판정은 아이콘 몸통 중심에 맞춘다.
+                    let offset: CGFloat = place.type == .hub ? 0 : 17 * PinIcon.markerScale
+                    let markerProbe = kakaoMap.getPosition(CGPoint(x: point.x, y: point.y + offset)).wgsCoord
+                    return (place.id, dist((markerProbe.latitude, markerProbe.longitude), (place.lat, place.lng)))
+                }
                 .filter { $0.1 <= radius }
                 .min { $0.1 < $1.1 }
             let lostHit = parent.lostPins
@@ -625,13 +635,13 @@ struct KakaoMapView: UIViewRepresentable {
             ])
             text.textLayouts = [.right]
             func icon(label: String?) -> PoiIconStyle {
-                // 이름표가 붙어도 점 중심(앵커)이 좌표에 오도록, 이름표 없는 점의 높이 비율로 앵커를 잡는다.
-                let pinHeight = render(PinIcon(type: type, count: count, selected: selected, label: nil)).size.height
-                let image = render(PinIcon(type: type, count: count, selected: selected, label: label))
-                return PoiIconStyle(symbol: image, anchorPoint: CGPoint(x: 0.5, y: pinHeight / 2 / image.size.height))
+                // 이름표나 선택 크기가 바뀌어도 핀/기둥 끝을 실제 좌표에 고정한다.
+                let pin = PinIcon(type: type, count: count, selected: selected, label: label)
+                let image = render(pin)
+                return PoiIconStyle(symbol: image, anchorPoint: CGPoint(x: 0.5, y: pin.coordinateAnchorY / image.size.height))
             }
             let plain = icon(label: nil)
-            // 식당 이름은 점이 보이는 레벨(14~)부터 보인다. 선택된 핀은 항상 보인다.
+            // 식당 이름은 핀이 보이는 레벨(14~)부터 보인다. 선택된 핀은 항상 보인다.
             if type == .food {
                 let named = icon(label: name)
                 return PoiStyle(styleID: id, styles: selected
@@ -715,6 +725,10 @@ struct PinIcon: View {
     let selected: Bool
     var label: String? = nil
 
+    static let markerScale: CGFloat = 0.8
+    /// Asset canvases are 32×40pt; their visible tips sit at y = 37pt.
+    var coordinateAnchorY: CGFloat { type == .hub ? 15.5 : 37 * Self.markerScale }
+
     var body: some View {
         VStack(spacing: 0) {
             pin
@@ -723,16 +737,27 @@ struct PinIcon: View {
                     .lineLimit(1).fixedSize()
                     .padding(.horizontal, 7).padding(.vertical, 3)
                     .background(.white, in: Capsule())
-                    .overlay(Capsule().stroke(type.color.opacity(0.5), lineWidth: 1))
+                    .overlay(Capsule().stroke(type.color.opacity(selected ? 0.9 : 0.5), lineWidth: selected ? 1.5 : 1))
                     .padding(.top, 2).padding(.bottom, 2)
             }
         }
     }
 
-    private var pin: some View { MapDot(color: type.color, count: count) }
+    @ViewBuilder private var pin: some View {
+        switch type {
+        case .food, .stop:
+            Image(type == .food ? "RestaurantPin" : "ShuttleStop")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 32 * Self.markerScale, height: 40 * Self.markerScale)
+                .shadow(color: .black.opacity(selected ? 0.24 : 0.14), radius: 1, y: 1)
+        case .hub:
+            MapDot(color: type.color, count: count)
+        }
+    }
 }
 
-/// 식당 핀과 같은 모양의 점. 묶음이면 개수 배지를 단다.
+/// 거점·퀘스트·분실물용 점. 묶음이면 개수 배지를 단다.
 struct MapDot: View {
     let color: Color
     var count = 0
