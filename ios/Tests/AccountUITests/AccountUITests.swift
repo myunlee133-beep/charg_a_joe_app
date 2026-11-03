@@ -7,8 +7,12 @@ final class AccountUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
         XCTAssertTrue(app.staticTexts["account-entry-title"].waitForExistence(timeout: 25))
-        XCTAssertTrue(app.buttons["account-mode-login"].exists)
-        XCTAssertTrue(app.buttons["account-mode-signup"].exists)
+        let signupLink = app.buttons["account-signup-link"]
+        let forgotPassword = app.buttons["account-forgot-password"]
+        XCTAssertTrue(signupLink.exists)
+        XCTAssertTrue(forgotPassword.exists)
+        XCTAssertEqual(signupLink.frame.midY, forgotPassword.frame.midY, accuracy: 2)
+        XCTAssertGreaterThan(signupLink.frame.minX, forgotPassword.frame.maxX)
         for provider in ["google", "apple", "kakao"] {
             XCTAssertTrue(app.buttons["account-provider-\(provider)"].exists)
         }
@@ -36,8 +40,12 @@ final class AccountUITests: XCTestCase {
 
     func testSignupHasExplicitConsentAndPrivacyIsReadableBeforeLogin() throws {
         let app = XCUIApplication(); app.launch()
-        XCTAssertTrue(app.buttons["account-mode-signup"].waitForExistence(timeout: 25))
-        app.buttons["account-mode-signup"].tap()
+        XCTAssertTrue(app.buttons["account-signup-link"].waitForExistence(timeout: 25))
+        app.buttons["account-signup-link"].tap()
+        XCTAssertTrue(app.buttons["account-return-login"].exists)
+        app.buttons["account-return-login"].tap()
+        XCTAssertTrue(app.buttons["account-forgot-password"].exists)
+        app.buttons["account-signup-link"].tap()
         app.swipeUp()
         XCTAssertTrue(app.switches["[필수] 만 19세 이상입니다"].exists)
         XCTAssertFalse(app.buttons["account-continue"].isEnabled)

@@ -44,7 +44,6 @@ struct AccountLoginView: View {
                             .disabled(working).font(.subheadline)
                     } else {
                         if step == .credentials {
-                            modePicker
                             VStack(spacing: 10) {
                                 providerButton("google", title: "Google로 계속하기")
                                 providerButton("apple", title: "Apple로 계속하기")
@@ -119,29 +118,11 @@ struct AccountLoginView: View {
                     .background(Color(hex: 0xEDF4EF), in: RoundedRectangle(cornerRadius: 12))
                 Text("찾아줘").font(.system(size: 23, weight: .bold)).tracking(-0.7)
             }
-            Text("캠퍼스의 부탁을,\n함께 해결해요.")
+            Text(signup ? "회원가입" : "캠퍼스의 부탁을,\n함께 해결해요.")
                 .font(.system(size: 29, weight: .bold)).tracking(-1)
                 .fixedSize(horizontal: false, vertical: true)
                 .accessibilityIdentifier("account-entry-title")
         }.foregroundStyle(AccountStyle.ink)
-    }
-
-    private var modePicker: some View {
-        HStack(spacing: 4) {
-            modeButton("로그인", selected: !signup) { signup = false }
-                .accessibilityIdentifier("account-mode-login")
-            modeButton("회원가입", selected: signup) { signup = true }
-                .accessibilityIdentifier("account-mode-signup")
-        }.padding(4).background(Color(hex: 0xF0F3F1), in: RoundedRectangle(cornerRadius: 12))
-    }
-
-    private func modeButton(_ title: String, selected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title).font(.subheadline.weight(.semibold))
-                .foregroundStyle(selected ? AccountStyle.ink : AccountStyle.muted)
-                .frame(maxWidth: .infinity, minHeight: 40)
-                .background(selected ? Color.white : Color.clear, in: RoundedRectangle(cornerRadius: 9))
-        }.buttonStyle(.plain).accessibilityAddTraits(selected ? .isSelected : [])
     }
 
     private func providerButton(_ value: String, title: String) -> some View {
@@ -200,10 +181,27 @@ struct AccountLoginView: View {
                         .padding(14).overlay(RoundedRectangle(cornerRadius: 10).stroke(AccountStyle.line))
                         .accessibilityIdentifier("account-password")
                 }
-                if !signup {
-                    Button("비밀번호 찾기") { password = ""; step = .reset; focusedField = nil; message = nil }
-                        .font(.caption).frame(maxWidth: .infinity, alignment: .trailing)
+                HStack(spacing: 12) {
+                    Spacer(minLength: 0)
+                    if signup {
+                        Button { signup = false } label: {
+                            Text("로그인으로 돌아가기").frame(minHeight: 44)
+                        }
+                            .accessibilityIdentifier("account-return-login")
+                    } else {
+                        Button { password = ""; step = .reset; focusedField = nil; message = nil } label: {
+                            Text("비밀번호 찾기").frame(minHeight: 44)
+                        }
+                            .accessibilityIdentifier("account-forgot-password")
+                        Rectangle().fill(AccountStyle.line).frame(width: 1, height: 12).accessibilityHidden(true)
+                        Button { signup = true } label: {
+                            Text("회원가입").fontWeight(.semibold).frame(minHeight: 44)
+                        }
+                            .accessibilityIdentifier("account-signup-link")
+                    }
                 }
+                .font(.caption).buttonStyle(.plain).foregroundStyle(AccountStyle.green)
+                .frame(minHeight: 44).disabled(working)
             }
         }
     }
