@@ -12,7 +12,7 @@ struct ChajajwoApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AccountEntryView()
                 .environmentObject(store)
                 .environmentObject(lostFound)
                 .environmentObject(account)
@@ -23,20 +23,53 @@ struct ChajajwoApp: App {
     }
 }
 
-struct ContentView: View {
-    private enum AccountRoute: String, Identifiable {
-        case login, onboarding, recovery
-        var id: String { rawValue }
+/// Authentication is the app's entry point, including after signing out.
+/// Home and its location services are created only after account setup finishes.
+struct AccountEntryView: View {
+    @EnvironmentObject private var account: AccountStore
+    @EnvironmentObject private var store: Store
+    @State private var checkedSession = !AccountStore.hasSavedSession
+
+    private var previewContent: Bool {
+        #if DEBUG
+        return ProcessInfo.processInfo.arguments.contains("-preview-content")
+        #else
+        return false
+        #endif
     }
+
+    var body: some View {
+        Group {
+            if !checkedSession {
+                ProgressView("로그인 확인 중…").frame(maxWidth: .infinity, maxHeight: .infinity).background(.white)
+            } else if account.recoveryRequired {
+                AccountRecoveryView()
+            } else if account.needsOnboarding {
+                AccountOnboardingView()
+            } else if account.authenticated || previewContent {
+                ContentView()
+            } else {
+                AccountLoginView()
+            }
+        }
+        .task { await account.restore(); checkedSession = true }
+        .onOpenURL { url in Task { await account.handleCallback(url) } }
+        .onChange(of: account.userID) { _, _ in
+            store.clearQuestAccountData()
+            store.showAccountLogin = false
+            store.tab = .home
+        }
+        .alert("계정 연결 안내", isPresented: Binding(get: { account.error != nil }, set: { if !$0 { account.error = nil } })) {
+            Button("확인") { account.error = nil }
+        } message: { Text(account.error ?? "") }
+    }
+}
+
+struct ContentView: View {
     @EnvironmentObject var store: Store
     @EnvironmentObject private var account: AccountStore
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var shuttle = CircularShuttleService()
-    private var accountRoute: AccountRoute? {
-        if account.recoveryRequired { return .recovery }
-        if account.needsOnboarding { return .onboarding }
-        return store.showAccountLogin ? .login : nil
-    }
 
     private var shouldTrackShuttle: Bool {
         scenePhase == .active && store.tab == .home &&
@@ -74,7 +107,6 @@ struct ContentView: View {
         .onAppear {
             #if DEBUG
             if ProcessInfo.processInfo.arguments.contains("-preview-quests") { store.tab = .quests }
-            if ProcessInfo.processInfo.arguments.contains("-preview-login") { store.tab = .me }
             #endif
         }
         .overlay(alignment: .bottom) {
@@ -93,25 +125,8 @@ struct ContentView: View {
             if shouldTrackShuttle { await shuttle.run() }
         }
         .task { await store.refreshDining() }
-        .task { await account.restore(); await store.refreshQuests() }
-        .onOpenURL { url in Task { await account.handleCallback(url) } }
-        .onChange(of: account.userID) { _, _ in
-            store.clearQuestAccountData()
-            if account.authenticated { store.showAccountLogin = false }
-            Task { await store.refreshQuests() }
-        }
-        .sheet(item: Binding(get: { accountRoute }, set: { route in
-            if route == nil { store.showAccountLogin = false }
-        })) { route in
-            switch route {
-            case .login: AccountLoginView()
-            case .onboarding: AccountOnboardingView()
-            case .recovery: AccountRecoveryView()
-            }
-        }
-        .alert("계정 연결 안내", isPresented: Binding(get: { account.error != nil }, set: { if !$0 { account.error = nil } })) {
-            Button("확인") { account.error = nil }
-        } message: { Text(account.error ?? "") }
+        .task { await store.refreshQuests() }
+        .sheet(isPresented: $store.showAccountLogin) { AccountLoginView() }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { Task { await store.refreshDining() } }
         }

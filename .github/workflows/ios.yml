@@ -64,27 +64,27 @@ jobs:
           xcrun simctl install "$DEVICE_ID" "$RUNNER_TEMP/ChajajwoBuild/Build/Products/Debug-iphonesimulator/Chajajwo.app"
           xcrun simctl privacy "$DEVICE_ID" grant location org.chargajoe.chajajwo
           xcrun simctl status_bar "$DEVICE_ID" override --time '9:41' --dataNetwork wifi --wifiMode active --wifiBars 3 --batteryState charged --batteryLevel 100
-          xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo
+          xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-content
           sleep 20
           mkdir -p "$RUNNER_TEMP/native-preview"
           xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/home.png"
           xcrun simctl spawn "$DEVICE_ID" launchctl list | grep org.chargajoe.chajajwo
           for LEVEL in 16 17 18; do
             xcrun simctl terminate "$DEVICE_ID" org.chargajoe.chajajwo
-            xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-map-zoom "$LEVEL"
+            xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-content -preview-map-zoom "$LEVEL"
             sleep 7
             xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/map-$LEVEL.png"
           done
           xcrun simctl terminate "$DEVICE_ID" org.chargajoe.chajajwo
-          xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-map-zoom 18 -preview-map-selected
+          xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-content -preview-map-zoom 18 -preview-map-selected
           sleep 7
           xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/map-selected.png"
           xcrun simctl terminate "$DEVICE_ID" org.chargajoe.chajajwo
-          xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-map-student-hall
+          xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-content -preview-map-student-hall
           sleep 7
           xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/map-student-hall.png"
           xcrun simctl terminate "$DEVICE_ID" org.chargajoe.chajajwo
-          xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-quests
+          xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-content -preview-quests
           sleep 5
           xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/quests.png"
           xcrun simctl terminate "$DEVICE_ID" org.chargajoe.chajajwo

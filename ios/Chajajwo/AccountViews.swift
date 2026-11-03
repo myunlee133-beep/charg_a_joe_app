@@ -9,12 +9,11 @@ private enum AccountStyle {
 
 struct AccountLoginView: View {
     @EnvironmentObject private var account: AccountStore
-    @EnvironmentObject private var store: Store
-    @Environment(\.dismiss) private var dismiss
-    private enum Step { case email, credentials, confirmation, reset }
+    @Environment(\.scenePhase) private var scenePhase
+    private enum Step { case credentials, confirmation, reset }
     private enum Field: Hashable { case email, password }
     @FocusState private var focusedField: Field?
-    @State private var step = Step.email
+    @State private var step = Step.credentials
     @State private var email = ""
     @State private var password = ""
     @State private var signup = false
@@ -25,135 +24,214 @@ struct AccountLoginView: View {
     @State private var adult = false
     @State private var selectedPolicy: AccountPolicy?
     @State private var provider: String?
+    @State private var unavailableProvider: String?
     private var validEmail: Bool { email.trimmingCharacters(in: .whitespacesAndNewlines).range(of: #"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$"#, options: [.caseInsensitive, .regularExpression]) != nil }
     private var signupReady: Bool { adult && account.policiesVerified && account.policies.filter { $0.context == "account" }.allSatisfy { agreed.contains($0.kind) } }
-    private var continueTitle: String { step == .email ? "이메일로 계속하기" : step == .reset ? "재설정 메일 받기" : signup ? "동의하고 가입하기" : "로그인" }
+    private var continueTitle: String { step == .reset ? "재설정 메일 받기" : signup ? "동의하고 가입하기" : "이메일로 로그인" }
     private var continueDisabled: Bool { working || !validEmail || (step == .credentials && (password.isEmpty || (signup && (password.count < 10 || !signupReady)))) }
 
     var body: some View {
-        GeometryReader { geometry in
+        NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
-                    Image("AccountCampus").resizable().scaledToFill()
-                        .frame(width: geometry.size.width, height: min(260, geometry.size.width * 0.66)).clipped()
-                        .accessibilityHidden(true)
-                    VStack(alignment: .leading, spacing: 24) {
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text(step == .confirmation ? "메일함을 확인해 주세요" : step == .reset ? "비밀번호를 잊으셨나요?" : "찾아줘에 오신 걸\n환영해요")
-                                .font(.system(size: 30, weight: .semibold)).tracking(-1).foregroundStyle(AccountStyle.ink)
-                                .fixedSize(horizontal: false, vertical: true)
-                            Text("캠퍼스의 작은 부탁, 서로의 도움이 되도록.")
-                                .font(.subheadline).foregroundStyle(AccountStyle.muted)
-                        }
-                        if step == .confirmation {
-                            Text("\(email)로 인증 안내를 보냈어요. 메일의 링크로 이메일을 인증한 후 로그인해 주세요.")
-                                .font(.subheadline).lineSpacing(5)
-                            primary("인증했어요 · 로그인") { signup = false; step = .credentials; message = nil }
-                            Button("인증 메일 다시 보내기") { perform { try await account.resendConfirmation(email: email); show("인증 안내를 다시 요청했어요. 메일함과 스팸함을 확인해 주세요.") } }
-                                .disabled(working).font(.subheadline)
-                        } else {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("이메일 주소").font(.caption).foregroundStyle(AccountStyle.muted)
-                                TextField("이메일 주소", text: $email, prompt: Text("name@example.com").foregroundStyle(AccountStyle.muted))
-                                    .foregroundStyle(AccountStyle.ink).focused($focusedField, equals: .email)
-                                    .textContentType(.emailAddress).keyboardType(.emailAddress)
-                                    .textInputAutocapitalization(.never).autocorrectionDisabled()
-                                    .submitLabel(step == .email ? .continue : .next)
-                                    .onSubmit { if validEmail && step == .email { continueTapped() } }
-                                    .padding(.vertical, 15).padding(.horizontal, 14)
-                                    .background(.white, in: RoundedRectangle(cornerRadius: 9))
-                                    .overlay(RoundedRectangle(cornerRadius: 9).stroke(AccountStyle.line))
-                                    .accessibilityIdentifier("account-email")
+                VStack(alignment: .leading, spacing: 24) {
+                    header
+                    if step == .confirmation {
+                        Text("메일함을 확인해 주세요").font(.title2.bold())
+                        Text("\(email)로 인증 안내를 보냈어요. 메일의 링크로 이메일을 인증한 후 로그인해 주세요.")
+                            .font(.subheadline).foregroundStyle(AccountStyle.muted).lineSpacing(5)
+                        primary("인증했어요 · 로그인") { signup = false; step = .credentials; message = nil }
+                        Button("인증 메일 다시 보내기") { perform { try await account.resendConfirmation(email: email); show("인증 안내를 다시 요청했어요. 메일함과 스팸함을 확인해 주세요.") } }
+                            .disabled(working).font(.subheadline)
+                    } else {
+                        if step == .credentials {
+                            modePicker
+                            VStack(spacing: 10) {
+                                providerButton("google", title: "Google로 계속하기")
+                                providerButton("apple", title: "Apple로 계속하기")
+                                providerButton("kakao", title: "카카오 로그인")
                             }
-                            if step == .credentials {
-                                VStack(alignment: .leading, spacing: 10) {
-                                    Text(signup ? "비밀번호 만들기 · 10자 이상" : "비밀번호").font(.caption).foregroundStyle(AccountStyle.muted)
-                                    SecureField(signup ? "새 비밀번호" : "비밀번호", text: $password)
-                                        .focused($focusedField, equals: .password).foregroundStyle(AccountStyle.ink)
-                                        .textContentType(signup ? .newPassword : .password)
-                                        .submitLabel(.go).onSubmit { if !continueDisabled { continueTapped() } }
-                                        .padding(14).overlay(RoundedRectangle(cornerRadius: 9).stroke(AccountStyle.line))
-                                        .accessibilityIdentifier("account-password")
-                                    if !signup { Button("비밀번호 찾기") { password = ""; step = .reset; message = nil }.font(.footnote) }
-                                }
-                                if signup {
-                                    AccountConsentChecklist(context: "account", agreed: $agreed, adult: $adult, selectedPolicy: $selectedPolicy)
-                                }
-                            }
-                            if focusedField == nil { primary(continueTitle, action: continueTapped).disabled(continueDisabled) }
-                            if step == .credentials {
-                                Button(signup ? "이미 가입했어요 · 로그인" : "처음이신가요? 회원가입") { signup.toggle(); password = ""; message = nil }
-                                    .font(.subheadline).frame(maxWidth: .infinity)
-                            } else if step == .reset {
-                                Button("로그인으로 돌아가기") { step = .credentials; message = nil }.font(.subheadline)
-                            }
-                        }
-                        if let message {
-                            Label(message, systemImage: failure ? "exclamationmark.circle" : "checkmark.circle")
-                                .font(.footnote).foregroundStyle(failure ? .red : AccountStyle.green)
-                                .accessibilityIdentifier("account-message")
-                        }
-                        if step == .email && !account.providers.isEmpty {
-                            HStack { Rectangle().frame(height: 1); Text("또는").font(.caption).fixedSize(); Rectangle().frame(height: 1) }.foregroundStyle(AccountStyle.line)
                             HStack(spacing: 12) {
-                                ForEach(account.providers, id: \.self) { value in
-                                    Button { provider = value } label: {
-                                        Text(value == "apple" ? "Apple" : value == "google" ? "Google" : "카카오")
-                                            .font(.subheadline.weight(.medium)).frame(maxWidth: .infinity, minHeight: 48)
-                                            .overlay(RoundedRectangle(cornerRadius: 9).stroke(AccountStyle.line))
-                                    }.disabled(working)
-                                }
-                            }
+                                Rectangle().frame(height: 1)
+                                Text(signup ? "또는 이메일로 가입" : "또는 이메일로 로그인").font(.caption).fixedSize()
+                                Rectangle().frame(height: 1)
+                            }.foregroundStyle(AccountStyle.muted)
+                        } else {
+                            Text("비밀번호 재설정").font(.title2.bold())
+                            Text("가입한 이메일로 재설정 안내를 보내드려요.").font(.subheadline).foregroundStyle(AccountStyle.muted)
                         }
-                        VStack(alignment: .leading, spacing: 12) {
-                            HStack(spacing: 16) {
-                                ForEach(account.policies.filter { ["terms", "privacy"].contains($0.kind) }) { document in
-                                    Button(document.kind == "terms" ? "이용약관" : "개인정보 처리방침") { selectedPolicy = document }
-                                        .font(.caption).underline()
-                                }
-                            }
-                            Text("퀘스트 보상은 이용자끼리 직접 송금해요.\n찾아줘는 보상금을 보관하거나 자동 이체하지 않아요.")
-                                .font(.caption).foregroundStyle(AccountStyle.muted).lineSpacing(4)
-                            Button("먼저 둘러볼게요") { focusedField = nil; account.authFormFocused = false; store.tab = .home; dismiss() }
-                                .font(.subheadline).padding(.top, 4)
+                        emailForm
+                        if step == .credentials && signup {
+                            AccountConsentChecklist(context: "account", agreed: $agreed, adult: $adult, selectedPolicy: $selectedPolicy)
                         }
-                    }.padding(.horizontal, 28).padding(.top, 30).padding(.bottom, 32)
-                }.frame(width: geometry.size.width)
-            }.background(.white).scrollDismissesKeyboard(.interactively)
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            if focusedField != nil && step != .confirmation {
-                primary(continueTitle, action: continueTapped).disabled(continueDisabled)
-                    .padding(.horizontal, 28).padding(.vertical, 12).background(.white)
+                        if focusedField == nil { primary(continueTitle, action: continueTapped).disabled(continueDisabled) }
+                        if step == .reset {
+                            Button("로그인으로 돌아가기") { step = .credentials; signup = false; message = nil }.font(.subheadline)
+                        }
+                    }
+                    if let message {
+                        Label(message, systemImage: failure ? "exclamationmark.circle" : "checkmark.circle")
+                            .font(.footnote).foregroundStyle(failure ? .red : AccountStyle.green)
+                            .accessibilityIdentifier("account-message")
+                    }
+                    policiesFooter
+                }
+                .frame(maxWidth: 440)
+                .padding(.horizontal, 28).padding(.top, 28).padding(.bottom, 28)
+                .frame(maxWidth: .infinity)
             }
-        }
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) { Spacer(); Button("완료") { focusedField = nil } }
+            .background(.white).scrollDismissesKeyboard(.interactively)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                if focusedField != nil && step != .confirmation {
+                    primary(continueTitle, action: continueTapped).disabled(continueDisabled)
+                        .padding(.horizontal, 28).padding(.vertical, 12).background(.white)
+                }
+            }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) { Spacer(); Button("완료") { focusedField = nil } }
+            }
+            .toolbar(.hidden, for: .navigationBar)
         }
         .tint(AccountStyle.green)
         .sheet(item: $selectedPolicy) { AccountPolicyView(document: $0) }
         .sheet(isPresented: Binding(get: { provider != nil }, set: { if !$0 { provider = nil } })) {
             if let provider { AccountProviderConsentView(provider: provider) }
         }
-        .onChange(of: account.authenticated) { _, value in if value { store.showAccountLogin = false } }
+        .alert("로그인 안내", isPresented: Binding(get: { unavailableProvider != nil }, set: { if !$0 { unavailableProvider = nil } })) {
+            Button("확인") { unavailableProvider = nil }
+        } message: { Text("\(unavailableProvider ?? "") 로그인을 준비하고 있어요. 지금은 이메일로 이용해 주세요.") }
+        .onChange(of: signup) { _, _ in password = ""; message = nil; focusedField = nil }
         .onChange(of: focusedField) { _, value in account.authFormFocused = value != nil }
         .onDisappear { account.authFormFocused = false }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { Task { await account.loadProviders() } }
+        }
         .task {
-            do { try await account.loadPolicies() } catch { show(error.localizedDescription, failed: true) }
             await account.loadProviders()
+            do { try await account.loadPolicies() } catch { show(error.localizedDescription, failed: true) }
+        }
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 8) {
+                Image(systemName: "bolt.fill").font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(AccountStyle.green).padding(10)
+                    .background(Color(hex: 0xEDF4EF), in: RoundedRectangle(cornerRadius: 12))
+                Text("찾아줘").font(.system(size: 23, weight: .bold)).tracking(-0.7)
+            }
+            Text("캠퍼스의 부탁을,\n함께 해결해요.")
+                .font(.system(size: 29, weight: .bold)).tracking(-1)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityIdentifier("account-entry-title")
+        }.foregroundStyle(AccountStyle.ink)
+    }
+
+    private var modePicker: some View {
+        HStack(spacing: 4) {
+            modeButton("로그인", selected: !signup) { signup = false }
+                .accessibilityIdentifier("account-mode-login")
+            modeButton("회원가입", selected: signup) { signup = true }
+                .accessibilityIdentifier("account-mode-signup")
+        }.padding(4).background(Color(hex: 0xF0F3F1), in: RoundedRectangle(cornerRadius: 12))
+    }
+
+    private func modeButton(_ title: String, selected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title).font(.subheadline.weight(.semibold))
+                .foregroundStyle(selected ? AccountStyle.ink : AccountStyle.muted)
+                .frame(maxWidth: .infinity, minHeight: 40)
+                .background(selected ? Color.white : Color.clear, in: RoundedRectangle(cornerRadius: 9))
+        }.buttonStyle(.plain).accessibilityAddTraits(selected ? .isSelected : [])
+    }
+
+    private func providerButton(_ value: String, title: String) -> some View {
+        Button {
+            focusedField = nil
+            if account.providers.contains(value) { provider = value }
+            else {
+                let name = value == "apple" ? "Apple" : value == "google" ? "Google" : "카카오"
+                unavailableProvider = name
+            }
+        } label: {
+            ZStack {
+                HStack {
+                    if value == "google" {
+                        Image("AccountGoogle").resizable().frame(width: 44, height: 44)
+                            .frame(width: 24, height: 24).clipped().accessibilityHidden(true)
+                    } else if value == "apple" {
+                        Image(systemName: "apple.logo").font(.system(size: 22)).frame(width: 24).accessibilityHidden(true)
+                    } else {
+                        Image("AccountKakao").resizable().scaledToFit().frame(width: 24, height: 24).accessibilityHidden(true)
+                    }
+                    Spacer()
+                }.padding(.horizontal, 16)
+                Text(title).font(.system(size: 15, weight: .medium))
+            }
+            .frame(maxWidth: .infinity, minHeight: 48)
+            .foregroundStyle(value == "apple" ? .white : AccountStyle.ink)
+            .background(value == "apple" ? Color.black : value == "kakao" ? Color(hex: 0xFEE500) : Color.white, in: RoundedRectangle(cornerRadius: 10))
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(value == "google" ? AccountStyle.line : .clear))
+        }
+        .buttonStyle(.plain).disabled(working)
+        .accessibilityIdentifier("account-provider-\(value)")
+    }
+
+    private var emailForm: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 7) {
+                Text("이메일").font(.caption).foregroundStyle(AccountStyle.muted)
+                TextField("이메일 주소", text: $email, prompt: Text("name@example.com").foregroundStyle(AccountStyle.muted))
+                    .foregroundStyle(AccountStyle.ink).focused($focusedField, equals: .email)
+                    .textContentType(.emailAddress).keyboardType(.emailAddress)
+                    .textInputAutocapitalization(.never).autocorrectionDisabled()
+                    .submitLabel(step == .reset ? .go : .next)
+                    .onSubmit { if step == .reset { if !continueDisabled { continueTapped() } } else { focusedField = .password } }
+                    .padding(.vertical, 14).padding(.horizontal, 14)
+                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(AccountStyle.line))
+                    .accessibilityIdentifier("account-email")
+            }
+            if step == .credentials {
+                VStack(alignment: .leading, spacing: 7) {
+                    Text(signup ? "비밀번호 · 10자 이상" : "비밀번호").font(.caption).foregroundStyle(AccountStyle.muted)
+                    SecureField(signup ? "새 비밀번호" : "비밀번호", text: $password)
+                        .focused($focusedField, equals: .password).foregroundStyle(AccountStyle.ink)
+                        .textContentType(signup ? .newPassword : .password)
+                        .submitLabel(.go).onSubmit { if !continueDisabled { continueTapped() } }
+                        .padding(14).overlay(RoundedRectangle(cornerRadius: 10).stroke(AccountStyle.line))
+                        .accessibilityIdentifier("account-password")
+                }
+                if !signup {
+                    Button("비밀번호 찾기") { password = ""; step = .reset; focusedField = nil; message = nil }
+                        .font(.caption).frame(maxWidth: .infinity, alignment: .trailing)
+                }
+            }
+        }
+    }
+
+    private var policiesFooter: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 16) {
+                ForEach(account.policies.filter { ["terms", "privacy"].contains($0.kind) }) { document in
+                    Button(document.kind == "terms" ? "이용약관" : "개인정보 처리방침") { selectedPolicy = document }
+                        .font(.caption).underline()
+                }
+            }
+            Text("퀘스트 보상은 이용자끼리 직접 송금해요.")
+                .font(.caption).foregroundStyle(AccountStyle.muted)
         }
     }
 
     private func continueTapped() {
-        if step == .email { email = email.trimmingCharacters(in: .whitespacesAndNewlines); step = .credentials; message = nil; focusedField = .password }
-        else if step == .reset { perform { try await account.sendPasswordReset(email: email); show("계정이 있다면 재설정 안내를 받을 수 있어요. 메일의 링크를 열어 주세요.") } }
+        focusedField = nil
+        if step == .reset { perform { try await account.sendPasswordReset(email: email.trimmingCharacters(in: .whitespacesAndNewlines)); show("계정이 있다면 재설정 안내를 받을 수 있어요. 메일의 링크를 열어 주세요.") } }
         else { authenticate() }
     }
 
     private func primary(_ title: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack { Spacer(); if working { ProgressView().tint(.white) } else { Text(title).font(.system(size: 16, weight: .semibold)) }; Spacer() }
-                .padding(.vertical, 16).foregroundStyle(.white).background(AccountStyle.green, in: RoundedRectangle(cornerRadius: 9))
+                .padding(.vertical, 16).foregroundStyle(.white)
+                .background(AccountStyle.green.opacity(continueDisabled ? 0.5 : 1), in: RoundedRectangle(cornerRadius: 10))
         }.accessibilityIdentifier("account-continue")
     }
     private func show(_ text: String, failed: Bool = false) { message = text; failure = failed }
@@ -161,7 +239,9 @@ struct AccountLoginView: View {
         working = true; message = nil
         Task { @MainActor in
             defer { working = false }
-            do { try await action() } catch { show(error.localizedDescription, failed: true) }
+            do { try await action() }
+            catch is CancellationError { }
+            catch { show(error.localizedDescription, failed: true) }
         }
     }
     private func authenticate() {
@@ -283,6 +363,7 @@ private struct AccountProviderConsentView: View {
                     Task {
                         defer { working = false }
                         do { try await account.signIn(provider: provider); dismiss() }
+                        catch is CancellationError { }
                         catch { self.error = error.localizedDescription }
                     }
                 }.disabled(working || !adult || !account.policiesVerified || !account.policies.filter { $0.context == "account" }.allSatisfy { agreed.contains($0.kind) })

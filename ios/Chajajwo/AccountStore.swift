@@ -196,7 +196,7 @@ final class AccountStore: ObservableObject {
         guard let data = try? await request("/auth/v1/settings", method: "GET", authenticated: false),
               let payload = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
               let external = payload["external"] as? [String: Bool] else { return }
-        providers = ["apple", "google", "kakao"].filter { external[$0] == true }
+        providers = ["google", "apple", "kakao"].filter { external[$0] == true }
     }
 
     func restore() async {
@@ -291,7 +291,11 @@ final class AccountStore: ObservableObject {
     }
 
     func signIn(provider: String) async throws {
-        guard providers.contains(provider), let configuration else { return }
+        await loadProviders()
+        guard ["google", "apple", "kakao"].contains(provider), providers.contains(provider) else {
+            throw CommunityError.message("이 로그인 방법은 아직 준비 중이에요. 이메일로 이용해 주세요.")
+        }
+        guard let configuration else { throw CommunityError.message("서버 연결 정보를 확인해 주세요.") }
         var random = [UInt8](repeating: 0, count: 32)
         guard SecRandomCopyBytes(kSecRandomDefault, random.count, &random) == errSecSuccess else { throw URLError(.unknown) }
         let verifier = Data(random).base64URLEncoded
@@ -300,6 +304,9 @@ final class AccountStore: ObservableObject {
         components.queryItems = [.init(name: "provider", value: provider), .init(name: "redirect_to", value: Self.callbackURL),
             .init(name: "code_challenge", value: challenge), .init(name: "code_challenge_method", value: "s256")]
         let callback = try await webFlow.authenticate(components.url!)
+        guard callback.scheme == "org.chargajoe.chajajwo", callback.host == "auth", callback.path == "/callback" else {
+            throw CommunityError.message("인증 응답을 확인하지 못했어요. 다시 시도해 주세요.")
+        }
         let items = URLComponents(url: callback, resolvingAgainstBaseURL: false)?.queryItems ?? []
         guard let code = items.first(where: { $0.name == "code" })?.value else { throw CommunityError.message("인증을 완료하지 못했어요.") }
         generation += 1
@@ -395,6 +402,7 @@ private final class AccountWebFlow: NSObject, ASWebAuthenticationPresentationCon
                 Task { @MainActor in
                     self?.session = nil
                     if let url { continuation.resume(returning: url) }
+                    else if (error as? ASWebAuthenticationSessionError)?.code == .canceledLogin { continuation.resume(throwing: CancellationError()) }
                     else { continuation.resume(throwing: error ?? CancellationError()) }
                 }
             }

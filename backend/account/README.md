@@ -25,7 +25,13 @@ SQL은 재실행할 수 있습니다. 정책 본문을 바꾸려면 `policies.js
 
 앱 복귀 URL은 2026-11-03 사용자가 소유자 계정에서 추가했고 대시보드에서 등록을 확인했습니다. 기본 SMTP는 팀 주소로만 발송하므로 실제 발송 서비스 연결과 전달 확인 전에는 일반 이용자 인증 메일 전달을 완료로 판단하지 않습니다.
 
-Auth의 Redirect URL 허용 목록에 `org.chargajoe.chajajwo://auth/callback`을 추가합니다. 기존 웹·다른 앱의 redirect는 유지합니다. 이메일 인증을 유지하고 실제 발송 SMTP와 발송 제한을 점검합니다. Apple/Google/Kakao 버튼은 프로젝트에서 활성화된 provider만 표시하며 각 provider 콘솔 설정이 있어야 동작합니다.
+Auth의 Redirect URL 허용 목록에 `org.chargajoe.chajajwo://auth/callback`을 추가합니다. 기존 웹·다른 앱의 redirect는 유지합니다. 이메일 인증을 유지하고 실제 발송 SMTP와 발송 제한을 점검합니다.
+
+앱 시작과 로그아웃 시 로그인·회원가입 전용 화면이 먼저 표시됩니다. 로그인과 필수 계정 설정을 마쳐야 홈·탭·위치 기능이 생성됩니다. 저장된 세션은 먼저 복원하며, 정상 세션이면 홈으로 이어집니다. Google·Apple·카카오와 이메일 입력을 첫 화면에 표시합니다. 공급자가 서버에서 활성화된 경우에만 OAuth를 시작하며 미설정 방법은 준비 중 안내를 표시합니다. 현재 작업 범위는 Google·카카오 설정이고 Apple 활성화는 사용자 요청으로 보류합니다.
+
+Google Cloud의 웹 OAuth 클라이언트와 Kakao Developers의 REST API 키에는 `https://iqalavbntvadqawkegfa.supabase.co/auth/v1/callback`을 redirect URI로 등록합니다. 앱 복귀 URL과 공급자 서버 callback URL은 서로 다른 단계입니다. 클라이언트 secret·SMTP key는 Supabase 대시보드에만 저장하고 앱·Git 저장소에는 넣지 않습니다. 발송 서비스 연결 후 처리업체와 실제 보유 기간을 정책 문서에 반영하고 새 버전을 게시해야 합니다.
+
+네이티브 화면 캡처용 `-preview-content`는 DEBUG 빌드에서만 공개 홈을 렌더링합니다. 인증 세션을 만들거나 서버 권한을 부여하지 않으며 Release 빌드의 로그인 흐름에는 적용되지 않습니다.
 
 ## 퀘스트와 보상
 
@@ -46,4 +52,4 @@ Auth의 Redirect URL 허용 목록에 `org.chargajoe.chajajwo://auth/callback`�
 
 검토 근거: [개인정보 보호법 제30조](https://www.law.go.kr/LSW/lsLinkCommonInfo.do?lsJoLnkSeq=1029334833), [전자상거래법 시행령의 거래기록 보존](https://law.go.kr/LSW/lsLawLinkInfo.do?chrClsCd=010202&lsJoLnkSeq=900619372), [Supabase 사용자 키 관리](https://supabase.com/docs/guides/auth/managing-user-data), [Supabase DPA](https://supabase.com/legal/customer-resources/data-processing-addendum), [재수탁자 목록](https://supabase.com/legal/customer-resources/subprocessor-list).
 
-로그인 상단 이미지는 내장 이미지 생성 도구로 제작한 가상 캠퍼스 모자이크이며 실제 서울대 사진이라고 표시하지 않습니다. 프롬프트는 `assets-prompt.txt`에 기록했습니다.
+소셜 로그인 아이콘 출처: [Google 공식 버튼 리소스](https://developers.google.com/identity/branding-guidelines), [카카오 공식 로그인 리소스](https://developers.kakao.com/tool/resource/login). 카카오 심볼의 원본 경로를 유지하며 Google 아이콘도 공식 PNG를 사용합니다.
