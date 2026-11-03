@@ -170,7 +170,7 @@ struct DiningView: View {
                 .buttonStyle(.plain)
                 .accessibilityLabel(place.name + (favorites.contains(place.id) ? " 즐겨찾기 해제" : " 즐겨찾기 추가"))
                 Button {
-                    store.tab = .home; store.homeFilter = .all; store.filter = nil; store.select(place.id)
+                    store.tab = .home; store.homeFilter = .all; store.select(place.id)
                 } label: {
                     Image(systemName: "map").font(.system(size: 18))
                         .foregroundStyle(Color.cjTealText).frame(width: 44, height: 44)

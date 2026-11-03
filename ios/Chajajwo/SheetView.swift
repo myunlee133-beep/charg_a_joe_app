@@ -2,14 +2,10 @@ import SwiftUI
 
 struct SheetView: View {
     @EnvironmentObject var store: Store
-    @State private var secret = ""
-    @State private var contact = ""
     @State private var menuDate = Date()
     @Binding var detent: SheetDetent  // 식단 시트의 펼침·기본·접힘
 
     private var place: Place { Place.byID[store.sel] ?? Place.all[0] }
-    private var item: Item? { store.itemID.flatMap { id in store.items.first { $0.id == id } } }
-    private var hubItems: [Item] { store.items.filter { $0.hub == place.id } }
 
     var body: some View {
         Group {
@@ -62,7 +58,6 @@ struct SheetView: View {
     private var peekSub: String {
         switch place.type {
         case .food: "식단과 운영정보 보기"
-        case .hub: "보관 중 \(hubItems.count)건 보기"
         case .stop: "셔틀 도착 정보 보기"
         }
     }
@@ -83,7 +78,7 @@ struct SheetView: View {
                     foodDate
                 }
             } else {
-                Text(item?.title ?? place.name).font(.title3.weight(.heavy)).lineLimit(1).minimumScaleFactor(0.7)
+                Text(place.name).font(.title3.weight(.heavy)).lineLimit(1).minimumScaleFactor(0.7)
                 badge
             }
             Spacer(minLength: 0)
@@ -98,7 +93,6 @@ struct SheetView: View {
         switch place.type {
         case .food: EmptyView()
         case .stop: Badge(text: "교내순환", color: .cjBlue)
-        case .hub: Badge(text: item?.kind ?? "보관 중 \(hubItems.count)건", color: .cjTeal)
         }
     }
 
@@ -106,7 +100,6 @@ struct SheetView: View {
         switch place.type {
         case .food: foodBody
         case .stop: stopBody
-        case .hub: if let item { itemBody(item) } else { hubBody }
         }
     }
 
@@ -152,8 +145,7 @@ struct SheetView: View {
             }
 
             HStack(spacing: 10) {
-                Button { store.tab = .lostFound } label: { BigLabel(text: "분실물 보기", style: .orangeFill) }
-                Link(destination: place.directionsURL) { BigLabel(text: "길찾기", style: .orangeLine) }
+                Link(destination: place.directionsURL) { BigLabel(text: "길찾기", style: .orangeFill) }
             }
             .padding(.top, 12)
         }
@@ -257,75 +249,5 @@ struct SheetView: View {
             ShuttleStatusContent().padding(.vertical, 14)
             Link(destination: place.directionsURL) { BigLabel(text: "길찾기", style: .tealLine) }.padding(.top, 14)
         }
-    }
-
-    private var hubBody: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text("📍 \(place.storage)").font(.footnote).foregroundStyle(Color.cjSub).padding(.top, 10)
-            if hubItems.isEmpty {
-                Text("지금 보관 중인 분실물이 없어요").font(.subheadline).foregroundStyle(Color.cjSub)
-                    .frame(maxWidth: .infinity).padding(.vertical, 20)
-            }
-            ForEach(hubItems) { i in
-                ItemRow(item: i) { store.select(i.hub, item: i.id) }.padding(.vertical, 14)
-                Divider()
-            }
-        }
-    }
-
-    private func itemBody(_ i: Item) -> some View {
-        let requested = store.claims.contains { $0.itemID == i.id }
-        return VStack(alignment: .leading, spacing: 0) {
-            ItemThumb(item: i, width: 1000, height: 180, radius: 16)
-                .frame(maxWidth: .infinity).padding(.vertical, 14)
-            kv("습득 장소", i.found)
-            kv("습득 시각", i.at.formatted(.dateTime.month(.wide).day().hour().minute()))
-            kv("보관 위치", place.storage)
-            kv("특징", i.feat)
-            if store.claim && !requested {
-                claimForm(i)
-            } else if requested {
-                Text("확인 요청을 보냈어요. 운영팀이 특징을 확인하면 수령 안내를 드려요. 진행 상황은 내 분실 신고 탭에서 볼 수 있어요.")
-                    .font(.subheadline).foregroundStyle(Color.cjSuccessText)
-                    .padding(14).frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.cjSuccessFill, in: RoundedRectangle(cornerRadius: 14)).padding(.top, 14)
-            } else {
-                HStack(spacing: 10) {
-                    Button { store.itemID = nil } label: { BigLabel(text: "목록", style: .tealLine) }
-                    Button { store.claim = true } label: { BigLabel(text: "내 물건이에요", style: .tealFill) }
-                }
-                .padding(.top, 14)
-            }
-        }
-    }
-
-    private func kv(_ k: String, _ v: String) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            Text(k).foregroundStyle(Color.cjSub).frame(width: 72, alignment: .leading)
-            Text(v)
-            Spacer(minLength: 0)
-        }
-        .font(.subheadline).padding(.vertical, 4)
-    }
-
-    private func claimForm(_ i: Item) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("본인 확인을 위해 사진에 나오지 않는 특징을 먼저 알려 주세요. 운영팀이 확인 후 수령 안내를 드려요.")
-                .font(.footnote).foregroundStyle(Color.cjSub)
-            TextField("숨은 특징 (예: 지갑 안쪽에 영수증과 스티커가 있어요)", text: $secret, axis: .vertical)
-                .lineLimit(3...5).field()
-            TextField("연락처 (학교 메일)", text: $contact)
-                .keyboardType(.emailAddress).textInputAutocapitalization(.never).textContentType(.emailAddress).field()
-            HStack(spacing: 10) {
-                Button { store.claim = false } label: { BigLabel(text: "취소", style: .tealLine) }
-                Button {
-                    store.addClaim(item: i, secret: secret, contact: contact)
-                    secret = ""; contact = ""; store.claim = false
-                    store.toast("확인 요청을 보냈어요")
-                } label: { BigLabel(text: "확인 요청", style: .tealFill) }
-                .disabled(secret.trimmingCharacters(in: .whitespaces).isEmpty || !contact.contains("@"))
-            }
-        }
-        .padding(.top, 14)
     }
 }

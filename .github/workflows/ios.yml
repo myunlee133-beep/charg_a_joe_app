@@ -1,7 +1,7 @@
 name: iOS and campus core
 on:
   push:
-    branches: ['codex/**']
+    branches: ['codex/**', 'claude/**', 'release/**']
   pull_request:
   workflow_dispatch:
 permissions:
@@ -14,7 +14,7 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
-      - name: Test quest and circular-shuttle models
+      - name: Test circular-shuttle models
         run: swift test
       - name: Build the iOS simulator app without signing
         run: xcodebuild -project ios/Chajajwo.xcodeproj -scheme Chajajwo -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/ChajajwoBuild" CODE_SIGNING_ALLOWED=NO build
@@ -48,17 +48,9 @@ jobs:
             xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/map-$LEVEL.png"
           done
           xcrun simctl terminate "$DEVICE_ID" org.chargajoe.chajajwo
-          xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-map-zoom 18 -preview-map-selected
-          sleep 7
-          xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/map-selected.png"
-          xcrun simctl terminate "$DEVICE_ID" org.chargajoe.chajajwo
           xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-map-student-hall
           sleep 7
           xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/map-student-hall.png"
-          xcrun simctl terminate "$DEVICE_ID" org.chargajoe.chajajwo
-          xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-quests
-          sleep 5
-          xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/quests.png"
       - uses: actions/upload-artifact@v4
         if: github.event_name != 'pull_request'
         with:

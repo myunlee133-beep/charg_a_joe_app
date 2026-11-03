@@ -12,46 +12,6 @@ struct PlaceIcon: View {
     }
 }
 
-struct ItemThumb: View {
-    let item: Item
-    var width: CGFloat = 52
-    var height: CGFloat = 52
-    var radius: CGFloat = 12
-    var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: radius).fill(Color.cjInset)
-            if let d = item.photo, let img = Photo.image(d) {
-                img.resizable().scaledToFill()
-            } else {
-                Text(item.emoji).font(.system(size: min(width, height) * 0.46))
-            }
-        }
-        .frame(width: width, height: height)
-        .clipShape(RoundedRectangle(cornerRadius: radius))
-    }
-}
-
-struct ItemRow: View {
-    let item: Item
-    let action: () -> Void
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 14) {
-                ItemThumb(item: item)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(item.title).font(.body.weight(.bold))
-                    Text("\(Place.byID[item.hub]?.name ?? "") · \(ago(item.at))")
-                        .font(.footnote).foregroundStyle(Color.cjSub)
-                }
-                Spacer(minLength: 0)
-                Image(systemName: "chevron.right").foregroundStyle(.secondary)
-            }
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-    }
-}
-
 enum BtnStyle { case orangeFill, orangeLine, tealFill, tealLine }
 
 struct BigLabel: View {
@@ -140,11 +100,5 @@ struct SwipeSheet<Header: View, Content: View>: View {
         .frame(maxWidth: .infinity)
         .background(Color.cjSurface, in: UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24))
         .shadow(color: .black.opacity(0.13), radius: 10, y: -3)
-    }
-}
-
-extension View {
-    func field() -> some View {
-        padding(12).overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.cjLine, lineWidth: 1.5))
     }
 }
