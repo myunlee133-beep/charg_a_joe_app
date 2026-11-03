@@ -5,6 +5,8 @@ private enum AccountStyle {
     static let ink = Color(hex: 0x15201C)
     static let muted = Color(hex: 0x63706A)
     static let line = Color(hex: 0xCAD2CD)
+    static let canvas = Color(hex: 0xF5F7F4)
+    static let field = Color(hex: 0xF3F6F3)
 }
 
 struct AccountLoginView: View {
@@ -24,16 +26,17 @@ struct AccountLoginView: View {
     @State private var adult = false
     @State private var selectedPolicy: AccountPolicy?
     @State private var provider: String?
+    @State private var kakaoQR = false
     @State private var unavailableProvider: String?
     private var validEmail: Bool { email.trimmingCharacters(in: .whitespacesAndNewlines).range(of: #"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$"#, options: [.caseInsensitive, .regularExpression]) != nil }
     private var signupReady: Bool { adult && account.policiesVerified && account.policies.filter { $0.context == "account" }.allSatisfy { agreed.contains($0.kind) } }
-    private var continueTitle: String { step == .reset ? "재설정 메일 받기" : signup ? "동의하고 가입하기" : "이메일로 로그인" }
+    private var continueTitle: String { step == .reset ? "재설정 메일 받기" : signup ? "동의하고 가입하기" : "로그인" }
     private var continueDisabled: Bool { working || !validEmail || (step == .credentials && (password.isEmpty || (signup && (password.count < 10 || !signupReady)))) }
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading, spacing: 28) {
                     header
                     if step == .confirmation {
                         Text("메일함을 확인해 주세요").font(.title2.bold())
@@ -43,26 +46,21 @@ struct AccountLoginView: View {
                         Button("인증 메일 다시 보내기") { perform { try await account.resendConfirmation(email: email); show("인증 안내를 다시 요청했어요. 메일함과 스팸함을 확인해 주세요.") } }
                             .disabled(working).font(.subheadline)
                     } else {
-                        if step == .credentials {
-                            VStack(spacing: 10) {
-                                providerButton("google", title: "Google로 계속하기")
-                                providerButton("apple", title: "Apple로 계속하기")
-                                providerButton("kakao", title: "카카오 로그인")
-                            }
-                            HStack(spacing: 12) {
-                                Rectangle().frame(height: 1)
-                                Text(signup ? "또는 이메일로 가입" : "또는 이메일로 로그인").font(.caption).fixedSize()
-                                Rectangle().frame(height: 1)
-                            }.foregroundStyle(AccountStyle.muted)
-                        } else {
-                            Text("비밀번호 재설정").font(.title2.bold())
+                        if step == .reset {
                             Text("가입한 이메일로 재설정 안내를 보내드려요.").font(.subheadline).foregroundStyle(AccountStyle.muted)
                         }
-                        emailForm
-                        if step == .credentials && signup {
-                            AccountConsentChecklist(context: "account", agreed: $agreed, adult: $adult, selectedPolicy: $selectedPolicy)
+                        VStack(alignment: .leading, spacing: 20) {
+                            emailForm
+                            if step == .credentials && signup {
+                                AccountConsentChecklist(context: "account", agreed: $agreed, adult: $adult, selectedPolicy: $selectedPolicy)
+                            }
+                            if focusedField == nil { primary(continueTitle, action: continueTapped).disabled(continueDisabled) }
                         }
-                        if focusedField == nil { primary(continueTitle, action: continueTapped).disabled(continueDisabled) }
+                        .padding(22)
+                        .background(.white, in: RoundedRectangle(cornerRadius: 24))
+                        .overlay(RoundedRectangle(cornerRadius: 24).stroke(AccountStyle.line.opacity(0.45), lineWidth: 0.5))
+                        .shadow(color: AccountStyle.ink.opacity(0.035), radius: 20, y: 8)
+                        if step == .credentials { socialOptions }
                         if step == .reset {
                             Button("로그인으로 돌아가기") { step = .credentials; signup = false; message = nil }.font(.subheadline)
                         }
@@ -74,15 +72,15 @@ struct AccountLoginView: View {
                     }
                     policiesFooter
                 }
-                .frame(maxWidth: 440)
-                .padding(.horizontal, 28).padding(.top, 28).padding(.bottom, 28)
+                .frame(maxWidth: 420)
+                .padding(.horizontal, 24).padding(.top, 36).padding(.bottom, 28)
                 .frame(maxWidth: .infinity)
             }
-            .background(.white).scrollDismissesKeyboard(.interactively)
+            .background(AccountStyle.canvas).scrollDismissesKeyboard(.interactively)
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 if focusedField != nil && step != .confirmation {
                     primary(continueTitle, action: continueTapped).disabled(continueDisabled)
-                        .padding(.horizontal, 28).padding(.vertical, 12).background(.white)
+                        .padding(.horizontal, 24).padding(.vertical, 12).background(AccountStyle.canvas)
                 }
             }
             .toolbar {
@@ -93,7 +91,7 @@ struct AccountLoginView: View {
         .tint(AccountStyle.green)
         .sheet(item: $selectedPolicy) { AccountPolicyView(document: $0) }
         .sheet(isPresented: Binding(get: { provider != nil }, set: { if !$0 { provider = nil } })) {
-            if let provider { AccountProviderConsentView(provider: provider) }
+            if let provider { AccountProviderConsentView(provider: provider, preferKakaoQR: kakaoQR) }
         }
         .alert("로그인 안내", isPresented: Binding(get: { unavailableProvider != nil }, set: { if !$0 { unavailableProvider = nil } })) {
             Button("확인") { unavailableProvider = nil }
@@ -111,54 +109,80 @@ struct AccountLoginView: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 8) {
-                Image(systemName: "bolt.fill").font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(AccountStyle.green).padding(10)
-                    .background(Color(hex: 0xEDF4EF), in: RoundedRectangle(cornerRadius: 12))
-                Text("찾아줘").font(.system(size: 23, weight: .bold)).tracking(-0.7)
+        VStack(spacing: 22) {
+            HStack(spacing: 10) {
+                Image(systemName: "bolt.fill").font(.system(size: 22, weight: .semibold))
+                    .foregroundStyle(.white).frame(width: 44, height: 44)
+                    .background(AccountStyle.green, in: RoundedRectangle(cornerRadius: 15))
+                    .accessibilityHidden(true)
+                Text("찾아줘").font(.system(size: 27, weight: .bold)).tracking(-1)
             }
-            Text(signup ? "회원가입" : "캠퍼스의 부탁을,\n함께 해결해요.")
-                .font(.system(size: 29, weight: .bold)).tracking(-1)
-                .fixedSize(horizontal: false, vertical: true)
+            Text(step == .reset ? "비밀번호 재설정" : signup ? "회원가입" : "로그인")
+                .font(.system(size: 21, weight: .semibold)).tracking(-0.6)
                 .accessibilityIdentifier("account-entry-title")
-        }.foregroundStyle(AccountStyle.ink)
+        }.frame(maxWidth: .infinity).foregroundStyle(AccountStyle.ink)
+    }
+
+    private var socialOptions: some View {
+        VStack(spacing: 20) {
+            HStack(spacing: 14) {
+                Rectangle().fill(AccountStyle.line.opacity(0.65)).frame(height: 0.5)
+                Text("간편 로그인").font(.system(size: 12, weight: .medium)).fixedSize()
+                Rectangle().fill(AccountStyle.line.opacity(0.65)).frame(height: 0.5)
+            }
+            .foregroundStyle(AccountStyle.muted)
+            HStack(spacing: 32) {
+                providerButton("google", title: "Google")
+                providerButton("apple", title: "Apple")
+                providerButton("kakao", title: "카카오")
+            }
+            .frame(maxWidth: .infinity)
+            Button { selectProvider("kakao", qr: true) } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "qrcode").font(.system(size: 15, weight: .medium))
+                    Text("카카오 QR 로그인").font(.system(size: 13, weight: .medium))
+                    Image(systemName: "chevron.right").font(.system(size: 9, weight: .semibold))
+                }.frame(minHeight: 44).frame(maxWidth: .infinity)
+                    .foregroundStyle(AccountStyle.muted)
+                    .background(.white.opacity(0.75), in: RoundedRectangle(cornerRadius: 14))
+                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(AccountStyle.line.opacity(0.6), lineWidth: 0.5))
+            }.buttonStyle(.plain).disabled(working).accessibilityIdentifier("account-kakao-qr")
+        }
+    }
+
+    private func selectProvider(_ value: String, qr: Bool = false) {
+        focusedField = nil
+        perform {
+            await account.loadProviders()
+            if account.providers.contains(value) { kakaoQR = qr; provider = value }
+            else { unavailableProvider = value == "apple" ? "Apple" : value == "google" ? "Google" : "카카오" }
+        }
     }
 
     private func providerButton(_ value: String, title: String) -> some View {
-        Button {
-            focusedField = nil
-            if account.providers.contains(value) { provider = value }
-            else {
-                let name = value == "apple" ? "Apple" : value == "google" ? "Google" : "카카오"
-                unavailableProvider = name
-            }
-        } label: {
-            ZStack {
-                HStack {
+        Button { selectProvider(value) } label: {
+            VStack(spacing: 9) {
+                ZStack {
+                    Circle().fill(value == "apple" ? Color.black : value == "kakao" ? Color(hex: 0xFEE500) : .white)
                     if value == "google" {
-                        Image("AccountGoogle").resizable().frame(width: 44, height: 44)
-                            .frame(width: 24, height: 24).clipped().accessibilityHidden(true)
+                        Image("AccountGoogle").resizable().frame(width: 44, height: 44).accessibilityHidden(true)
                     } else if value == "apple" {
-                        Image(systemName: "apple.logo").font(.system(size: 22)).frame(width: 24).accessibilityHidden(true)
+                        Image(systemName: "apple.logo").font(.system(size: 25)).foregroundStyle(.white).accessibilityHidden(true)
                     } else {
-                        Image("AccountKakao").resizable().scaledToFit().frame(width: 24, height: 24).accessibilityHidden(true)
+                        Image("AccountKakao").resizable().scaledToFit().frame(width: 26, height: 26).accessibilityHidden(true)
                     }
-                    Spacer()
-                }.padding(.horizontal, 16)
-                Text(title).font(.system(size: 15, weight: .medium))
-            }
-            .frame(maxWidth: .infinity, minHeight: 48)
-            .foregroundStyle(value == "apple" ? .white : AccountStyle.ink)
-            .background(value == "apple" ? Color.black : value == "kakao" ? Color(hex: 0xFEE500) : Color.white, in: RoundedRectangle(cornerRadius: 10))
-            .overlay(RoundedRectangle(cornerRadius: 10).stroke(value == "google" ? AccountStyle.line : .clear))
+                }.frame(width: 58, height: 58)
+                    .overlay(Circle().stroke(value == "google" ? AccountStyle.line.opacity(0.65) : .clear, lineWidth: 0.5))
+                Text(title).font(.system(size: 12, weight: .medium)).foregroundStyle(AccountStyle.muted)
+            }.frame(minWidth: 64)
         }
         .buttonStyle(.plain).disabled(working)
+        .accessibilityLabel("\(title)로 계속하기")
         .accessibilityIdentifier("account-provider-\(value)")
     }
 
     private var emailForm: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 7) {
                 Text("이메일").font(.caption).foregroundStyle(AccountStyle.muted)
                 TextField("이메일 주소", text: $email, prompt: Text("name@example.com").foregroundStyle(AccountStyle.muted))
@@ -167,8 +191,8 @@ struct AccountLoginView: View {
                     .textInputAutocapitalization(.never).autocorrectionDisabled()
                     .submitLabel(step == .reset ? .go : .next)
                     .onSubmit { if step == .reset { if !continueDisabled { continueTapped() } } else { focusedField = .password } }
-                    .padding(.vertical, 14).padding(.horizontal, 14)
-                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(AccountStyle.line))
+                    .font(.system(size: 15)).padding(.vertical, 17).padding(.horizontal, 16)
+                    .background(AccountStyle.field, in: RoundedRectangle(cornerRadius: 14))
                     .accessibilityIdentifier("account-email")
             }
             if step == .credentials {
@@ -178,10 +202,11 @@ struct AccountLoginView: View {
                         .focused($focusedField, equals: .password).foregroundStyle(AccountStyle.ink)
                         .textContentType(signup ? .newPassword : .password)
                         .submitLabel(.go).onSubmit { if !continueDisabled { continueTapped() } }
-                        .padding(14).overlay(RoundedRectangle(cornerRadius: 10).stroke(AccountStyle.line))
+                        .font(.system(size: 15)).padding(.vertical, 17).padding(.horizontal, 16)
+                        .background(AccountStyle.field, in: RoundedRectangle(cornerRadius: 14))
                         .accessibilityIdentifier("account-password")
                 }
-                HStack(spacing: 12) {
+                HStack(spacing: 14) {
                     Spacer(minLength: 0)
                     if signup {
                         Button { signup = false } label: {
@@ -200,23 +225,23 @@ struct AccountLoginView: View {
                             .accessibilityIdentifier("account-signup-link")
                     }
                 }
-                .font(.caption).buttonStyle(.plain).foregroundStyle(AccountStyle.green)
+                .font(.system(size: 12)).buttonStyle(.plain).foregroundStyle(AccountStyle.green)
                 .frame(minHeight: 44).disabled(working)
             }
         }
     }
 
     private var policiesFooter: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 16) {
+        VStack(spacing: 11) {
+            HStack(spacing: 18) {
                 ForEach(account.policies.filter { ["terms", "privacy"].contains($0.kind) }) { document in
                     Button(document.kind == "terms" ? "이용약관" : "개인정보 처리방침") { selectedPolicy = document }
-                        .font(.caption).underline()
+                        .font(.system(size: 11)).foregroundStyle(AccountStyle.muted)
                 }
             }
             Text("퀘스트 보상은 이용자끼리 직접 송금해요.")
-                .font(.caption).foregroundStyle(AccountStyle.muted)
-        }
+                .font(.system(size: 11)).foregroundStyle(AccountStyle.muted.opacity(0.85))
+        }.frame(maxWidth: .infinity)
     }
 
     private func continueTapped() {
@@ -229,7 +254,7 @@ struct AccountLoginView: View {
         Button(action: action) {
             HStack { Spacer(); if working { ProgressView().tint(.white) } else { Text(title).font(.system(size: 16, weight: .semibold)) }; Spacer() }
                 .padding(.vertical, 16).foregroundStyle(.white)
-                .background(AccountStyle.green.opacity(continueDisabled ? 0.5 : 1), in: RoundedRectangle(cornerRadius: 10))
+                .background(AccountStyle.green.opacity(continueDisabled ? 0.5 : 1), in: RoundedRectangle(cornerRadius: 14))
         }.accessibilityIdentifier("account-continue")
     }
     private func show(_ text: String, failed: Bool = false) { message = text; failure = failed }
@@ -345,6 +370,7 @@ private struct AccountProviderConsentView: View {
     @EnvironmentObject private var account: AccountStore
     @Environment(\.dismiss) private var dismiss
     let provider: String
+    var preferKakaoQR = false
     @State private var adult = false
     @State private var agreed = Set<String>()
     @State private var document: AccountPolicy?
@@ -353,6 +379,17 @@ private struct AccountProviderConsentView: View {
     var body: some View {
         NavigationStack {
             Form {
+                if preferKakaoQR && provider == "kakao" {
+                    Section {
+                        HStack(alignment: .top, spacing: 10) {
+                            Image(systemName: "qrcode").accessibilityHidden(true)
+                            Text("카카오 화면에서 ‘QR코드 로그인’을 선택해 주세요.")
+                                .accessibilityIdentifier("account-kakao-qr-guide")
+                        }.font(.subheadline.weight(.semibold))
+                        Text("다른 기기의 카카오톡으로 QR을 스캔하면 이 기기에서 인증을 이어가요. QR 메뉴가 표시되지 않는 환경에서는 카카오계정으로 로그인할 수 있어요.")
+                            .font(.footnote).foregroundStyle(.secondary)
+                    }
+                }
                 Section { Text("인증을 시작하기 전에 계정 정보 처리와 국외 저장 안내를 확인해 주세요. 신규 회원의 동의 이력은 인증 후 계정 설정에서 기록합니다.").font(.subheadline) }
                 AccountConsentChecklist(context: "account", agreed: $agreed, adult: $adult, selectedPolicy: $document)
                 if let error { Text(error).font(.footnote).foregroundStyle(.red) }
@@ -360,13 +397,14 @@ private struct AccountProviderConsentView: View {
                     working = true
                     Task {
                         defer { working = false }
-                        do { try await account.signIn(provider: provider); dismiss() }
+                        do { try await account.signIn(provider: provider, preferKakaoQR: preferKakaoQR); dismiss() }
                         catch is CancellationError { }
                         catch { self.error = error.localizedDescription }
                     }
                 }.disabled(working || !adult || !account.policiesVerified || !account.policies.filter { $0.context == "account" }.allSatisfy { agreed.contains($0.kind) })
+                    .accessibilityIdentifier("account-provider-continue")
             }
-            .navigationTitle("계정 정보 확인")
+            .navigationTitle(preferKakaoQR && provider == "kakao" ? "카카오 QR 로그인" : "계정 정보 확인")
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("취소") { dismiss() } } }
             .sheet(item: $document) { AccountPolicyView(document: $0) }
         }

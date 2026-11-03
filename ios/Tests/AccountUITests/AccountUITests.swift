@@ -7,6 +7,8 @@ final class AccountUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
         XCTAssertTrue(app.staticTexts["account-entry-title"].waitForExistence(timeout: 25))
+        XCTAssertEqual(app.staticTexts["account-entry-title"].label, "로그인")
+        XCTAssertFalse(app.staticTexts["캠퍼스의 부탁을,\n함께 해결해요."].exists)
         let signupLink = app.buttons["account-signup-link"]
         let forgotPassword = app.buttons["account-forgot-password"]
         XCTAssertTrue(signupLink.exists)
@@ -38,6 +40,20 @@ final class AccountUITests: XCTestCase {
         // Never submit a login, signup, email or financial operation in UI tests.
     }
 
+    func testKakaoQRLoginExplainsOfficialSelectionAndRequiresConsent() throws {
+        let app = XCUIApplication(); app.launch()
+        let qr = app.buttons["account-kakao-qr"]
+        XCTAssertTrue(qr.waitForExistence(timeout: 25))
+        if !qr.isHittable { app.swipeUp() }
+        qr.tap()
+        XCTAssertTrue(app.staticTexts["account-kakao-qr-guide"].waitForExistence(timeout: 25))
+        XCTAssertFalse(app.buttons["account-provider-continue"].isEnabled)
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "kakao-qr-guide"; screenshot.lifetime = .keepAlways; add(screenshot)
+        app.buttons["취소"].tap()
+        XCTAssertTrue(app.buttons["account-signup-link"].exists)
+    }
+
     func testSignupHasExplicitConsentAndPrivacyIsReadableBeforeLogin() throws {
         let app = XCUIApplication(); app.launch()
         XCTAssertTrue(app.buttons["account-signup-link"].waitForExistence(timeout: 25))
@@ -53,7 +69,7 @@ final class AccountUITests: XCTestCase {
         signup.name = "signup-consent"; signup.lifetime = .keepAlways; add(signup)
 
         let policy = app.buttons["개인정보 처리방침"]
-        if !policy.exists { app.swipeUp() }
+        if !policy.isHittable { app.swipeUp() }
         XCTAssertTrue(policy.waitForExistence(timeout: 5)); policy.tap()
         XCTAssertTrue(app.navigationBars["약관 및 개인정보"].waitForExistence(timeout: 5))
         let screenshot = XCTAttachment(screenshot: app.screenshot())

@@ -31,6 +31,8 @@ Auth의 Redirect URL 허용 목록에 `org.chargajoe.chajajwo://auth/callback`�
 
 Google Cloud의 웹 OAuth 클라이언트와 Kakao Developers의 REST API 키에는 `https://iqalavbntvadqawkegfa.supabase.co/auth/v1/callback`을 redirect URI로 등록합니다. 앱 복귀 URL과 공급자 서버 callback URL은 서로 다른 단계입니다. 클라이언트 secret·SMTP key는 Supabase 대시보드에만 저장하고 앱·Git 저장소에는 넣지 않습니다. Brevo의 처리 국가·연락처·발송 로그 1개월·미리보기 미보관과 소셜 인증에 맞춰 정책 버전을 2026-11-03.2로 갱신했습니다.
 
+카카오 QR 진입은 안내·동의 후 같은 Supabase PKCE 흐름을 사용하되 `prompt=login`으로 카카오계정 로그인 화면을 요청합니다. 그 화면에서 이용자가 `QR코드 로그인`을 선택합니다. 카카오는 QR 화면 직접 진입·QR 토큰 추출 API를 제공하지 않으므로 비공개 주소나 자체 QR 인증으로 우회하지 않습니다. QR 메뉴 표시는 카카오와 접속 환경에 따라 달라질 수 있습니다. [공식 답변](https://devtalk.kakao.com/t/qr/148854), [prompt=login 문서](https://developers.kakao.com/docs/ko/kakaologin/rest-api#request-code).
+
 네이티브 화면 캡처용 `-preview-content`는 DEBUG 빌드에서만 공개 홈을 렌더링합니다. 인증 세션을 만들거나 서버 권한을 부여하지 않으며 Release 빌드의 로그인 흐름에는 적용되지 않습니다.
 
 ## 퀘스트와 보상

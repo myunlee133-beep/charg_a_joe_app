@@ -290,7 +290,7 @@ final class AccountStore: ObservableObject {
         recoveryRequired = false
     }
 
-    func signIn(provider: String) async throws {
+    func signIn(provider: String, preferKakaoQR: Bool = false) async throws {
         await loadProviders()
         guard ["google", "apple", "kakao"].contains(provider), providers.contains(provider) else {
             throw CommunityError.message("이 로그인 방법은 아직 준비 중이에요. 이메일로 이용해 주세요.")
@@ -306,6 +306,9 @@ final class AccountStore: ObservableObject {
         // GoTrue forwards `scope` to the provider. Its `scopes` parameter appends
         // to defaults, which would request Kakao email/image without permission.
         if provider == "kakao" { components.queryItems?.append(.init(name: "scope", value: "profile_nickname")) }
+        // Kakao exposes QR selection on its account login page, not through a
+        // public QR API. Request that page even if the browser has a session.
+        if provider == "kakao" && preferKakaoQR { components.queryItems?.append(.init(name: "prompt", value: "login")) }
         if provider == "google" { components.queryItems?.append(.init(name: "scope", value: "openid email")) }
         let callback = try await webFlow.authenticate(components.url!)
         guard callback.scheme == "org.chargajoe.chajajwo", callback.host == "auth", callback.path == "/callback" else {
