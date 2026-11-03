@@ -4,7 +4,7 @@
 
 ## 계정 키와 접근 제어
 
-- 로그인 주체는 언제나 `auth.users.id` (UUID)입니다. 이메일·닉네임으로 사용자 식별자를 만들거나 기존 사용자를 병합하지 않습니다.
+- 로그인 주체는 언제나 `auth.users.id` (UUID)입니다. 이메일·닉네임으로 사용자 식별자를 만들거나 기존 사용자를 병합하지 않습니다. 이메일이 없는 소셜 회원도 Auth가 관리하는 `auth.identities`의 Google·카카오·Apple 연결로 인증 여부를 확인합니다. 이용자가 편집하는 metadata로 인증을 대체하지 않습니다.
 - `account_profiles.user_id`, 기존 `community_profiles.user_id`, 의뢰의 `requester_user_id`, 수행의 `performer_user_id`, 거래의 `payer_user_id`·`payee_user_id`가 같은 Auth UUID를 참조합니다.
 - 모든 쓰기 RPC는 `auth.uid()`에서 호출자를 결정합니다. 앱은 user ID, 지급자·수취인 ID 또는 확정 보상액을 전달해 다른 사람으로 기록할 수 없습니다.
 - 클라이언트의 테이블 직접 접근은 권한과 RLS 양쪽에서 차단합니다. 공개 목록에는 내부 사용자 UUID·이메일·제출 원문·은행 정보를 반환하지 않습니다. 비공개 결과는 의뢰자·제출자만, 거래·계좌 안내는 해당 당사자만 RPC로 조회합니다.
@@ -19,17 +19,17 @@
 2. `002_policy_seed.sql`: 공개 문서 5종과 문서별 SHA-256·버전. 기존 회원을 자동 동의 처리하지 않습니다.
 3. `003_retention_job.sql`: Supabase pg_cron, 매일 한국 시각 03:20에 보유 기간 종료 데이터 정리.
 4. `verify.sql`: 계정 매핑 누락 0, 활성 문서 5, 비공개 접근 false, 직접 쓰기 false, 미인증 수락 false, RLS 비활성 0, 정리 작업 active를 확인합니다.
-5. `tests.sql`: 임의 생성한 합성 계정 세 명으로 권한·보상·탈퇴 보존 검증 후 전체 ROLLBACK. 실제 이용자의 계정·글을 수정하지 않습니다.
+5. `tests.sql`: 임의 생성한 합성 계정 네 명으로 권한·보상·탈퇴 보존 검증 후 전체 ROLLBACK. 실제 이용자의 계정·글을 수정하지 않습니다.
 
 SQL은 재실행할 수 있습니다. 정책 본문을 바꾸려면 `policies.json`에서 문서 버전을 올리고 `python scripts/build_account_policies.py`를 실행합니다. 이미 게시한 같은 버전의 본문을 덮어쓰지 않습니다. 네이티브 번들 문서는 동일 소스에서 생성하며, 동의 버튼은 서버에서 받은 문서와 해시를 확인하기 전에는 활성화하지 않습니다.
 
-앱 복귀 URL은 2026-11-03 사용자가 소유자 계정에서 추가했고 대시보드에서 등록을 확인했습니다. 기본 SMTP는 팀 주소로만 발송하므로 실제 발송 서비스 연결과 전달 확인 전에는 일반 이용자 인증 메일 전달을 완료로 판단하지 않습니다.
+앱 복귀 URL은 2026-11-03 사용자가 소유자 계정에서 추가했고 대시보드에서 등록을 확인했습니다. Brevo SMTP 연결과 찾아줘 발신자 인증을 완료했습니다. 실제 가입·복구 메일의 전달 확인은 별도이며, SMTP 값 저장만으로 수신 완료를 판단하지 않습니다.
 
 Auth의 Redirect URL 허용 목록에 `org.chargajoe.chajajwo://auth/callback`을 추가합니다. 기존 웹·다른 앱의 redirect는 유지합니다. 이메일 인증을 유지하고 실제 발송 SMTP와 발송 제한을 점검합니다.
 
-앱 시작과 로그아웃 시 로그인·회원가입 전용 화면이 먼저 표시됩니다. 로그인과 필수 계정 설정을 마쳐야 홈·탭·위치 기능이 생성됩니다. 저장된 세션은 먼저 복원하며, 정상 세션이면 홈으로 이어집니다. Google·Apple·카카오와 이메일 입력을 첫 화면에 표시합니다. 공급자가 서버에서 활성화된 경우에만 OAuth를 시작하며 미설정 방법은 준비 중 안내를 표시합니다. 현재 작업 범위는 Google·카카오 설정이고 Apple 활성화는 사용자 요청으로 보류합니다.
+앱 시작과 로그아웃 시 로그인·회원가입 전용 화면이 먼저 표시됩니다. 로그인과 필수 계정 설정을 마쳐야 홈·탭·위치 기능이 생성됩니다. 저장된 세션은 먼저 복원하며, 정상 세션이면 홈으로 이어집니다. Google·Apple·카카오와 이메일 입력을 첫 화면에 표시합니다. 공급자가 서버에서 활성화된 경우에만 OAuth를 시작하며 미설정 방법은 준비 중 안내를 표시합니다. Google·카카오를 Supabase에서 활성화했고 Apple 활성화는 사용자 요청으로 보류합니다. Google은 외부 사용자 대상 production 상태이며 공개 정책 링크를 등록했습니다. Google은 `openid email`, 카카오는 `profile_nickname`만 요청하고 실제 authorize 리다이렉트에서 범위를 확인했습니다.
 
-Google Cloud의 웹 OAuth 클라이언트와 Kakao Developers의 REST API 키에는 `https://iqalavbntvadqawkegfa.supabase.co/auth/v1/callback`을 redirect URI로 등록합니다. 앱 복귀 URL과 공급자 서버 callback URL은 서로 다른 단계입니다. 클라이언트 secret·SMTP key는 Supabase 대시보드에만 저장하고 앱·Git 저장소에는 넣지 않습니다. 발송 서비스 연결 후 처리업체와 실제 보유 기간을 정책 문서에 반영하고 새 버전을 게시해야 합니다.
+Google Cloud의 웹 OAuth 클라이언트와 Kakao Developers의 REST API 키에는 `https://iqalavbntvadqawkegfa.supabase.co/auth/v1/callback`을 redirect URI로 등록합니다. 앱 복귀 URL과 공급자 서버 callback URL은 서로 다른 단계입니다. 클라이언트 secret·SMTP key는 Supabase 대시보드에만 저장하고 앱·Git 저장소에는 넣지 않습니다. Brevo의 처리 국가·연락처·발송 로그 1개월·미리보기 미보관과 소셜 인증에 맞춰 정책 버전을 2026-11-03.2로 갱신했습니다.
 
 네이티브 화면 캡처용 `-preview-content`는 DEBUG 빌드에서만 공개 홈을 렌더링합니다. 인증 세션을 만들거나 서버 권한을 부여하지 않으며 Release 빌드의 로그인 흐름에는 적용되지 않습니다.
 
