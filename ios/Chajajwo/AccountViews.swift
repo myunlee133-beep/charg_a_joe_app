@@ -124,7 +124,7 @@ struct AccountLoginView: View {
         .sheet(isPresented: Binding(get: { provider != nil }, set: { if !$0 { provider = nil } })) {
             if let provider { AccountProviderConsentView(provider: provider) }
         }
-        .onChange(of: account.authenticated) { _, value in if value { dismiss() } }
+        .onChange(of: account.authenticated) { _, value in if value { store.showAccountLogin = false } }
         .task {
             do { try await account.loadPolicies() } catch { show(error.localizedDescription, failed: true) }
             await account.loadProviders()

@@ -573,7 +573,7 @@ private struct CommunityProfileView: View {
                     }
                     Button("찾아줘 계정 삭제", role: .destructive) { showDeleteConfirmation = true }
                 } footer: {
-                    Text("계정 삭제 시 사랑방 게시물·댓글·스크랩·기여 기록이 삭제됩니다. 기존 분실 신고의 기기 저장 데이터는 별도로 관리됩니다.")
+                    Text("찾아줘 공통 계정과 연결된 회원 데이터를 삭제합니다. 진행 중인 퀘스트·송금·분쟁은 먼저 정리해야 하며 법정 보존 거래 기록은 별도 보관됩니다.")
                 }
                 if let error { Text(error).foregroundStyle(.red) }
             }
@@ -584,8 +584,8 @@ private struct CommunityProfileView: View {
                 contributions = (try? await api.myContributions()) ?? []
                 blocks = (try? await api.myBlocks()) ?? []
             }
-            .confirmationDialog("사랑방 계정을 영구 삭제할까요?", isPresented: $showDeleteConfirmation) {
-                Button("계정과 커뮤니티 기록 삭제", role: .destructive) {
+            .confirmationDialog("찾아줘 공통 계정을 삭제할까요?", isPresented: $showDeleteConfirmation) {
+                Button("찾아줘 계정과 회원 데이터 삭제", role: .destructive) {
                     Task {
                         do { try await api.deleteAccount(); onSignOut(); dismiss() }
                         catch { self.error = error.localizedDescription }

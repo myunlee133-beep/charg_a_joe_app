@@ -394,6 +394,20 @@ begin
  delete from private.quest_events e using private.quest_transactions t where e.quest_id=t.quest_id and t.status='received' and t.retain_until<=now();
  delete from private.quest_transfer_details d using private.quest_transactions t where d.transaction_id=t.id and t.status='received' and t.retain_until<=now();
  delete from private.quest_transactions where status='received' and retain_until<=now();
+ delete from public.quest_participations p using public.quests q where p.quest_id=q.id and q.status='completed' and q.updated_at<=now()-interval '5 years'
+ and not exists(select 1 from private.quest_transactions t where t.quest_id=q.id);
+ delete from public.quests q where q.status='completed' and q.updated_at<=now()-interval '5 years'
+ and not exists(select 1 from private.quest_transactions t where t.quest_id=q.id);
+ delete from private.account_consents c using private.account_subjects s where c.subject_id=s.id and s.closed_at<=now()-interval '5 years'
+ and not exists(select 1 from public.quests q where q.requester_subject_id=s.id)
+ and not exists(select 1 from public.quest_participations p where p.performer_subject_id=s.id)
+ and not exists(select 1 from private.quest_transactions t where s.id in (t.payer_subject_id,t.payee_subject_id));
+ delete from private.account_subjects s where s.closed_at<=now()-interval '5 years'
+ and not exists(select 1 from private.account_consents c where c.subject_id=s.id)
+ and not exists(select 1 from public.quests q where q.requester_subject_id=s.id)
+ and not exists(select 1 from public.quest_participations p where p.performer_subject_id=s.id)
+ and not exists(select 1 from private.quest_events e where e.actor_subject_id=s.id)
+ and not exists(select 1 from private.quest_transactions t where s.id in (t.payer_subject_id,t.payee_subject_id));
 end $$;
 
 -- Existing users get the same auth UUID; no email/nickname based identity matching.

@@ -13,7 +13,6 @@ final class Store: ObservableObject {
     @Published private(set) var questError: String?
     @Published var showAccountLogin = false
     private var questRequestSerial = 0
-    @Published var questSession = QuestSession()
     @Published var selectedQuest: Quest?
     @Published var questSheet = SheetDetent.collapsed  // 기본은 접힘. 다른 시트를 열었다 닫아도 상태를 유지
     @Published var showDining = false   // 홈 탭 안에서 지도 대신 식당 화면을 보여준다

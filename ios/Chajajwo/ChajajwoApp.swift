@@ -24,10 +24,19 @@ struct ChajajwoApp: App {
 }
 
 struct ContentView: View {
+    private enum AccountRoute: String, Identifiable {
+        case login, onboarding, recovery
+        var id: String { rawValue }
+    }
     @EnvironmentObject var store: Store
     @EnvironmentObject private var account: AccountStore
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var shuttle = CircularShuttleService()
+    private var accountRoute: AccountRoute? {
+        if account.recoveryRequired { return .recovery }
+        if account.needsOnboarding { return .onboarding }
+        return store.showAccountLogin ? .login : nil
+    }
 
     private var shouldTrackShuttle: Bool {
         scenePhase == .active && store.tab == .home &&
@@ -89,11 +98,15 @@ struct ContentView: View {
             if account.authenticated { store.showAccountLogin = false }
             Task { await store.refreshQuests() }
         }
-        .sheet(isPresented: $store.showAccountLogin) { AccountLoginView() }
-        .fullScreenCover(isPresented: Binding(get: { account.needsOnboarding && !account.recoveryRequired && !store.showAccountLogin }, set: { _ in })) {
-            AccountOnboardingView()
+        .sheet(item: Binding(get: { accountRoute }, set: { route in
+            if route == nil { store.showAccountLogin = false }
+        })) { route in
+            switch route {
+            case .login: AccountLoginView()
+            case .onboarding: AccountOnboardingView()
+            case .recovery: AccountRecoveryView()
+            }
         }
-        .fullScreenCover(isPresented: $account.recoveryRequired) { AccountRecoveryView() }
         .alert("계정 연결 안내", isPresented: Binding(get: { account.error != nil }, set: { if !$0 { account.error = nil } })) {
             Button("확인") { account.error = nil }
         } message: { Text(account.error ?? "") }

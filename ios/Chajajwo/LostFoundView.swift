@@ -45,7 +45,9 @@ struct LostFoundView: View {
             .refreshable { await lf.prepare(force: true) }
             .sheet(item: $editor) { kind in LostFoundEditor(type: kind) }
             .sheet(item: $selected) { record in LostFoundRecordDetail(record: record, type: section == 1 ? .found : .lost) }
-            .sheet(isPresented: $showAuth) { LostFoundAuthView() }
+            .onChange(of: showAuth) { _, value in
+                if value { showAuth = false; store.showAccountLogin = true }
+            }
         }
     }
     private func action(_ title: String, icon: String, type: LostFoundType) -> some View {

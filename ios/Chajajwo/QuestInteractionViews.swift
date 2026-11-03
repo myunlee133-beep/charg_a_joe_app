@@ -49,7 +49,7 @@ struct QuestDetailView: View {
                                 }
                             }.padding(16).frame(maxWidth: .infinity, alignment: .leading).background(Color.cjInset, in: RoundedRectangle(cornerRadius: 12))
                         }
-                        if current.status == "open" && results.isEmpty {
+                        if current.status == "open" && results.allSatisfy({ ["rejected", "withdrawn"].contains($0.status) }) {
                             Button("의뢰 취소", role: .destructive) { run { let _: Bool = try await account.rpc("quest_cancel", ["p_quest_id": current.id], as: Bool.self) } }
                         }
                     }

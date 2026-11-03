@@ -44,7 +44,7 @@ insert into public.account_policy_versions(kind,version,title,body,sha256,contex
 
 3. 공개·제공과 수탁 처리
 다른 이용자는 공개된 닉네임과 게시 내용을 볼 수 있습니다. 거래 상대방에게 계좌를 안내하는 경우 별도 화면에서 제공받는 상대방, 항목, 목적, 보유 기간을 알리고 동의를 받습니다. 업무상 필요한 운영자만 비공개 거래·신고 정보를 확인할 수 있습니다. 법령 근거가 있거나 별도 동의를 받은 경우 외에는 회원 정보를 판매하거나 제3자에게 제공하지 않습니다.
-Supabase Inc.는 인증, PostgreSQL 데이터 저장 및 관련 서버 운영을 처리하는 수탁 서비스입니다. 해당 프로젝트의 기본 데이터·인증 저장 지역은 인도 뭄바이(ap-south-1)입니다. 기반 클라우드 등 재수탁 처리는 Supabase의 공개 수탁자 목록과 계약에 따릅니다. Kakao 지도 서비스는 지도 요청과 기기에서 허용한 위치 관련 정보를 해당 기능에 필요한 범위에서 처리합니다. 메일 인증은 Supabase 프로젝트에 설정된 메일 발송 서비스를 통해 수행합니다. 수탁 서비스 또는 이전 조건 변경 시 정책에 반영하고 필요한 고지·동의를 진행합니다.
+Supabase Pte. Ltd.는 인증, PostgreSQL 데이터 저장 및 관련 서버 운영을 처리하는 수탁 서비스입니다. 해당 프로젝트의 기본 데이터·인증 저장 지역은 인도 뭄바이(ap-south-1)입니다. 기반 클라우드 등 재수탁 처리는 Supabase의 공개 수탁자 목록과 계약에 따릅니다. Kakao 지도 서비스는 지도 요청과 기기에서 허용한 위치 관련 정보를 해당 기능에 필요한 범위에서 처리합니다. 메일 인증은 Supabase 프로젝트에 설정된 메일 발송 서비스를 통해 수행합니다. 수탁 서비스 또는 이전 조건 변경 시 정책에 반영하고 필요한 고지·동의를 진행합니다.
 
 4. 국외 처리
 국외 처리에 관한 별도 안내·동의 문서를 함께 제공합니다. 이메일, 인증 정보, 프로필, 동의 이력, 이용자가 등록한 퀘스트·커뮤니티·분실물 정보, 거래 상태 및 별도로 제공한 계좌 안내가 Supabase 기반 서버에 암호화 통신으로 전송됩니다. 해외 저장을 원하지 않으면 가입을 진행하지 않거나 계정 삭제 지원을 요청할 수 있습니다.
@@ -57,17 +57,17 @@ Supabase Inc.는 인증, PostgreSQL 데이터 저장 및 관련 서버 운영을
 암호화 통신, 기기 Keychain에 인증 토큰 저장, DB의 기본 직접 접근 차단, 거래 당사자·운영 역할별 접근 제한을 적용합니다. 계좌·이메일·내부 계정키를 공개 API와 앱 로그에 노출하지 않습니다. 이용자는 내 정보에서 닉네임 수정·로그아웃·계정 삭제를 요청할 수 있고, 거래 화면에서 계좌 제공을 철회할 수 있습니다. 열람, 정정, 삭제, 처리 정지, 동의 철회와 대리인 요청은 info@chargajoe.org로 접수하며 본인 확인 후 법정 절차에 따라 처리합니다. 법률상 보존 대상 정보는 해당 사유와 기간을 안내하고 목적 외 이용을 제한합니다.
 
 7. 구제와 변경
-개인정보 침해 신고는 개인정보침해신고센터(privacy.kisa.or.kr), 분쟁 조정은 개인정보분쟁조정위원회(kopico.go.kr)를 통해 신청할 수 있습니다. 정책 변경 시 앱에서 주요 변경과 시행일을 알립니다. 권리·의무에 중요한 영향이 있는 변경은 필요한 동의를 다시 받습니다.','1e7177ce87ce7ab8129b80df1c3875377e8ef5f7ae5f04d55525731e9c565708','account','2026-11-03T00:00:00+09:00') on conflict(kind,version) do nothing;
-do $$ begin if exists(select 1 from public.account_policy_versions where kind='privacy' and version='2026-11-03.1' and sha256<>'1e7177ce87ce7ab8129b80df1c3875377e8ef5f7ae5f04d55525731e9c565708') then raise exception 'Published policy version is immutable'; end if; end $$;
+개인정보 침해 신고는 개인정보침해신고센터(privacy.kisa.or.kr), 분쟁 조정은 개인정보분쟁조정위원회(kopico.go.kr)를 통해 신청할 수 있습니다. 정책 변경 시 앱에서 주요 변경과 시행일을 알립니다. 권리·의무에 중요한 영향이 있는 변경은 필요한 동의를 다시 받습니다.','d36f515f058ba9e3d7a3ba18272b1253985abe0e6024d6e6096bb77fa049e706','account','2026-11-03T00:00:00+09:00') on conflict(kind,version) do nothing;
+do $$ begin if exists(select 1 from public.account_policy_versions where kind='privacy' and version='2026-11-03.1' and sha256<>'d36f515f058ba9e3d7a3ba18272b1253985abe0e6024d6e6096bb77fa049e706') then raise exception 'Published policy version is immutable'; end if; end $$;
 update public.account_policy_versions set active=false where kind='overseas' and version<>'2026-11-03.1';
-insert into public.account_policy_versions(kind,version,title,body,sha256,context,effective_at) values('overseas','2026-11-03.1','인증·데이터의 국외 처리 동의','이전받는 자: Supabase Inc. (문의·개인정보 안내: https://supabase.com/privacy)
-이전 국가 및 저장 지역: 인도, 뭄바이(ap-south-1)의 해당 Supabase 프로젝트 기본 인증·데이터 저장소. Supabase는 미국에 소재한 서비스 제공자이며 기반 클라우드 등 재수탁자는 https://supabase.com/legal/subprocessors 에 공개됩니다.
+insert into public.account_policy_versions(kind,version,title,body,sha256,context,effective_at) values('overseas','2026-11-03.1','인증·데이터의 국외 처리 동의','이전받는 자: Supabase Pte. Ltd. (문의: privacy@supabase.com, 개인정보 안내: https://supabase.com/privacy)
+이전 국가 및 저장 지역: 인도, 뭄바이(ap-south-1)의 해당 Supabase 프로젝트 기본 인증·데이터 저장소. Supabase의 계약상 처리 수탁자는 싱가포르 소재 법인이며 기반 클라우드 등 재수탁자는 https://supabase.com/legal/subprocessors 에 공개됩니다.
 이전 시점·방법: 가입·로그인과 회원 기능 이용 시, 암호화된 네트워크 통신으로 수시 전송·저장.
 이전 항목: 이메일·인증 정보·계정 UUID·닉네임·연령 확인 여부·동의 이력, 이용자가 등록한 커뮤니티·분실물·퀘스트 내용, 의뢰·수행 연결과 보상 상태, 별도로 등록한 계좌 안내 및 통신·보안 처리에 필요한 정보.
 목적: 본인 계정 인증, 서비스 DB 운영, 퀘스트 이행·직접 송금 상태 관리, 악용·분쟁 대응.
 보유·이용 기간: 회원 정보는 탈퇴 시까지, 법정 보존 대상 계약·지급 기록은 거래 종료 후 5년, 분쟁 기록은 처리 종료 후 3년. 계좌 안내 원문은 입금 확인 후 30일 이내 또는 철회·탈퇴 시 앞서 삭제합니다. 공급자 백업·로그에는 계약상 파기 주기가 적용됩니다.
-거부 방법·영향: 체크하지 않고 가입을 중단하거나 info@chargajoe.org로 이전 중단·삭제 지원을 요청할 수 있습니다. 거부 시 해외 인증·DB에 의존하는 회원 기능은 이용할 수 없으며 공개 캠퍼스 정보는 둘러볼 수 있습니다. 이 동의는 광고·마케팅 목적의 이용 또는 판매를 포함하지 않습니다.','a895698e987ebbba0907b1d117fff8c00158c39a4dd1224095c4906c42deeecc','account','2026-11-03T00:00:00+09:00') on conflict(kind,version) do nothing;
-do $$ begin if exists(select 1 from public.account_policy_versions where kind='overseas' and version='2026-11-03.1' and sha256<>'a895698e987ebbba0907b1d117fff8c00158c39a4dd1224095c4906c42deeecc') then raise exception 'Published policy version is immutable'; end if; end $$;
+거부 방법·영향: 체크하지 않고 가입을 중단하거나 info@chargajoe.org로 이전 중단·삭제 지원을 요청할 수 있습니다. 거부 시 해외 인증·DB에 의존하는 회원 기능은 이용할 수 없으며 공개 캠퍼스 정보는 둘러볼 수 있습니다. 이 동의는 광고·마케팅 목적의 이용 또는 판매를 포함하지 않습니다.','e1f95819036e01d816c27ba14abf13f89ace4d15c6fa940f36c8f837c22721f2','account','2026-11-03T00:00:00+09:00') on conflict(kind,version) do nothing;
+do $$ begin if exists(select 1 from public.account_policy_versions where kind='overseas' and version='2026-11-03.1' and sha256<>'e1f95819036e01d816c27ba14abf13f89ace4d15c6fa940f36c8f837c22721f2') then raise exception 'Published policy version is immutable'; end if; end $$;
 update public.account_policy_versions set active=false where kind='transaction' and version<>'2026-11-03.1';
 insert into public.account_policy_versions(kind,version,title,body,sha256,context,effective_at) values('transaction','2026-11-03.1','퀘스트와 직접 송금 거래 약관','1. 의뢰와 수행
 등록된 보상은 원화이며 의뢰자가 부담합니다. 인쇄·구매·교통 등 실비가 있으면 의뢰 전에 포함 여부와 한도를 합의하세요. 선착순 퀘스트는 서버에서 먼저 수락한 1명, 결과 보상 퀘스트는 의뢰자가 승인한 1개 결과에 보상합니다. 결과 보상에 제출했다는 사실만으로 지급을 보장하지 않습니다. 보상 승인 이후 금액은 일방적으로 바꿀 수 없습니다.

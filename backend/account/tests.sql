@@ -2,7 +2,7 @@
 begin;
 do $$
 declare a uuid:=gen_random_uuid(); b uuid:=gen_random_uuid(); c uuid:=gen_random_uuid();
- q uuid; p uuid; t uuid; blocked boolean; versions jsonb; value jsonb; before_count integer;
+ q uuid; p uuid; t uuid; q2 uuid; pb uuid; pc uuid; t2 uuid; blocked boolean; versions jsonb; value jsonb; before_count integer;
 begin
  insert into auth.users(id,email,email_confirmed_at) values
  (a,a::text||'@example.invalid',now()),(b,b::text||'@example.invalid',now()),(c,c::text||'@example.invalid',now());
@@ -59,6 +59,31 @@ begin
  perform public.quest_transfer_report(t);
  perform set_config('request.jwt.claim.sub',b::text,true);
  perform public.quest_transfer_confirm(t);
+ -- Result reward mode permits several submissions but exactly one approved reward.
+ perform set_config('request.jwt.claim.sub',a::text,true);
+ q2:=public.quest_create('결과 보상 검증','분실물 발견 결과를 확인하는 합성 검증 의뢰입니다','lost','resultReward',5000,'학생회관','63동',37.45925,126.9506);
+ perform set_config('request.jwt.claim.sub',b::text,true);
+ pb:=public.quest_submit(q2,'첫 번째 합성 결과입니다. 발견 장소와 특징을 전달합니다.');
+ perform set_config('request.jwt.claim.sub',c::text,true);
+ pc:=public.quest_submit(q2,'두 번째 합성 결과입니다. 발견 장소와 특징을 전달합니다.');
+ if (select count(*) from public.quest_results(q2))<>1 then raise exception 'FAIL: performer saw another submission'; end if;
+ perform set_config('request.jwt.claim.sub',a::text,true);
+ if (select count(*) from public.quest_results(q2))<>2 then raise exception 'FAIL: requester could not review both results'; end if;
+ perform public.quest_review(pc,true);
+ blocked:=false; begin perform public.quest_review(pb,true); exception when others then blocked:=true; end;
+ if not blocked or (select count(*) from private.quest_transactions where quest_id=q2)<>1 then raise exception 'FAIL: multiple result rewards approved'; end if;
+ select id into t2 from private.quest_transactions where quest_id=q2;
+ perform set_config('request.jwt.claim.sub',c::text,true);
+ perform public.quest_save_transfer_details(t2,'검증은행','검증자','000000000002',versions->>'transfer_disclosure',true);
+ perform set_config('request.jwt.claim.sub',a::text,true); perform public.quest_transfer_report(t2);
+ perform set_config('request.jwt.claim.sub',c::text,true); perform public.quest_transfer_confirm(t2);
+ update private.quest_transfer_details set delete_after=now()-interval '1 second' where transaction_id=t2;
+ update private.quest_transactions set received_at=now()-interval '31 days' where id=t2;
+ perform private.account_purge_expired();
+ if exists(select 1 from private.quest_transfer_details where transaction_id=t2) then raise exception 'FAIL: expired bank instructions retained'; end if;
+ if exists(select 1 from public.quest_participations where quest_id=q2 and result_text is not null) then raise exception 'FAIL: expired result text retained'; end if;
+ if not exists(select 1 from private.quest_transactions where id=t2) then raise exception 'FAIL: early ledger erasure'; end if;
+ perform set_config('request.jwt.claim.sub',b::text,true);
  select count(*) into before_count from private.quest_transactions where id=t;
  perform public.account_delete('찾아줘 계정 삭제');
  if exists(select 1 from auth.users where id=b) then raise exception 'FAIL: account not deleted'; end if;
@@ -73,6 +98,6 @@ begin
  perform set_config('request.jwt.claim.sub','',true);
  select x into value from public.quest_feed(false) x limit 1;
  if value is not null and (value ? 'requester_user_id' or value ? 'email' or value ? 'account_number') then raise exception 'FAIL: public identity/financial disclosure'; end if;
- raise notice 'PASS: onboarding, ownership, first-come exclusivity, result privacy, amount authority, payment actors, bank consent, account deletion retention and grants';
+ raise notice 'PASS: onboarding, ownership, first-come exclusivity, result privacy, unique result reward, amount authority, payment actors, bank consent, expiry, account deletion retention and grants';
 end $$;
 rollback;

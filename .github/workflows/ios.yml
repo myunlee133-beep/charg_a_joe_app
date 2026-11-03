@@ -25,6 +25,10 @@ jobs:
       - name: Test account layout and pre-auth policy access
         run: |
           DEVICE_ID=$(xcrun simctl list devices available --json | python3 -c 'import sys,json; print(next(d["udid"] for ds in json.load(sys.stdin)["devices"].values() for d in ds if d["name"].startswith("iPhone")))')
+          xcrun simctl boot "$DEVICE_ID" || true
+          xcrun simctl bootstatus "$DEVICE_ID" -b
+          xcrun simctl install "$DEVICE_ID" "$RUNNER_TEMP/ChajajwoBuild/Build/Products/Debug-iphonesimulator/Chajajwo.app"
+          xcrun simctl privacy "$DEVICE_ID" grant location org.chargajoe.chajajwo
           xcodebuild -project ios/Chajajwo.xcodeproj -scheme Chajajwo -destination "platform=iOS Simulator,id=$DEVICE_ID" -derivedDataPath "$RUNNER_TEMP/ChajajwoBuild" -resultBundlePath "$RUNNER_TEMP/AccountUITests.xcresult" CODE_SIGNING_ALLOWED=NO test
       - uses: actions/upload-artifact@v4
         if: always()
