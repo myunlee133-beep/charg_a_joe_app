@@ -22,6 +22,8 @@ begin
  perform public.account_complete_onboarding('검증B_'||substr(b::text,1,8),versions,true);
  perform public.account_accept_policies(versions,'transaction');
  p:=public.quest_accept(q);
+ blocked:=false; begin perform public.quest_submit(q,null); exception when others then blocked:=true; end;
+ if not blocked then raise exception 'FAIL: null submission accepted'; end if;
  perform public.quest_submit(q,'작업을 완료했습니다. 학생회관 안내 장소를 확인해 주세요.');
  blocked:=false; begin perform public.quest_review(p,true); exception when others then blocked:=true; end;
  if not blocked then raise exception 'FAIL: performer approved own result'; end if;
@@ -36,6 +38,8 @@ begin
  perform set_config('request.jwt.claim.sub',a::text,true);
  perform public.quest_review(p,true);
  select id into t from private.quest_transactions where quest_id=q;
+ blocked:=false; begin perform public.quest_dispute(t,null); exception when others then blocked:=true; end;
+ if not blocked then raise exception 'FAIL: null dispute accepted'; end if;
  if (select amount from private.quest_transactions where id=t)<>3000 then raise exception 'FAIL: reward not sourced from quest'; end if;
  blocked:=false; begin perform public.quest_review(p,true); exception when others then blocked:=true; end;
  if not blocked then raise exception 'FAIL: duplicate reward approved'; end if;

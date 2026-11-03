@@ -34,6 +34,14 @@ private struct AccountSession: Codable {
     var userId: UUID?
     var email: String?
     var expiresAt: TimeInterval?
+    var isRecovery: Bool?
+}
+
+private struct EmailAuthFlow: Codable {
+    let verifier: String
+    let recovery: Bool
+    let expiresAt: TimeInterval
+    var challenge: String { Data(SHA256.hash(data: Data(verifier.utf8))).base64URLEncoded }
 }
 
 private struct AuthUser: Decodable { let id: UUID; let email: String? }
@@ -76,6 +84,30 @@ private enum AccountKeychain {
         guard result == errSecSuccess else { throw CommunityError.message("로그인 정보를 안전하게 저장하지 못했어요. 다시 시도해 주세요.") }
     }
     static func clear() { SecItemDelete(identity as CFDictionary) }
+    private static var flowIdentity: [String: Any] {
+        var value = identity; value[kSecAttrAccount as String] = "email-pkce-flow"; return value
+    }
+    static func saveFlow(_ flow: EmailAuthFlow) throws {
+        let data = try JSONEncoder().encode(flow)
+        let changes: [String: Any] = [kSecValueData as String: data]
+        var result = SecItemUpdate(flowIdentity as CFDictionary, changes as CFDictionary)
+        if result == errSecItemNotFound {
+            var item = flowIdentity
+            item[kSecValueData as String] = data
+            item[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+            result = SecItemAdd(item as CFDictionary, nil)
+        }
+        guard result == errSecSuccess else { throw CommunityError.message("이메일 인증 준비에 실패했어요. 다시 시도해 주세요.") }
+    }
+    static func loadFlow() -> EmailAuthFlow? {
+        var query = flowIdentity
+        query[kSecReturnData as String] = true
+        query[kSecMatchLimit as String] = kSecMatchLimitOne
+        var value: CFTypeRef?
+        guard SecItemCopyMatching(query as CFDictionary, &value) == errSecSuccess, let data = value as? Data else { return nil }
+        return try? JSONDecoder().decode(EmailAuthFlow.self, from: data)
+    }
+    static func clearFlow() { SecItemDelete(flowIdentity as CFDictionary) }
 }
 
 /// The sole app-wide session owner. Community, lost-and-found and quests share it.
@@ -200,7 +232,7 @@ final class AccountStore: ObservableObject {
         let value = try decoder.decode(AuthResponse.self, from: data)
         guard let access = value.accessToken, let refresh = value.refreshToken else { return false }
         let next = AccountSession(accessToken: access, refreshToken: refresh, userId: value.user?.id ?? session?.userId,
-                                  email: value.user?.email ?? session?.email, expiresAt: value.expiresAt)
+                                  email: value.user?.email ?? session?.email, expiresAt: value.expiresAt, isRecovery: session?.isRecovery)
         try AccountKeychain.save(next)
         session = next
         return true
@@ -215,6 +247,7 @@ final class AccountStore: ObservableObject {
         let value: AccountDetails = try await rpc("account_me", as: AccountDetails.self)
         guard value.userId == user.id else { throw CommunityError.message("계정 정보를 확인할 수 없어요.") }
         details = value; authenticated = true
+        recoveryRequired = session?.isRecovery == true
     }
 
     func signIn(email: String, password: String) async throws {
@@ -227,24 +260,32 @@ final class AccountStore: ObservableObject {
     func signUp(email: String, password: String) async throws -> Bool {
         guard policiesVerified else { throw CommunityError.message("약관을 먼저 불러와 주세요.") }
         generation += 1
+        let flow = try prepareEmailFlow(recovery: false)
         let redirect = Self.callbackURL.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        let data = try await request("/auth/v1/signup?redirect_to=\(redirect)", json: ["email": email, "password": password], authenticated: false)
-        if try updateSession(data) { try await loadAccount(); return true }
+        let data = try await request("/auth/v1/signup?redirect_to=\(redirect)", json: ["email": email, "password": password,
+            "code_challenge": flow.challenge, "code_challenge_method": "s256"], authenticated: false)
+        if try updateSession(data) { AccountKeychain.clearFlow(); try await loadAccount(); return true }
         return false
     }
 
     func resendConfirmation(email: String) async throws {
-        _ = try await request("/auth/v1/resend", json: ["type": "signup", "email": email,
-            "options": ["emailRedirectTo": Self.callbackURL]], authenticated: false)
+        let flow = try prepareEmailFlow(recovery: false)
+        let redirect = Self.callbackURL.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        _ = try await request("/auth/v1/resend?redirect_to=\(redirect)", json: ["type": "signup", "email": email,
+            "code_challenge": flow.challenge, "code_challenge_method": "s256"], authenticated: false)
     }
 
     func sendPasswordReset(email: String) async throws {
+        let flow = try prepareEmailFlow(recovery: true)
         let redirect = Self.callbackURL.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        _ = try await request("/auth/v1/recover?redirect_to=\(redirect)", json: ["email": email], authenticated: false)
+        _ = try await request("/auth/v1/recover?redirect_to=\(redirect)", json: ["email": email,
+            "code_challenge": flow.challenge, "code_challenge_method": "s256"], authenticated: false)
     }
 
     func updatePassword(_ password: String) async throws {
         _ = try await request("/auth/v1/user", method: "PUT", json: ["password": password])
+        session?.isRecovery = false
+        if let session { try AccountKeychain.save(session) }
         recoveryRequired = false
     }
 
@@ -268,18 +309,30 @@ final class AccountStore: ObservableObject {
 
     func handleCallback(_ url: URL) async {
         guard url.scheme == "org.chargajoe.chajajwo", url.host == "auth", url.path == "/callback" else { return }
-        var components = URLComponents(); components.query = url.fragment
-        let values = components.queryItems ?? []
-        guard let access = values.first(where: { $0.name == "access_token" })?.value,
-              let refresh = values.first(where: { $0.name == "refresh_token" })?.value else { return }
+        // Email links are bound to a verifier in this device's Keychain. Arbitrary
+        // deep links containing someone else's access token must never switch accounts.
+        guard let code = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first(where: { $0.name == "code" })?.value else { return }
+        guard let flow = AccountKeychain.loadFlow(), flow.expiresAt > Date().timeIntervalSince1970 else {
+            error = "인증을 요청한 기기에서 메일을 열어 주세요. 이메일 인증이 끝났다면 비밀번호로 로그인할 수 있어요."
+            return
+        }
         do {
             generation += 1
-            let expires = TimeInterval(values.first(where: { $0.name == "expires_in" })?.value ?? "3600") ?? 3600
-            let next = AccountSession(accessToken: access, refreshToken: refresh, expiresAt: Date().timeIntervalSince1970 + expires)
-            try AccountKeychain.save(next); session = next
+            let data = try await request("/auth/v1/token?grant_type=pkce", json: ["auth_code": code, "code_verifier": flow.verifier], authenticated: false)
+            guard try updateSession(data) else { throw CommunityError.message("메일 인증을 완료하지 못했어요.") }
+            session?.isRecovery = flow.recovery
+            if let session { try AccountKeychain.save(session) }
+            AccountKeychain.clearFlow()
             try await loadAccount()
-            recoveryRequired = values.first(where: { $0.name == "type" })?.value == "recovery"
         } catch { self.error = error.localizedDescription }
+    }
+
+    private func prepareEmailFlow(recovery: Bool) throws -> EmailAuthFlow {
+        var bytes = [UInt8](repeating: 0, count: 32)
+        guard SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes) == errSecSuccess else { throw URLError(.unknown) }
+        let value = EmailAuthFlow(verifier: Data(bytes).base64URLEncoded, recovery: recovery, expiresAt: Date().timeIntervalSince1970 + 3600)
+        try AccountKeychain.saveFlow(value)
+        return value
     }
 
     func completeOnboarding(nickname: String, adult: Bool) async throws {
@@ -324,6 +377,7 @@ final class AccountStore: ObservableObject {
         generation += 1; refreshTask?.cancel(); refreshTask = nil
         session = nil; details = nil; authenticated = false; recoveryRequired = false
         AccountKeychain.clear()
+        AccountKeychain.clearFlow()
     }
 }
 

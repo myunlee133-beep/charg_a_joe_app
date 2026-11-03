@@ -30,6 +30,17 @@ jobs:
           xcrun simctl install "$DEVICE_ID" "$RUNNER_TEMP/ChajajwoBuild/Build/Products/Debug-iphonesimulator/Chajajwo.app"
           xcrun simctl privacy "$DEVICE_ID" grant location org.chargajoe.chajajwo
           xcodebuild -project ios/Chajajwo.xcodeproj -scheme Chajajwo -destination "platform=iOS Simulator,id=$DEVICE_ID" -derivedDataPath "$RUNNER_TEMP/ChajajwoBuild" -resultBundlePath "$RUNNER_TEMP/AccountUITests.xcresult" CODE_SIGNING_ALLOWED=NO test
+      - name: Export account screen captures
+        if: always()
+        run: |
+          if [ -d "$RUNNER_TEMP/AccountUITests.xcresult" ]; then
+            xcrun xcresulttool export attachments --path "$RUNNER_TEMP/AccountUITests.xcresult" --output-path "$RUNNER_TEMP/account-screen-captures"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: account-screen-captures
+          path: ${{ runner.temp }}/account-screen-captures
       - uses: actions/upload-artifact@v4
         if: always()
         with:

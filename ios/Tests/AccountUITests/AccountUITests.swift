@@ -10,23 +10,21 @@ final class AccountUITests: XCTestCase {
         XCTAssertTrue(email.waitForExistence(timeout: 25))
         let next = app.buttons["account-continue"]
         XCTAssertFalse(next.isEnabled)
-        email.tap(); email.typeText("invalid")
-        XCTAssertFalse(next.isEnabled)
-        email.tap()
-        if let clear = email.buttons.allElementsBoundByIndex.first { clear.tap() }
-        email.press(forDuration: 1.2)
-        // Relaunch to keep the test independent of localized edit-menu labels.
-        app.terminate(); app.launch()
-        XCTAssertTrue(email.waitForExistence(timeout: 25))
         let screenshot = XCTAttachment(screenshot: app.screenshot())
         screenshot.name = "login-reference"; screenshot.lifetime = .keepAlways; add(screenshot)
-        email.tap(); email.typeText("preview@example.invalid")
+        email.tap(); email.typeText("invalid")
+        XCTAssertFalse(next.isEnabled)
+        email.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: "invalid".count))
+        email.typeText("preview@example.invalid")
+        XCTAssertEqual(email.value as? String, "preview@example.invalid")
         XCTAssertTrue(next.isEnabled); next.tap()
         XCTAssertTrue(app.secureTextFields["account-password"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["비밀번호 찾기"].exists)
         app.buttons["처음이신가요? 회원가입"].tap()
         XCTAssertTrue(app.switches["[필수] 만 19세 이상입니다"].exists)
         XCTAssertFalse(next.isEnabled)
+        let signupScreenshot = XCTAttachment(screenshot: app.screenshot())
+        signupScreenshot.name = "signup-consent"; signupScreenshot.lifetime = .keepAlways; add(signupScreenshot)
         // No real sign-up, email send, policy acceptance or financial operation is submitted.
     }
 

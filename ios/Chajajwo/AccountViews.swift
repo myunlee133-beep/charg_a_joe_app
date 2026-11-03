@@ -23,7 +23,7 @@ struct AccountLoginView: View {
     @State private var adult = false
     @State private var selectedPolicy: AccountPolicy?
     @State private var provider: String?
-    private var validEmail: Bool { email.range(of: #"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$"#, options: .caseInsensitive) != nil }
+    private var validEmail: Bool { email.trimmingCharacters(in: .whitespacesAndNewlines).range(of: #"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$"#, options: [.caseInsensitive, .regularExpression]) != nil }
     private var signupReady: Bool { adult && account.policiesVerified && account.policies.filter { $0.context == "account" }.allSatisfy { agreed.contains($0.kind) } }
 
     var body: some View {
@@ -298,6 +298,7 @@ struct AccountRecoveryView: View {
                     }
                 }.disabled(working || password.count < 10 || password != confirmation)
             }.navigationTitle("비밀번호 재설정")
+                .toolbar { ToolbarItem(placement: .cancellationAction) { Button("취소하고 로그아웃") { Task { await account.signOut() } } } }
         }.interactiveDismissDisabled()
     }
 }

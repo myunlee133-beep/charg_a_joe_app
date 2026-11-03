@@ -219,7 +219,7 @@ declare s uuid:=private.account_require_ready(true); q public.quests%rowtype; p 
 begin
  select * into q from public.quests where id=p_quest_id for update;
  if not found or q.requester_user_id=auth.uid() or q.requester_user_id is null or q.status not in ('open','assigned') then raise exception '결과를 제출할 수 없습니다'; end if;
- if char_length(btrim(p_result)) not between 10 and 2000 then raise exception '결과를 10~2000자로 입력해 주세요'; end if;
+ if p_result is null or char_length(btrim(p_result)) not between 10 and 2000 then raise exception '결과를 10~2000자로 입력해 주세요'; end if;
  select * into p from public.quest_participations where quest_id=q.id and performer_subject_id=s;
  if q.mode='firstCome' and (p.id is null or p.status not in ('accepted','rejected') or q.status<>'assigned') then raise exception '수락한 수행자만 제출할 수 있습니다'; end if;
  if q.mode='resultReward' and q.status<>'open' then raise exception '이미 종료된 퀘스트입니다'; end if;
@@ -245,7 +245,7 @@ declare s uuid:=private.account_require_ready(true); q public.quests%rowtype; p 
 begin
  select q0.* into q from public.quests q0 join public.quest_participations p0 on p0.quest_id=q0.id where p0.id=p_participation_id for update of q0;
  select * into p from public.quest_participations where id=p_participation_id;
- if q.id is null or q.requester_user_id is distinct from auth.uid() or q.status not in ('open','assigned') or p.status<>'submitted' or p.performer_user_id is null then raise exception '결과를 확인할 권한이 없거나 이미 처리되었습니다'; end if;
+ if p_accept is null or q.id is null or q.requester_user_id is distinct from auth.uid() or q.status not in ('open','assigned') or p.status<>'submitted' or p.performer_user_id is null then raise exception '결과를 확인할 권한이 없거나 이미 처리되었습니다'; end if;
  if p_accept then
   update public.quest_participations set status=case when id=p.id then 'approved' else 'rejected' end where quest_id=q.id;
   insert into private.quest_transactions(quest_id,participation_id,payer_user_id,payee_user_id,payer_subject_id,payee_subject_id,amount)
@@ -332,7 +332,7 @@ declare s uuid:=private.account_require_ready(); t private.quest_transactions%ro
 begin
  select * into t from private.quest_transactions where id=p_transaction_id for update;
  if not coalesce(auth.uid() in (t.payer_user_id,t.payee_user_id),false) or t.status not in ('awaiting_transfer','transfer_reported') then raise exception '이 거래에 이의를 제기할 수 없습니다'; end if;
- if char_length(btrim(p_reason)) not between 10 and 1000 then raise exception '사유를 10~1000자로 적어주세요'; end if;
+ if p_reason is null or char_length(btrim(p_reason)) not between 10 and 1000 then raise exception '사유를 10~1000자로 적어주세요'; end if;
  update private.quest_transactions set status='disputed' where id=t.id;
  update public.quests set status='disputed',updated_at=now() where id=t.quest_id;
  insert into private.quest_events(quest_id,actor_subject_id,event,note) values(t.quest_id,s,'disputed',btrim(p_reason)); return true;

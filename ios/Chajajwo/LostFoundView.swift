@@ -155,10 +155,6 @@ struct LostFoundView: View {
     }
 }
 
-private struct LostFoundAuthView: View {
-    var body: some View { AccountLoginView() }
-}
-
 private struct LostFoundEditor: View {
     @EnvironmentObject private var lf: LostFoundAPI
     @Environment(\.dismiss) private var dismiss
