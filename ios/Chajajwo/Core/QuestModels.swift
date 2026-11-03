@@ -25,6 +25,10 @@ struct Quest: Identifiable, Codable {
     var details: String
     var requester: String
     var participants: Int = 0
+    var status: String = "open"
+    var isMine: Bool = false
+    var myParticipationId: UUID? = nil
+    var myParticipationStatus: String? = nil
     var rewardText: String { reward.formatted(.number.locale(Locale(identifier: "ko_KR"))) + "원" }
     var isValid: Bool { !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && reward > 0 && reward <= 1_000_000 && coordinate.isValid }
     static let demo: [Self] = [

@@ -42,7 +42,7 @@ struct CommunityView: View {
                     ContentUnavailableView("커뮤니티 연결이 필요해요", systemImage: "network.slash",
                                            description: Text("Supabase 데이터베이스와 앱 연결 정보를 설정하면 사랑방을 이용할 수 있어요."))
                 } else if !api.authenticated {
-                    CommunityAuthView(api: api)
+                    AccountLoginView()
                 } else {
                     feedView
                 }
@@ -232,55 +232,6 @@ private struct CommunityPostRow: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.white, in: RoundedRectangle(cornerRadius: 15))
         .overlay(RoundedRectangle(cornerRadius: 15).stroke(CommunityPalette.border, lineWidth: 0.6))
-    }
-}
-
-private struct CommunityAuthView: View {
-    @ObservedObject var api: CommunityAPI
-    @State private var email = ""
-    @State private var password = ""
-    @State private var signup = false
-    @State private var working = false
-    @State private var message: String?
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
-                Image(systemName: "person.2.wave.2.fill").font(.largeTitle).foregroundStyle(CommunityPalette.green)
-                Text("서울대 구성원의 이야기가 모이는 곳")
-                    .font(.title2.weight(.bold))
-                Text("글·댓글 작성과 익명 게시를 위해 계정이 필요해요. 학교 인증은 추후 도입할 예정입니다.")
-                    .font(.subheadline).foregroundStyle(CommunityPalette.muted)
-                TextField("이메일", text: $email).keyboardType(.emailAddress).textContentType(.username)
-                    .textInputAutocapitalization(.never).autocorrectionDisabled()
-                    .textFieldStyle(.roundedBorder)
-                SecureField("비밀번호 (6자 이상)", text: $password).textContentType(signup ? .newPassword : .password)
-                    .textFieldStyle(.roundedBorder)
-                if let message { Text(message).font(.footnote).foregroundStyle(CommunityPalette.ink) }
-                Button {
-                    Task {
-                        working = true; defer { working = false }
-                        do {
-                            if signup {
-                                let active = try await api.signUp(email: email.trimmingCharacters(in: .whitespaces), password: password)
-                                if !active { message = "인증 메일을 확인한 뒤 로그인해 주세요." }
-                            } else { try await api.signIn(email: email.trimmingCharacters(in: .whitespaces), password: password) }
-                        } catch { message = error.localizedDescription }
-                    }
-                } label: {
-                    Text(signup ? "회원가입" : "로그인")
-                        .font(.headline).frame(maxWidth: .infinity).padding(14)
-                        .foregroundStyle(.white).background(CommunityPalette.green, in: RoundedRectangle(cornerRadius: 12))
-                }
-                .disabled(working || !email.contains("@") || password.count < 6)
-                Button(signup ? "이미 계정이 있나요? 로그인" : "처음이신가요? 회원가입") {
-                    signup.toggle(); message = nil
-                }
-                .font(.subheadline)
-            }
-            .padding(24)
-        }
-        .background(CommunityPalette.bg)
     }
 }
 
@@ -620,7 +571,7 @@ private struct CommunityProfileView: View {
                     Button("로그아웃") {
                         Task { await api.signOut(); onSignOut(); dismiss() }
                     }
-                    Button("사랑방 계정 삭제", role: .destructive) { showDeleteConfirmation = true }
+                    Button("찾아줘 계정 삭제", role: .destructive) { showDeleteConfirmation = true }
                 } footer: {
                     Text("계정 삭제 시 사랑방 게시물·댓글·스크랩·기여 기록이 삭제됩니다. 기존 분실 신고의 기기 저장 데이터는 별도로 관리됩니다.")
                 }

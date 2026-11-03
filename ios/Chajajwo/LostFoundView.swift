@@ -154,38 +154,7 @@ struct LostFoundView: View {
 }
 
 private struct LostFoundAuthView: View {
-    @EnvironmentObject private var lf: LostFoundAPI
-    @Environment(\.dismiss) private var dismiss
-    @State private var email = ""
-    @State private var password = ""
-    @State private var signup = false
-    @State private var working = false
-    @State private var message: String?
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section("사랑방과 같은 계정을 사용합니다") {
-                    TextField("이메일", text: $email).keyboardType(.emailAddress)
-                        .textInputAutocapitalization(.never).autocorrectionDisabled()
-                    SecureField("비밀번호", text: $password)
-                    if let message { Text(message).font(.footnote) }
-                    Button(signup ? "회원가입" : "로그인") { Task { await submit() } }
-                        .disabled(working || !email.contains("@") || password.count < 6)
-                    Button(signup ? "기존 계정으로 로그인" : "계정이 없나요? 회원가입") { signup.toggle(); message = nil }
-                }
-            }.navigationTitle("찾아줘 계정")
-                .toolbar { ToolbarItem(placement: .cancellationAction) { Button("닫기") { dismiss() } } }
-        }
-    }
-    private func submit() async {
-        working = true; defer { working = false }
-        do {
-            if signup {
-                if try await lf.signUp(email: email.trimmingCharacters(in: .whitespaces), password: password) { dismiss() }
-                else { message = "인증 메일을 확인한 뒤 로그인해 주세요." }
-            } else { try await lf.signIn(email: email.trimmingCharacters(in: .whitespaces), password: password); dismiss() }
-        } catch { message = error.localizedDescription }
-    }
+    var body: some View { AccountLoginView() }
 }
 
 private struct LostFoundEditor: View {

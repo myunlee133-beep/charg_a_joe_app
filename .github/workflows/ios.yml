@@ -18,6 +18,19 @@ jobs:
         run: swift test
       - name: Build the iOS simulator app without signing
         run: xcodebuild -project ios/Chajajwo.xcodeproj -scheme Chajajwo -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/ChajajwoBuild" CODE_SIGNING_ALLOWED=NO build
+      - name: Generate UI test target from the project specification
+        run: |
+          brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
+          cd ios && xcodegen generate
+      - name: Test account layout and pre-auth policy access
+        run: |
+          DEVICE_ID=$(xcrun simctl list devices available --json | python3 -c 'import sys,json; print(next(d["udid"] for ds in json.load(sys.stdin)["devices"].values() for d in ds if d["name"].startswith("iPhone")))')
+          xcodebuild -project ios/Chajajwo.xcodeproj -scheme Chajajwo -destination "platform=iOS Simulator,id=$DEVICE_ID" -derivedDataPath "$RUNNER_TEMP/ChajajwoBuild" -resultBundlePath "$RUNNER_TEMP/AccountUITests.xcresult" CODE_SIGNING_ALLOWED=NO test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: account-ui-test-results
+          path: ${{ runner.temp }}/AccountUITests.xcresult
       - name: Package the verified app for Appetize
         if: github.event_name != 'pull_request'
         run: ditto -c -k --sequesterRsrc --keepParent "$RUNNER_TEMP/ChajajwoBuild/Build/Products/Debug-iphonesimulator/Chajajwo.app" "$RUNNER_TEMP/Chajajwo-simulator.zip"
@@ -31,7 +44,7 @@ jobs:
         timeout-minutes: 6
         run: |
           DEVICE_ID=$(xcrun simctl list devices available --json | python3 -c 'import sys,json; print(next(d["udid"] for ds in json.load(sys.stdin)["devices"].values() for d in ds if d["name"].startswith("iPhone")))')
-          xcrun simctl boot "$DEVICE_ID"
+          xcrun simctl boot "$DEVICE_ID" || true
           xcrun simctl bootstatus "$DEVICE_ID" -b
           xcrun simctl install "$DEVICE_ID" "$RUNNER_TEMP/ChajajwoBuild/Build/Products/Debug-iphonesimulator/Chajajwo.app"
           xcrun simctl privacy "$DEVICE_ID" grant location org.chargajoe.chajajwo
@@ -59,6 +72,10 @@ jobs:
           xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-quests
           sleep 5
           xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/quests.png"
+          xcrun simctl terminate "$DEVICE_ID" org.chargajoe.chajajwo
+          xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-login
+          sleep 5
+          xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/login.png"
       - uses: actions/upload-artifact@v4
         if: github.event_name != 'pull_request'
         with:

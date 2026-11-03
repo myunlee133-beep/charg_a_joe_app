@@ -1,5 +1,5 @@
 import Foundation
-import Security
+import Combine
 import SwiftUI
 
 // Database access: only explicitly granted Supabase RPCs. No direct table access.
@@ -115,182 +115,29 @@ enum CommunityError: LocalizedError {
     }
 }
 
-private struct CommunityAuthSession: Codable {
-    let accessToken: String
-    let refreshToken: String
-}
-
-private struct CommunityAuthResponse: Decodable {
-    let accessToken: String?
-    let refreshToken: String?
-}
-
-private enum CommunityKeychain {
-    private static let service = "org.chargajoe.chajajwo.community"
-    private static let account = "session"
-    static func save(_ value: CommunityAuthSession) {
-        guard let data = try? JSONEncoder().encode(value) else { return }
-        let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
-                                    kSecAttrService as String: service,
-                                    kSecAttrAccount as String: account]
-        SecItemDelete(query as CFDictionary)
-        var item = query
-        item[kSecValueData as String] = data
-        item[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
-        SecItemAdd(item as CFDictionary, nil)
-    }
-    static func load() -> CommunityAuthSession? {
-        let q: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
-                                kSecAttrService as String: service,
-                                kSecAttrAccount as String: account,
-                                kSecReturnData as String: true,
-                                kSecMatchLimit as String: kSecMatchLimitOne]
-        var value: CFTypeRef?
-        guard SecItemCopyMatching(q as CFDictionary, &value) == errSecSuccess,
-              let data = value as? Data else { return nil }
-        return try? JSONDecoder().decode(CommunityAuthSession.self, from: data)
-    }
-    static func clear() {
-        SecItemDelete([kSecClass as String: kSecClassGenericPassword,
-                       kSecAttrService as String: service,
-                       kSecAttrAccount as String: account] as CFDictionary)
-    }
-}
-
+/// Community data access delegates authentication to the single app account.
 @MainActor
 final class CommunityAPI: ObservableObject {
-    @Published private(set) var profile: CommunityProfile?
-    @Published private(set) var authenticated = false
-    @Published private(set) var busy = false
+    private let account: AccountStore
+    private var observation: AnyCancellable?
+    var profile: CommunityProfile? { account.profile }
+    var authenticated: Bool { account.authenticated }
+    var busy: Bool { account.restoring }
+    var configuration: CommunityConfiguration? { account.configuration }
+    static var hasSavedSession: Bool { AccountStore.hasSavedSession }
 
-    let configuration: CommunityConfiguration?
-    private var session: CommunityAuthSession?
-    private let decoder: JSONDecoder = {
-        let d = JSONDecoder()
-        d.keyDecodingStrategy = .convertFromSnakeCase
-        return d
-    }()
-
-    init() {
-        configuration = CommunityConfiguration.current
-        session = CommunityKeychain.load()
+    init(account: AccountStore? = nil) {
+        self.account = account ?? .shared
+        observation = self.account.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
     }
-
-    /// 다른 탭에서 로그인·로그아웃했는지 확인할 때 쓴다.
-    static var hasSavedSession: Bool { CommunityKeychain.load() != nil }
-
-    private func url(_ path: String) throws -> URL {
-        guard let config = configuration,
-              let url = URL(string: path, relativeTo: config.url)?.absoluteURL else {
-            throw CommunityError.message("커뮤니티 서버 연결 정보가 설정되지 않았어요.")
-        }
-        return url
-    }
-
-    private func request(_ path: String, json: [String: Any]? = nil,
-                         authenticated: Bool = true, retryOnUnauthorized: Bool = true) async throws -> Data {
-        guard let config = configuration else { throw CommunityError.message("Supabase 서버 연결이 필요해요.") }
-        var r = URLRequest(url: try url(path))
-        r.httpMethod = "POST"
-        r.setValue(config.publishableKey, forHTTPHeaderField: "apikey")
-        r.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        if authenticated {
-            guard let session else { throw CommunityError.message("먼저 로그인해 주세요.") }
-            r.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
-        } // Auth endpoints use only the public apikey; no stale bearer token.
-
-        if let json { r.httpBody = try JSONSerialization.data(withJSONObject: json) }
-        let (data, response) = try await URLSession.shared.data(for: r)
-        guard let http = response as? HTTPURLResponse else { throw CommunityError.message("서버 응답을 확인할 수 없어요.") }
-        if http.statusCode == 401 && authenticated && retryOnUnauthorized {
-            try await refresh()
-            return try await request(path, json: json, authenticated: true, retryOnUnauthorized: false)
-        }
-        guard (200..<300).contains(http.statusCode) else {
-            let message = (try? JSONSerialization.jsonObject(with: data) as? [String: Any])
-                .flatMap { $0["msg"] as? String ?? $0["error_description"] as? String ?? $0["message"] as? String }
-            throw CommunityError.message(message ?? "서버 요청 실패 (\(http.statusCode))")
-        }
-        return data
-    }
-
-    private func decode<T: Decodable>(_ type: T.Type, _ data: Data) throws -> T {
-        do { return try decoder.decode(type, from: data) }
-        catch { throw CommunityError.message("서버 데이터 형식이 올바르지 않습니다: \(error.localizedDescription)") }
-    }
-
-    private func updateSession(_ data: Data) throws -> Bool {
-        let auth = try decode(CommunityAuthResponse.self, data)
-        guard let access = auth.accessToken, let refresh = auth.refreshToken else { return false }
-        session = CommunityAuthSession(accessToken: access, refreshToken: refresh)
-        CommunityKeychain.save(session!)
-        authenticated = true
-        return true
-    }
-
-    func restore() async {
-        guard configuration != nil, session != nil else { return }
-        do {
-            try await refresh()
-            profile = try await rpc("community_ensure_profile", [:], as: CommunityProfile.self)
-            authenticated = true
-        } catch is URLError, is CancellationError {
-            // 탭을 넘겨 요청이 취소됐거나 네트워크가 끊겼을 뿐이다. 로그인 정보는 그대로 두고 다음에 다시 시도한다.
-        } catch {
-            clearLocalSession()
-        }
-    }
-
-    private func refresh() async throws {
-        // 분실물 탭의 CommunityAPI가 먼저 갱신했을 수 있으니 키체인의 최신 토큰을 쓴다.
-        // 이미 쓴 refresh 토큰을 다시 보내면 Supabase가 세션을 끊는다.
-        guard let old = CommunityKeychain.load() ?? session else { throw CommunityError.message("로그인 정보가 없습니다.") }
-        let data = try await request("/auth/v1/token?grant_type=refresh_token",
-                                     json: ["refresh_token": old.refreshToken], authenticated: false)
-        guard try updateSession(data) else { throw CommunityError.message("로그인 갱신에 실패했어요.") }
-    }
-
-    func signIn(email: String, password: String) async throws {
-        let data = try await request("/auth/v1/token?grant_type=password",
-                                     json: ["email": email, "password": password], authenticated: false)
-        guard try updateSession(data) else { throw CommunityError.message("로그인할 수 없습니다.") }
-        profile = try await rpc("community_ensure_profile", [:], as: CommunityProfile.self)
-    }
-
-    func signUp(email: String, password: String) async throws -> Bool {
-        let data = try await request("/auth/v1/signup",
-                                     json: ["email": email, "password": password], authenticated: false)
-        if try updateSession(data) {
-            profile = try await rpc("community_ensure_profile", [:], as: CommunityProfile.self)
-            return true
-        }
-        return false // Supabase email confirmation required; sign in after verifying email.
-    }
-
-    private func clearLocalSession() {
-        session = nil; authenticated = false; profile = nil
-        CommunityKeychain.clear()
-    }
-
-    func signOut() async {
-        if session != nil {
-            _ = try? await request("/auth/v1/logout", json: [:], authenticated: true, retryOnUnauthorized: false)
-        }
-        clearLocalSession()
-    }
-
-    func setNickname(_ nickname: String) async throws {
-        profile = try await rpc("community_set_nickname", ["p_nickname": nickname], as: CommunityProfile.self)
-    }
-
-    func deleteAccount() async throws {
-        let ok: Bool = try await rpc("community_delete_account", ["p_confirm": "사랑방 계정 삭제"], as: Bool.self)
-        guard ok else { throw CommunityError.message("계정을 삭제하지 못했어요.") }
-        clearLocalSession()
-    }
-
+    func restore() async { await account.restore() }
+    func signIn(email: String, password: String) async throws { try await account.signIn(email: email, password: password) }
+    func signUp(email: String, password: String) async throws -> Bool { try await account.signUp(email: email, password: password) }
+    func signOut() async { await account.signOut() }
+    func setNickname(_ nickname: String) async throws { try await account.setNickname(nickname) }
+    func deleteAccount() async throws { try await account.deleteAccount() }
     func rpc<T: Decodable>(_ name: String, _ parameters: [String: Any], as type: T.Type, authenticated: Bool = true) async throws -> T {
-        try decode(type, try await request("/rest/v1/rpc/\(name)", json: parameters, authenticated: authenticated))
+        try await account.rpc(name, parameters, as: type, authenticated: authenticated)
     }
 
     func feed(board: CommunityBoard, query: String, tag: String?, savedOnly: Bool = false,

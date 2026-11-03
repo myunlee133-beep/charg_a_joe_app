@@ -6,6 +6,7 @@ import SwiftUI
 struct ChajajwoApp: App {
     @StateObject private var store = Store()
     @StateObject private var lostFound = LostFoundAPI()
+    @StateObject private var account = AccountStore.shared
 
     init() { KakaoMapView.initSDK() }
 
@@ -14,6 +15,7 @@ struct ChajajwoApp: App {
             ContentView()
                 .environmentObject(store)
                 .environmentObject(lostFound)
+                .environmentObject(account)
                 .environment(\.locale, Locale(identifier: "ko_KR"))
                 .tint(Color.cjTealText)
                 .preferredColorScheme(.light) // 다크모드여도 라이트 화면 그대로
@@ -23,6 +25,7 @@ struct ChajajwoApp: App {
 
 struct ContentView: View {
     @EnvironmentObject var store: Store
+    @EnvironmentObject private var account: AccountStore
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var shuttle = CircularShuttleService()
 
@@ -60,6 +63,7 @@ struct ContentView: View {
         .onAppear {
             #if DEBUG
             if ProcessInfo.processInfo.arguments.contains("-preview-quests") { store.tab = .quests }
+            if ProcessInfo.processInfo.arguments.contains("-preview-login") { store.tab = .me }
             #endif
         }
         .overlay(alignment: .bottom) {
@@ -78,6 +82,21 @@ struct ContentView: View {
             if shouldTrackShuttle { await shuttle.run() }
         }
         .task { await store.refreshDining() }
+        .task { await account.restore(); await store.refreshQuests() }
+        .onOpenURL { url in Task { await account.handleCallback(url) } }
+        .onChange(of: account.userID) { _, _ in
+            store.clearQuestAccountData()
+            if account.authenticated { store.showAccountLogin = false }
+            Task { await store.refreshQuests() }
+        }
+        .sheet(isPresented: $store.showAccountLogin) { AccountLoginView() }
+        .fullScreenCover(isPresented: Binding(get: { account.needsOnboarding && !account.recoveryRequired && !store.showAccountLogin }, set: { _ in })) {
+            AccountOnboardingView()
+        }
+        .fullScreenCover(isPresented: $account.recoveryRequired) { AccountRecoveryView() }
+        .alert("계정 연결 안내", isPresented: Binding(get: { account.error != nil }, set: { if !$0 { account.error = nil } })) {
+            Button("확인") { account.error = nil }
+        } message: { Text(account.error ?? "") }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { Task { await store.refreshDining() } }
         }

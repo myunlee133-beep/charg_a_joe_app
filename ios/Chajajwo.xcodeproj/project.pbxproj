@@ -36,6 +36,12 @@
 		C10000000000000000000005 /* CircularShuttleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000006 /* CircularShuttleService.swift */; };
 		C10000000000000000000007 /* QuestViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000008 /* QuestViews.swift */; };
 		C10000000000000000000009 /* circular_route.json in Resources */ = {isa = PBXBuildFile; fileRef = C1000000000000000000000A /* circular_route.json */; };
+		9C58EF6BF2CFC90FC30223BF /* AccountStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19860DB329F2E872DD82F56D /* AccountStore.swift */; };
+		75BCC5EA945F8773F5BEFC03 /* AccountViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B5FFE279EA946C58114A15 /* AccountViews.swift */; };
+		628D2F85E74793D4DB659DDC /* QuestAccountAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17EADAEE58A13BB48EAB5E09 /* QuestAccountAPI.swift */; };
+		6D29E34B1090A2A2168954A0 /* QuestTransactionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B541B65F565B9EF0C3EAC3B /* QuestTransactionsView.swift */; };
+		C6E7BC527C307092155FD059 /* QuestInteractionViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DED5CC3542AF39A112BD13A /* QuestInteractionViews.swift */; };
+		F5080D16CF3F77008F26C2F5 /* account-policies.json in Resources */ = {isa = PBXBuildFile; fileRef = 98D1C206589B9245DD174FE2 /* account-policies.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -69,6 +75,12 @@
 		C10000000000000000000006 /* CircularShuttleService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CircularShuttleService.swift"; sourceTree = "<group>"; };
 		C10000000000000000000008 /* QuestViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QuestViews.swift"; sourceTree = "<group>"; };
 		C1000000000000000000000A /* circular_route.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "Core/Resources/circular_route.json"; sourceTree = "<group>"; };
+		19860DB329F2E872DD82F56D /* AccountStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccountStore.swift"; sourceTree = "<group>"; };
+		14B5FFE279EA946C58114A15 /* AccountViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccountViews.swift"; sourceTree = "<group>"; };
+		17EADAEE58A13BB48EAB5E09 /* QuestAccountAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QuestAccountAPI.swift"; sourceTree = "<group>"; };
+		0B541B65F565B9EF0C3EAC3B /* QuestTransactionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QuestTransactionsView.swift"; sourceTree = "<group>"; };
+		0DED5CC3542AF39A112BD13A /* QuestInteractionViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QuestInteractionViews.swift"; sourceTree = "<group>"; };
+		98D1C206589B9245DD174FE2 /* account-policies.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "Resources/account-policies.json"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +106,12 @@
 		9F502B7EFA45CE888CCCCFB4 /* Chajajwo */ = {
 			isa = PBXGroup;
 			children = (
+                98D1C206589B9245DD174FE2 /* account-policies.json */,
+                0DED5CC3542AF39A112BD13A /* QuestInteractionViews.swift */,
+                0B541B65F565B9EF0C3EAC3B /* QuestTransactionsView.swift */,
+                17EADAEE58A13BB48EAB5E09 /* QuestAccountAPI.swift */,
+                14B5FFE279EA946C58114A15 /* AccountViews.swift */,
+                19860DB329F2E872DD82F56D /* AccountStore.swift */,
                 EAB100000000000000000006 /* LostFoundRules.swift */,
                 EAB100000000000000000004 /* LostFoundView.swift */,
                 EAB100000000000000000002 /* LostFoundAPI.swift */,
@@ -202,6 +220,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+                F5080D16CF3F77008F26C2F5 /* account-policies.json in Resources */,
 				C10000000000000000000009 /* circular_route.json in Resources */,
 				D6EA8F33B06C15C424DE6C37 /* Assets.xcassets in Resources */,
 				8480E099E329F7E2735F8EC5 /* meals.json in Resources */,
@@ -216,6 +235,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+                C6E7BC527C307092155FD059 /* QuestInteractionViews.swift in Sources */,
+                6D29E34B1090A2A2168954A0 /* QuestTransactionsView.swift in Sources */,
+                628D2F85E74793D4DB659DDC /* QuestAccountAPI.swift in Sources */,
+                75BCC5EA945F8773F5BEFC03 /* AccountViews.swift in Sources */,
+                9C58EF6BF2CFC90FC30223BF /* AccountStore.swift in Sources */,
 		        EAB100000000000000000005 /* LostFoundRules.swift in Sources */,
 		        EAB100000000000000000003 /* LostFoundView.swift in Sources */,
 		        EAB100000000000000000001 /* LostFoundAPI.swift in Sources */,
