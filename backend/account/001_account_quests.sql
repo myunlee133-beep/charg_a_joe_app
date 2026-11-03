@@ -170,7 +170,11 @@ create or replace function private.account_require_ready(p_transaction boolean d
 language plpgsql security definer set search_path='' as $$
 declare s uuid:=private.account_subject();
 begin
- if not exists(select 1 from auth.users where id=auth.uid() and email_confirmed_at is not null) then raise exception '이메일 인증이 필요합니다'; end if;
+ -- A verified social account can intentionally omit email (e.g. Kakao).
+ -- auth.identities is maintained by Auth, unlike client-editable user metadata.
+ if not exists(select 1 from auth.users where id=auth.uid() and email_confirmed_at is not null)
+ and not exists(select 1 from auth.identities where user_id=auth.uid() and provider in ('google','kakao','apple') and nullif(provider_id,'') is not null)
+ then raise exception '이메일 또는 소셜 계정 인증이 필요합니다'; end if;
  if not exists(select 1 from public.account_profiles where user_id=auth.uid() and adult_confirmed_at is not null and onboarding_completed_at is not null)
  or not private.account_has_consents('account') then raise exception '닉네임과 필수 동의 설정을 완료해 주세요'; end if;
  if p_transaction and not private.account_has_consents('transaction') then raise exception '퀘스트 거래 약관 확인이 필요합니다'; end if;

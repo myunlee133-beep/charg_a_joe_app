@@ -1,13 +1,27 @@
 -- Disposable synthetic actors only; always rolled back. Run as postgres after the migrations.
 begin;
 do $$
-declare a uuid:=gen_random_uuid(); b uuid:=gen_random_uuid(); c uuid:=gen_random_uuid();
+declare a uuid:=gen_random_uuid(); b uuid:=gen_random_uuid(); c uuid:=gen_random_uuid(); d uuid:=gen_random_uuid();
  q uuid; p uuid; t uuid; q2 uuid; pb uuid; pc uuid; t2 uuid; blocked boolean; versions jsonb; value jsonb; before_count integer;
 begin
  if exists(select 1 from public.account_policy_versions where encode(pg_catalog.sha256(convert_to(body,'UTF8')),'hex')<>sha256) then raise exception 'FAIL: policy content hash mismatch'; end if;
  insert into auth.users(id,email,email_confirmed_at) values
  (a,a::text||'@example.invalid',now()),(b,b::text||'@example.invalid',now()),(c,c::text||'@example.invalid',now());
  select jsonb_object_agg(kind,version) into versions from public.account_policy_versions where active;
+ -- Missing email must not break a server-verified social identity. Conversely,
+ -- an unconfirmed email identity alone must never pass the verification gate.
+ insert into auth.users(id) values(d);
+ perform set_config('request.jwt.claim.sub',d::text,true);
+ perform public.account_complete_onboarding('검증D_'||substr(d::text,1,8),versions,true);
+ perform public.account_accept_policies(versions,'transaction');
+ blocked:=false; begin perform private.account_require_ready(true); exception when others then blocked:=true; end;
+ if not blocked then raise exception 'FAIL: unverified identity accepted'; end if;
+ insert into auth.identities(id,user_id,provider_id,provider,identity_data)
+ values(gen_random_uuid(),d,d::text,'email',jsonb_build_object('sub',d::text));
+ blocked:=false; begin perform private.account_require_ready(true); exception when others then blocked:=true; end;
+ if not blocked then raise exception 'FAIL: unconfirmed email identity bypassed verification'; end if;
+ update auth.identities set provider='kakao' where user_id=d;
+ perform private.account_require_ready(true);
  perform set_config('request.jwt.claim.sub',a::text,true);
  blocked:=false;
  begin perform public.quest_create('테스트 의뢰','의뢰 상세 내용은 충분한 길이로 작성합니다','errand','firstCome',3000,'학생회관','63동',37.45925,126.9506);

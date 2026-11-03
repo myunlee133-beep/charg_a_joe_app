@@ -19,7 +19,7 @@ struct MeView: View {
                             Image(systemName: "person.crop.circle.fill").font(.system(size: 48)).foregroundStyle(Color.cjTeal)
                             VStack(alignment: .leading, spacing: 6) {
                                 Text(account.details?.nickname ?? "내 계정").font(.title3.bold())
-                                Text(account.email ?? "").font(.footnote).foregroundStyle(.secondary)
+                                Text(account.email ?? "소셜 계정으로 로그인했어요").font(.footnote).foregroundStyle(.secondary)
                             }
                         }.padding(.vertical, 8)
                         Button("닉네임 수정") { nickname = account.details?.nickname ?? ""; editing = true }

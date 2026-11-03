@@ -303,6 +303,10 @@ final class AccountStore: ObservableObject {
         var components = URLComponents(url: configuration.url.appendingPathComponent("auth/v1/authorize"), resolvingAgainstBaseURL: false)!
         components.queryItems = [.init(name: "provider", value: provider), .init(name: "redirect_to", value: Self.callbackURL),
             .init(name: "code_challenge", value: challenge), .init(name: "code_challenge_method", value: "s256")]
+        // GoTrue forwards `scope` to the provider. Its `scopes` parameter appends
+        // to defaults, which would request Kakao email/image without permission.
+        if provider == "kakao" { components.queryItems?.append(.init(name: "scope", value: "profile_nickname")) }
+        if provider == "google" { components.queryItems?.append(.init(name: "scope", value: "openid email")) }
         let callback = try await webFlow.authenticate(components.url!)
         guard callback.scheme == "org.chargajoe.chajajwo", callback.host == "auth", callback.path == "/callback" else {
             throw CommunityError.message("인증 응답을 확인하지 못했어요. 다시 시도해 주세요.")
