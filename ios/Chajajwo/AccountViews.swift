@@ -165,7 +165,8 @@ struct AccountLoginView: View {
                 ZStack {
                     Circle().fill(value == "apple" ? Color.black : value == "kakao" ? Color(hex: 0xFEE500) : .white)
                     if value == "google" {
-                        Image("AccountGoogle").resizable().frame(width: 44, height: 44).accessibilityHidden(true)
+                        Image("AccountGoogle").resizable().frame(width: 44, height: 44)
+                            .frame(width: 24, height: 24).clipped().accessibilityHidden(true)
                     } else if value == "apple" {
                         Image(systemName: "apple.logo").font(.system(size: 25)).foregroundStyle(.white).accessibilityHidden(true)
                     } else {
@@ -185,7 +186,7 @@ struct AccountLoginView: View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 7) {
                 Text("이메일").font(.caption).foregroundStyle(AccountStyle.muted)
-                TextField("이메일 주소", text: $email, prompt: Text("name@example.com").foregroundStyle(AccountStyle.muted))
+                TextField("이메일 주소", text: $email, prompt: Text(verbatim: "name@example.com").foregroundStyle(AccountStyle.muted))
                     .foregroundStyle(AccountStyle.ink).focused($focusedField, equals: .email)
                     .textContentType(.emailAddress).keyboardType(.emailAddress)
                     .textInputAutocapitalization(.never).autocorrectionDisabled()
@@ -236,11 +237,11 @@ struct AccountLoginView: View {
             HStack(spacing: 18) {
                 ForEach(account.policies.filter { ["terms", "privacy"].contains($0.kind) }) { document in
                     Button(document.kind == "terms" ? "이용약관" : "개인정보 처리방침") { selectedPolicy = document }
-                        .font(.system(size: 11)).foregroundStyle(AccountStyle.muted)
+                        .font(.system(size: 12)).foregroundStyle(AccountStyle.muted)
                 }
             }
             Text("퀘스트 보상은 이용자끼리 직접 송금해요.")
-                .font(.system(size: 11)).foregroundStyle(AccountStyle.muted.opacity(0.85))
+                .font(.system(size: 12)).foregroundStyle(AccountStyle.muted)
         }.frame(maxWidth: .infinity)
     }
 
