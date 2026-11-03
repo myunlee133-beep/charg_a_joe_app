@@ -37,11 +37,10 @@ struct HomeView: View {
         }
     }
     private var lostPins: [LostFoundMapPin] {
-        store.lostMapOnly || store.homeFilter == .all ? lf.pins : []
+        [] // 식당·셔틀 전용 빌드
     }
     private var quests: [Quest] {
-        guard !store.lostMapOnly, store.homeFilter == .all || store.homeFilter == .quests else { return [] }
-        return store.quests.filter { !hasSearchText || ($0.title + $0.place + $0.building).localizedCaseInsensitiveContains(query) }
+        [] // 식당·셔틀 전용 빌드
     }
     private var counts: [String: Int] {
         Dictionary(grouping: store.items, by: \.hub).mapValues(\.count)
@@ -166,8 +165,6 @@ struct HomeView: View {
             HomePlaceCard(place: place, detent: $placeSheet)
         } else if store.open { // 식당은 날짜별 아침·점심·저녁 식단 시트, 거점은 보관 물품 시트
             SheetView(detent: $placeSheet)
-        } else if store.homeFilter == .all && !store.lostMapOnly {
-            QuestBottomSheet(quests: quests)
         }
     }
 
@@ -246,7 +243,7 @@ struct HomeView: View {
 
             HStack(spacing: 10) {
                 Image(systemName: "magnifyingglass").foregroundStyle(.primary)
-                TextField("건물·퀘스트·분실물을 검색하세요", text: $query)
+                TextField("건물을 검색하세요", text: $query)
                     .submitLabel(.search)
                     .focused($searchFocused)
                     .onSubmit(search)
@@ -270,19 +267,6 @@ struct HomeView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     chip("전체", symbol: "square.grid.2x2.fill", filter: .all)
-                    chip("퀘스트", symbol: "bolt.fill", filter: .quests)
-                    Button {
-                        store.lostMapOnly = true
-                        store.homeFilter = .all
-                        store.closeSheet()
-                        selectedLostPinID = nil
-                    } label: {
-                        Label("분실물", systemImage: "shippingbox.fill")
-                            .font(.subheadline.weight(.medium))
-                            .foregroundStyle(store.lostMapOnly ? Color.white : Color.primary)
-                            .padding(.horizontal, 16).frame(height: 38)
-                            .background(store.lostMapOnly ? Color.cjTeal : Color.cjSurface, in: Capsule())
-                    }
                     chip("식당", symbol: "fork.knife", filter: .food)
                     chip("셔틀", symbol: "bus.fill", filter: .shuttle)
                 }

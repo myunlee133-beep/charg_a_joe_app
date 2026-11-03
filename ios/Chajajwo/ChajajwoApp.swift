@@ -38,20 +38,12 @@ struct ContentView: View {
             RetainedTab(selected: store.tab == .home) {
                 if store.showDining { DiningView() } else { HomeView() }
             }
-            RetainedTab(selected: store.tab == .quests) { QuestsView() }
             RetainedTab(selected: store.tab == .dining) { DiningView() }
-            RetainedTab(selected: store.tab == .lostFound) { LostFoundView() }
-            RetainedTab(selected: store.tab == .community) { CommunityView() }
-            RetainedTab(selected: store.tab == .me) { MeView() }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             HStack(spacing: 0) {
                 tab(.home, "홈", "house.fill")
-                tab(.quests, "퀘스트", "bolt.fill")
                 tab(.dining, "식당", "fork.knife")
-                tab(.lostFound, "분실물", "shippingbox.fill")
-                tab(.community, "사랑방", "bubble.left.and.bubble.right.fill")
-                tab(.me, "내 정보", "person.crop.circle")
             }
             .padding(.top, 9).padding(.bottom, 5)
             .background(Color.cjSurface.shadow(color: .black.opacity(0.06), radius: 5, y: -2).ignoresSafeArea(edges: .bottom))
