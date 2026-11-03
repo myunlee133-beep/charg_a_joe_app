@@ -1,0 +1,49 @@
+name: Account and quest access controls
+on:
+  push:
+    branches: ['codex/**']
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  database:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: test-only-password
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: test-only-password
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create isolated Supabase Auth contract
+        run: |
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          create role anon;
+          create role authenticated;
+          create role service_role;
+          create schema auth;
+          create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz);
+          create table auth.identities(id uuid primary key,user_id uuid references auth.users(id) on delete cascade,provider_id text not null,provider text not null,identity_data jsonb not null);
+          create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
+          SQL
+      - name: Check generated policy files
+        run: |
+          python3 scripts/build_account_policies.py
+          git diff --exit-code -- backend/account/002_policy_seed.sql backend/account/privacy.md backend/account/terms.md ios/Chajajwo/Resources/account-policies.json
+      - name: Migrate, re-run migrations, and verify access boundaries
+        run: |
+          psql -v ON_ERROR_STOP=1 -f backend/community/001_community_mvp.sql
+          psql -v ON_ERROR_STOP=1 -f backend/account/001_account_quests.sql
+          python3 -c "import os; from pathlib import Path; Path(os.environ['RUNNER_TEMP'],'account-policy-crlf.sql').write_bytes(Path('backend/account/002_policy_seed.sql').read_bytes().replace(b'\r\n',b'\n').replace(b'\n',b'\r\n'))"
+          psql -v ON_ERROR_STOP=1 -f "$RUNNER_TEMP/account-policy-crlf.sql"
+          psql -v ON_ERROR_STOP=1 -f backend/account/001_account_quests.sql
+          psql -v ON_ERROR_STOP=1 -f backend/account/002_policy_seed.sql
+          psql -v ON_ERROR_STOP=1 -f backend/account/tests.sql

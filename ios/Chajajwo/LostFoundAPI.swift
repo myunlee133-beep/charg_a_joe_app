@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import Combine
 
 // Public centers use a bundled fallback until the new Supabase migration is applied.
 // Official facility information is never inferred from user-submitted found-item posts.
@@ -92,7 +93,16 @@ final class LostFoundAPI: ObservableObject {
     @Published private(set) var loggedIn = false
     @Published var error: String?
     @Published private(set) var loading = false
-    private var account = CommunityAPI()
+    private let account = CommunityAPI()
+    private var accountObservation: AnyCancellable?
+    init() {
+        accountObservation = AccountStore.shared.$authenticated.sink { [weak self] value in
+            self?.loggedIn = value
+            if !value {
+                self?.found = []; self?.lost = []; self?.inbox = []; self?.myClaims = []; self?.leads = []
+            }
+        }
+    }
 
     var configured: Bool { account.configuration != nil }
     var pins: [LostFoundMapPin] {
@@ -114,7 +124,6 @@ final class LostFoundAPI: ObservableObject {
         guard !preparing,
               force || Date().timeIntervalSince(loadedAt) > 60 || loggedIn != CommunityAPI.hasSavedSession else { return }
         preparing = true; defer { preparing = false }
-        account = CommunityAPI() // Read latest Keychain session, including sign-in from 사랑방 tab.
         await account.restore()
         loggedIn = account.authenticated
         await refresh()

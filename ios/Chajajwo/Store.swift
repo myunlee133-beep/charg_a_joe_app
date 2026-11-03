@@ -8,8 +8,11 @@ final class Store: ObservableObject {
     // 화면 상태
     @Published var tab = Tab.home
     @Published var homeFilter = HomeFilter.all
-    @Published var quests = Quest.demo
-    @Published var questSession = QuestSession()
+    @Published var quests: [Quest] = []
+    @Published private(set) var myQuests: [Quest] = []
+    @Published private(set) var questError: String?
+    @Published var showAccountLogin = false
+    private var questRequestSerial = 0
     @Published var selectedQuest: Quest?
     @Published var questSheet = SheetDetent.collapsed  // 기본은 접힘. 다른 시트를 열었다 닫아도 상태를 유지
     @Published var showDining = false   // 홈 탭 안에서 지도 대신 식당 화면을 보여준다
@@ -77,6 +80,37 @@ final class Store: ObservableObject {
         toastText = s
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) { [weak self] in
             if self?.toastText == s { self?.toastText = nil }
+        }
+    }
+
+    @MainActor func refreshQuests() async {
+        questRequestSerial += 1
+        let serial = questRequestSerial
+        let account = AccountStore.shared
+        let userID = account.userID
+        do {
+            let feed: [Quest] = try await account.rpc("quest_feed", ["p_mine": false], as: [Quest].self, authenticated: account.authenticated)
+            let mine: [Quest]
+            if account.authenticated { mine = try await account.rpc("quest_feed", ["p_mine": true], as: [Quest].self) }
+            else { mine = [] }
+            guard serial == questRequestSerial, userID == account.userID else { return }
+            quests = feed; myQuests = mine; questError = nil
+        } catch {
+            guard serial == questRequestSerial else { return }
+            if userID != account.userID { quests = []; myQuests = [] }
+            questError = error.localizedDescription
+        }
+    }
+
+    @MainActor func clearQuestAccountData() {
+        questRequestSerial += 1; myQuests = []; quests = []; selectedQuest = nil
+    }
+
+    func progress(for quest: Quest) -> QuestProgress? {
+        switch quest.myParticipationStatus {
+        case "accepted": .accepted
+        case "submitted", "approved": .resultPending
+        default: nil
         }
     }
 

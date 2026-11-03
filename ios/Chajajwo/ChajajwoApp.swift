@@ -6,14 +6,16 @@ import SwiftUI
 struct ChajajwoApp: App {
     @StateObject private var store = Store()
     @StateObject private var lostFound = LostFoundAPI()
+    @StateObject private var account = AccountStore.shared
 
     init() { KakaoMapView.initSDK() }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AccountEntryView()
                 .environmentObject(store)
                 .environmentObject(lostFound)
+                .environmentObject(account)
                 .environment(\.locale, Locale(identifier: "ko_KR"))
                 .tint(Color.cjTealText)
                 .preferredColorScheme(.light) // 다크모드여도 라이트 화면 그대로
@@ -21,8 +23,51 @@ struct ChajajwoApp: App {
     }
 }
 
+/// Authentication is the app's entry point, including after signing out.
+/// Home and its location services are created only after account setup finishes.
+struct AccountEntryView: View {
+    @EnvironmentObject private var account: AccountStore
+    @EnvironmentObject private var store: Store
+    @State private var checkedSession = !AccountStore.hasSavedSession
+
+    private var previewContent: Bool {
+        #if DEBUG
+        return ProcessInfo.processInfo.arguments.contains("-preview-content")
+        #else
+        return false
+        #endif
+    }
+
+    var body: some View {
+        Group {
+            if !checkedSession {
+                ProgressView("로그인 확인 중…").frame(maxWidth: .infinity, maxHeight: .infinity).background(.white)
+            } else if account.recoveryRequired {
+                AccountRecoveryView()
+            } else if account.needsOnboarding {
+                AccountOnboardingView()
+            } else if account.authenticated || previewContent {
+                ContentView()
+            } else {
+                AccountLoginView()
+            }
+        }
+        .task { await account.restore(); checkedSession = true }
+        .onOpenURL { url in Task { await account.handleCallback(url) } }
+        .onChange(of: account.userID) { _, _ in
+            store.clearQuestAccountData()
+            store.showAccountLogin = false
+            store.tab = .home
+        }
+        .alert("계정 연결 안내", isPresented: Binding(get: { account.error != nil }, set: { if !$0 { account.error = nil } })) {
+            Button("확인") { account.error = nil }
+        } message: { Text(account.error ?? "") }
+    }
+}
+
 struct ContentView: View {
     @EnvironmentObject var store: Store
+    @EnvironmentObject private var account: AccountStore
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var shuttle = CircularShuttleService()
 
@@ -45,6 +90,7 @@ struct ContentView: View {
             RetainedTab(selected: store.tab == .me) { MeView() }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
+            if !account.authFormFocused {
             HStack(spacing: 0) {
                 tab(.home, "홈", "house.fill")
                 tab(.quests, "퀘스트", "bolt.fill")
@@ -55,6 +101,7 @@ struct ContentView: View {
             }
             .padding(.top, 9).padding(.bottom, 5)
             .background(Color.cjSurface.shadow(color: .black.opacity(0.06), radius: 5, y: -2).ignoresSafeArea(edges: .bottom))
+            }
         }
         .environmentObject(shuttle)
         .onAppear {
@@ -78,6 +125,8 @@ struct ContentView: View {
             if shouldTrackShuttle { await shuttle.run() }
         }
         .task { await store.refreshDining() }
+        .task { await store.refreshQuests() }
+        .sheet(isPresented: $store.showAccountLogin) { AccountLoginView() }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { Task { await store.refreshDining() } }
         }

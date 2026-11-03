@@ -41,6 +41,7 @@ struct QuestsView: View {
                             .font(.subheadline).foregroundStyle(Color.cjSub)
                     }
                     .padding(.top, 8)
+                    if let error = store.questError { Text(error).font(.footnote).foregroundStyle(.red) }
                     categoryFilters
                     Picker("보상 방식", selection: $mode) {
                         Text("전체").tag(QuestMode?.none)
@@ -70,11 +71,11 @@ struct QuestsView: View {
                         }
                         ForEach(rows) { quest in
                             Button { selectedQuest = quest } label: {
-                                QuestCard(quest: quest, progress: store.questSession.progress[quest.id])
+                                QuestCard(quest: quest, progress: store.progress(for: quest))
                             }.buttonStyle(.plain)
                         }
                     }
-                    Text("학생회관 기준 거리 · 시연 퀘스트\n등록·수락·제출 기록은 앱 실행 중에만 유지돼요.")
+                    Text("학생회관 기준 거리 · 보상은 이용자 간 직접 송금")
                         .font(.caption).foregroundStyle(Color.cjSub).lineSpacing(4)
                 }
                 .padding(.horizontal, 20).padding(.bottom, 24)
@@ -91,6 +92,8 @@ struct QuestsView: View {
                     Button { creating = true } label: { Label("등록", systemImage: "plus") }
                 }
             }
+            .refreshable { await store.refreshQuests() }
+            .task { await store.refreshQuests() }
             .sheet(isPresented: $creating) { CreateQuestView() }
             .sheet(item: $selectedQuest) { QuestDetailView(quest: $0) }
         }
@@ -206,7 +209,7 @@ struct QuestBottomSheet: View {
             HStack {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("내 주변 퀘스트 \(rows.count)").font(.title3.weight(.heavy))
-                    Text("학생회관 기준 · 시연 퀘스트").font(.caption).foregroundStyle(Color.cjSub)
+                    Text("학생회관 기준 · 캠퍼스 퀘스트").font(.caption).foregroundStyle(Color.cjSub)
                 }
                 Spacer()
                 Button { store.tab = .quests } label: {
@@ -264,141 +267,6 @@ struct QuestRow: View {
                 }
             }
         }.padding(.vertical, 14).contentShape(Rectangle())
-    }
-}
-
-struct QuestDetailView: View {
-    @EnvironmentObject var store: Store
-    @Environment(\.dismiss) private var dismiss
-    let quest: Quest
-    @State private var confirmAccept = false
-    @State private var result = ""
-    @State private var submitting = false
-    private var progress: QuestProgress? { store.questSession.progress[quest.id] }
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 22) {
-                    HStack {
-                        Badge(text: quest.category.title, color: .cjTeal)
-                        Badge(text: quest.mode.title, color: quest.mode == .firstCome ? .cjTeal : .cjBlue)
-                    }
-                    Text(quest.title).font(.title2.weight(.heavy))
-                    Text(quest.rewardText).font(.largeTitle.weight(.heavy)).foregroundStyle(Color.cjTeal)
-                    Label(quest.building, systemImage: "mappin.and.ellipse").font(.subheadline)
-                    Divider()
-                    Text("부탁드리는 내용").font(.headline)
-                    Text(quest.details).font(.body).lineSpacing(6)
-                    Divider()
-                    Label(quest.requester, systemImage: "person.crop.circle").font(.subheadline)
-                    Text(quest.mode == .firstCome ? "먼저 수락한 한 사람이 수행하는 퀘스트예요." : "여러 사람이 참여할 수 있어요. 요청자가 결과를 확인한 뒤 보상을 지급하는 방식이에요.")
-                        .font(.subheadline).foregroundStyle(Color.cjSub)
-                    if quest.mode == .resultReward { Text("참여 \(quest.participants)명").font(.caption).foregroundStyle(Color.cjSub) }
-                    Text("시연 퀘스트예요. 수락과 결과 제출은 앱 실행 중에만 기록되며 실제 의뢰나 결제는 발생하지 않아요.")
-                        .font(.caption).foregroundStyle(Color.cjSub).padding(14)
-                        .frame(maxWidth: .infinity, alignment: .leading).background(Color.cjInset, in: RoundedRectangle(cornerRadius: 12))
-                }.padding(22)
-            }
-            .navigationTitle("퀘스트 상세").navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("닫기") { dismiss() } } }
-            .safeAreaInset(edge: .bottom) {
-                Button {
-                    if quest.mode == .firstCome { confirmAccept = true } else { submitting = true }
-                } label: {
-                    Text(progress == .accepted ? "수락한 퀘스트" : progress == .resultPending ? "결과 확인 대기 중" : quest.mode == .firstCome ? "퀘스트 수락하기" : "결과 제출하기")
-                        .font(.headline).foregroundStyle(.white).frame(maxWidth: .infinity).padding(16)
-                        .background(Color.cjTeal, in: RoundedRectangle(cornerRadius: 14))
-                }.disabled(progress != nil).opacity(progress == nil ? 1 : 0.6).padding(16).background(Color.cjSurface)
-            }
-            .confirmationDialog("이 퀘스트를 수락할까요?", isPresented: $confirmAccept, titleVisibility: .visible) {
-                Button("수락하기") { _ = store.questSession.accept(quest) }
-                Button("취소", role: .cancel) { }
-            } message: { Text("이 화면에서는 수락 상태를 시연해요.") }
-            .sheet(isPresented: $submitting) {
-                NavigationStack {
-                    Form {
-                        Section("발견 위치와 결과를 알려주세요") { TextEditor(text: $result).frame(minHeight: 140) }
-                        Section { Text("10자 이상 작성해주세요. 시연용으로 제출 상태만 기록해요.").font(.caption) }
-                    }
-                    .navigationTitle("결과 제출")
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) { Button("취소") { submitting = false } }
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button("제출") { if store.questSession.submit(quest, text: result) { submitting = false } }
-                                .disabled(result.trimmingCharacters(in: .whitespacesAndNewlines).count < 10)
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-struct CreateQuestView: View {
-    @EnvironmentObject var store: Store
-    @Environment(\.dismiss) private var dismiss
-    @State private var title = ""
-    @State private var details = ""
-    @State private var reward = "3000"
-    @State private var category = QuestCategory.errand
-    @State private var mode = QuestMode.firstCome
-    @State private var buildingID = ""
-    private var buildings: [CampusBuilding] { CampusBuildingCatalog.all.sorted { $0.name < $1.name } }
-    private var building: CampusBuilding? { buildings.first { $0.id == buildingID } }
-    private var valid: Bool { !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !details.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && (1...1_000_000).contains(Int(reward) ?? 0) && building != nil }
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section("퀘스트 내용") {
-                    TextField("무엇을 부탁하고 싶으세요?", text: $title)
-                    Picker("종류", selection: $category) { ForEach(QuestCategory.allCases) { Text($0.title).tag($0) } }
-                    Picker("보상 방식", selection: $mode) { ForEach(QuestMode.allCases) { Text($0.title).tag($0) } }
-                    TextField("보상 금액 (원)", text: $reward).keyboardType(.numberPad)
-                    TextField("부탁할 내용과 전달 방법", text: $details, axis: .vertical).lineLimit(4...8)
-                }
-                Section("지도에 표시할 장소") {
-                    Picker("건물 선택", selection: $buildingID) {
-                        Text("장소를 선택해주세요").tag("")
-                        ForEach(buildings) { Text($0.displayTitle).tag($0.id) }
-                    }.pickerStyle(.navigationLink)
-                }
-                Section { Text("화면 검토를 위한 시연 등록이에요. 이 앱을 종료하면 사라지며 다른 사용자에게 공유되지 않아요.").font(.caption) }
-            }
-            .navigationTitle("퀘스트 등록")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("취소") { dismiss() } }
-                ToolbarItem(placement: .confirmationAction) { Button("등록", action: create).disabled(!valid) }
-            }
-        }
-    }
-    private func create() {
-        guard valid, let b = building, let amount = Int(reward) else { return }
-        let coordinate = CampusCoordinate(latitude: b.latitude, longitude: b.longitude)
-        let distance = Int(coordinate.distance(to: .init(latitude: 37.45925, longitude: 126.9506)))
-        let quest = Quest(id: UUID().uuidString, title: title, category: category, mode: mode, reward: amount,
-                          place: b.name, building: b.displayTitle, coordinate: coordinate, distance: distance,
-                          details: details, requester: "나")
-        guard quest.isValid else { return }
-        store.quests.insert(quest, at: 0); store.homeFilter = .all
-        store.toast("시연 퀘스트를 지도에 등록했어요"); dismiss()
-    }
-}
-
-struct MyQuestsView: View {
-    @EnvironmentObject var store: Store
-    var body: some View {
-        List {
-            ForEach(store.quests.filter { store.questSession.progress[$0.id] != nil || $0.requester == "나" }) { quest in
-                NavigationLink { QuestDetailView(quest: quest) } label: {
-                    VStack(alignment: .leading) {
-                        QuestRow(quest: quest)
-                        Text(store.questSession.progress[quest.id] == .accepted ? "수락 완료" : store.questSession.progress[quest.id] == .resultPending ? "결과 확인 대기" : "내가 등록한 퀘스트")
-                            .font(.caption).foregroundStyle(Color.cjTeal)
-                    }
-                }
-            }
-            Text("앱 실행 중의 시연 기록이에요.").font(.caption).foregroundStyle(Color.cjSub)
-        }.navigationTitle("내 퀘스트")
     }
 }
 
