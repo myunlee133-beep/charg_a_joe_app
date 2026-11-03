@@ -114,7 +114,7 @@ struct AccountLoginView: View {
                             }
                             Text("퀘스트 보상은 이용자끼리 직접 송금해요.\n찾아줘는 보상금을 보관하거나 자동 이체하지 않아요.")
                                 .font(.caption).foregroundStyle(AccountStyle.muted).lineSpacing(4)
-                            Button("먼저 둘러볼게요") { store.tab = .home; dismiss() }
+                            Button("먼저 둘러볼게요") { focusedField = nil; account.authFormFocused = false; store.tab = .home; dismiss() }
                                 .font(.subheadline).padding(.top, 4)
                         }
                     }.padding(.horizontal, 28).padding(.top, 30).padding(.bottom, 32)

@@ -41,7 +41,8 @@ jobs:
         run: |
           psql -v ON_ERROR_STOP=1 -f backend/community/001_community_mvp.sql
           psql -v ON_ERROR_STOP=1 -f backend/account/001_account_quests.sql
-          psql -v ON_ERROR_STOP=1 -f backend/account/002_policy_seed.sql
+          python3 -c "import os; from pathlib import Path; Path(os.environ['RUNNER_TEMP'],'account-policy-crlf.sql').write_bytes(Path('backend/account/002_policy_seed.sql').read_bytes().replace(b'\r\n',b'\n').replace(b'\n',b'\r\n'))"
+          psql -v ON_ERROR_STOP=1 -f "$RUNNER_TEMP/account-policy-crlf.sql"
           psql -v ON_ERROR_STOP=1 -f backend/account/001_account_quests.sql
           psql -v ON_ERROR_STOP=1 -f backend/account/002_policy_seed.sql
           psql -v ON_ERROR_STOP=1 -f backend/account/tests.sql

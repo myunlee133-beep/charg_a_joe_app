@@ -19,8 +19,10 @@ final class AccountUITests: XCTestCase {
         XCTAssertEqual(email.value as? String, "preview@example.invalid")
         XCTAssertTrue(next.isEnabled); next.tap()
         XCTAssertTrue(app.secureTextFields["account-password"].waitForExistence(timeout: 5))
+        if app.buttons["완료"].exists { app.buttons["완료"].tap() }
         XCTAssertTrue(app.buttons["비밀번호 찾기"].exists)
         app.buttons["처음이신가요? 회원가입"].tap()
+        app.swipeUp()
         XCTAssertTrue(app.switches["[필수] 만 19세 이상입니다"].exists)
         XCTAssertFalse(next.isEnabled)
         let signupScreenshot = XCTAttachment(screenshot: app.screenshot())
