@@ -57,6 +57,7 @@ struct ContentView: View {
             RetainedTab(selected: store.tab == .me) { MeView() }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
+            if !account.authFormFocused {
             HStack(spacing: 0) {
                 tab(.home, "홈", "house.fill")
                 tab(.quests, "퀘스트", "bolt.fill")
@@ -67,6 +68,7 @@ struct ContentView: View {
             }
             .padding(.top, 9).padding(.bottom, 5)
             .background(Color.cjSurface.shadow(color: .black.opacity(0.06), radius: 5, y: -2).ignoresSafeArea(edges: .bottom))
+            }
         }
         .environmentObject(shuttle)
         .onAppear {

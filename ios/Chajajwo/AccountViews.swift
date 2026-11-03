@@ -12,6 +12,8 @@ struct AccountLoginView: View {
     @EnvironmentObject private var store: Store
     @Environment(\.dismiss) private var dismiss
     private enum Step { case email, credentials, confirmation, reset }
+    private enum Field: Hashable { case email, password }
+    @FocusState private var focusedField: Field?
     @State private var step = Step.email
     @State private var email = ""
     @State private var password = ""
@@ -25,6 +27,8 @@ struct AccountLoginView: View {
     @State private var provider: String?
     private var validEmail: Bool { email.trimmingCharacters(in: .whitespacesAndNewlines).range(of: #"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$"#, options: [.caseInsensitive, .regularExpression]) != nil }
     private var signupReady: Bool { adult && account.policiesVerified && account.policies.filter { $0.context == "account" }.allSatisfy { agreed.contains($0.kind) } }
+    private var continueTitle: String { step == .email ? "이메일로 계속하기" : step == .reset ? "재설정 메일 받기" : signup ? "동의하고 가입하기" : "로그인" }
+    private var continueDisabled: Bool { working || !validEmail || (step == .credentials && (password.isEmpty || (signup && (password.count < 10 || !signupReady)))) }
 
     var body: some View {
         GeometryReader { geometry in
@@ -50,11 +54,12 @@ struct AccountLoginView: View {
                         } else {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("이메일 주소").font(.caption).foregroundStyle(AccountStyle.muted)
-                                TextField("name@example.com", text: $email)
+                                TextField("이메일 주소", text: $email, prompt: Text("name@example.com").foregroundStyle(AccountStyle.muted))
+                                    .foregroundStyle(AccountStyle.ink).focused($focusedField, equals: .email)
                                     .textContentType(.emailAddress).keyboardType(.emailAddress)
                                     .textInputAutocapitalization(.never).autocorrectionDisabled()
                                     .submitLabel(step == .email ? .continue : .next)
-                                    .onSubmit { if validEmail && step == .email { step = .credentials } }
+                                    .onSubmit { if validEmail && step == .email { continueTapped() } }
                                     .padding(.vertical, 15).padding(.horizontal, 14)
                                     .background(.white, in: RoundedRectangle(cornerRadius: 9))
                                     .overlay(RoundedRectangle(cornerRadius: 9).stroke(AccountStyle.line))
@@ -64,7 +69,9 @@ struct AccountLoginView: View {
                                 VStack(alignment: .leading, spacing: 10) {
                                     Text(signup ? "비밀번호 만들기 · 10자 이상" : "비밀번호").font(.caption).foregroundStyle(AccountStyle.muted)
                                     SecureField(signup ? "새 비밀번호" : "비밀번호", text: $password)
+                                        .focused($focusedField, equals: .password).foregroundStyle(AccountStyle.ink)
                                         .textContentType(signup ? .newPassword : .password)
+                                        .submitLabel(.go).onSubmit { if !continueDisabled { continueTapped() } }
                                         .padding(14).overlay(RoundedRectangle(cornerRadius: 9).stroke(AccountStyle.line))
                                         .accessibilityIdentifier("account-password")
                                     if !signup { Button("비밀번호 찾기") { password = ""; step = .reset; message = nil }.font(.footnote) }
@@ -73,12 +80,7 @@ struct AccountLoginView: View {
                                     AccountConsentChecklist(context: "account", agreed: $agreed, adult: $adult, selectedPolicy: $selectedPolicy)
                                 }
                             }
-                            primary(step == .email ? "이메일로 계속하기" : step == .reset ? "재설정 메일 받기" : signup ? "동의하고 가입하기" : "로그인") {
-                                if step == .email { step = .credentials; message = nil }
-                                else if step == .reset { perform { try await account.sendPasswordReset(email: email); show("계정이 있다면 재설정 안내를 받을 수 있어요. 메일의 링크를 열어 주세요.") } }
-                                else { authenticate() }
-                            }
-                            .disabled(working || !validEmail || (step == .credentials && (password.isEmpty || (signup && (password.count < 10 || !signupReady)))))
+                            if focusedField == nil { primary(continueTitle, action: continueTapped).disabled(continueDisabled) }
                             if step == .credentials {
                                 Button(signup ? "이미 가입했어요 · 로그인" : "처음이신가요? 회원가입") { signup.toggle(); password = ""; message = nil }
                                     .font(.subheadline).frame(maxWidth: .infinity)
@@ -119,16 +121,33 @@ struct AccountLoginView: View {
                 }.frame(width: geometry.size.width)
             }.background(.white).scrollDismissesKeyboard(.interactively)
         }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if focusedField != nil && step != .confirmation {
+                primary(continueTitle, action: continueTapped).disabled(continueDisabled)
+                    .padding(.horizontal, 28).padding(.vertical, 12).background(.white)
+            }
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) { Spacer(); Button("완료") { focusedField = nil } }
+        }
         .tint(AccountStyle.green)
         .sheet(item: $selectedPolicy) { AccountPolicyView(document: $0) }
         .sheet(isPresented: Binding(get: { provider != nil }, set: { if !$0 { provider = nil } })) {
             if let provider { AccountProviderConsentView(provider: provider) }
         }
         .onChange(of: account.authenticated) { _, value in if value { store.showAccountLogin = false } }
+        .onChange(of: focusedField) { _, value in account.authFormFocused = value != nil }
+        .onDisappear { account.authFormFocused = false }
         .task {
             do { try await account.loadPolicies() } catch { show(error.localizedDescription, failed: true) }
             await account.loadProviders()
         }
+    }
+
+    private func continueTapped() {
+        if step == .email { email = email.trimmingCharacters(in: .whitespacesAndNewlines); step = .credentials; message = nil; focusedField = .password }
+        else if step == .reset { perform { try await account.sendPasswordReset(email: email); show("계정이 있다면 재설정 안내를 받을 수 있어요. 메일의 링크를 열어 주세요.") } }
+        else { authenticate() }
     }
 
     private func primary(_ title: String, action: @escaping () -> Void) -> some View {

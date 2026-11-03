@@ -4,6 +4,7 @@ do $$
 declare a uuid:=gen_random_uuid(); b uuid:=gen_random_uuid(); c uuid:=gen_random_uuid();
  q uuid; p uuid; t uuid; q2 uuid; pb uuid; pc uuid; t2 uuid; blocked boolean; versions jsonb; value jsonb; before_count integer;
 begin
+ if exists(select 1 from public.account_policy_versions where encode(pg_catalog.sha256(convert_to(body,'UTF8')),'hex')<>sha256) then raise exception 'FAIL: policy content hash mismatch'; end if;
  insert into auth.users(id,email,email_confirmed_at) values
  (a,a::text||'@example.invalid',now()),(b,b::text||'@example.invalid',now()),(c,c::text||'@example.invalid',now());
  select jsonb_object_agg(kind,version) into versions from public.account_policy_versions where active;

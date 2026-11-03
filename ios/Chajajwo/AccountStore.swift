@@ -123,6 +123,7 @@ final class AccountStore: ObservableObject {
     @Published private(set) var restoring = false
     @Published var recoveryRequired = false
     @Published var error: String?
+    @Published var authFormFocused = false
     let configuration = CommunityConfiguration.current
     private var session: AccountSession? = AccountKeychain.load()
     private var refreshTask: Task<Void, Error>?
