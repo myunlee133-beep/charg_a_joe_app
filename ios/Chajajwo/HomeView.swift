@@ -54,9 +54,11 @@ struct HomeView: View {
             topBar
         }
         .overlay(alignment: .bottomTrailing) {
-            myLocationButton
-                .padding(.trailing, 16)
-                .padding(.bottom, bottomHeight + 16) // 지금 떠 있는 하단 시트 바로 위
+            if focusedBuilding == nil || placeSheet != .expanded {
+                myLocationButton
+                    .padding(.trailing, 16)
+                    .padding(.bottom, bottomHeight + 16) // 지금 떠 있는 하단 시트 바로 위
+            }
         }
         .overlay(alignment: .bottom) {
             VStack(spacing: 0) { bottomContent } // 시트가 없을 때도 높이 0으로 재도록 감싼다
