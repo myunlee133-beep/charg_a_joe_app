@@ -9,6 +9,7 @@ struct CampusBuilding: Codable, Identifiable, Hashable {
     let latitude: Double
     let longitude: Double
     let source: String
+    let details: CampusBuildingDetails?
 
     var buildingNumberLabel: String {
         guard let number, !number.isEmpty else { return "캠퍼스 장소" }
@@ -24,6 +25,54 @@ struct CampusBuilding: Codable, Identifiable, Hashable {
         let encoded = name.addingPercentEncoding(withAllowedCharacters: allowed) ?? name
         return URL(string: "https://map.kakao.com/link/to/\(encoded),\(latitude),\(longitude)")
     }
+}
+
+/// Official building information is bundled for offline use. Missing fields mean
+/// the source did not publish that detail, rather than that a facility is absent.
+struct CampusBuildingDetails: Codable, Hashable {
+    let category: String
+    let summary: String
+    let englishName: String?
+    let address: String?
+    let phone: String?
+    let website: String?
+    let usage: String
+    let facilities: [CampusBuildingFacility]
+    let accessibility: [String]
+    let notices: [CampusBuildingNotice]
+    let sources: [CampusBuildingSource]
+    let checkedAt: String
+
+    var phoneURL: URL? {
+        guard let phone,
+              let range = phone.range(of: #"0\d{1,2}[- ]\d{3,4}[- ]\d{4}"#, options: .regularExpression) else { return nil }
+        return URL(string: "tel:" + String(phone[range]).filter { $0.isNumber })
+    }
+
+    var websiteURL: URL? {
+        guard let website, let url = URL(string: website), url.scheme == "https" else { return nil }
+        return url
+    }
+}
+
+struct CampusBuildingFacility: Codable, Hashable, Identifiable {
+    let id: String
+    let name: String
+    let floor: String?
+    let category: String
+}
+
+struct CampusBuildingNotice: Codable, Hashable {
+    let title: String
+    let body: String
+    let sourceURL: URL
+    let checkedAt: String
+}
+
+struct CampusBuildingSource: Codable, Hashable {
+    let title: String
+    let url: URL
+    let checkedAt: String
 }
 
 enum CampusBuildingCatalog {
@@ -53,7 +102,8 @@ enum CampusBuildingCatalog {
         guard !terms.isEmpty else { return [] }
         return buildings.filter { building in
             let number = building.number ?? ""
-            let fields = [compact(number), compact(number + "동"), compact(building.name)]
+            let facilityNames = building.details?.facilities.map(\.name) ?? []
+            let fields = ([number, number + "동", building.name, building.details?.englishName ?? ""] + facilityNames).map(compact)
             return terms.allSatisfy { term in fields.contains { $0.contains(term) } }
         }.sorted { lhs, rhs in
             let queryKey = compact(query)
@@ -65,6 +115,20 @@ enum CampusBuildingCatalog {
             }
             return lhs.displayTitle.localizedStandardCompare(rhs.displayTitle) == .orderedAscending
         }
+    }
+
+    /// Select only nearby building points. The map supplies a screen-sized hit
+    /// radius, capped in metres so a tap on an empty road cannot select a distant building.
+    static func nearest(latitude: Double, longitude: Double, within metres: Double,
+                        among buildings: [CampusBuilding] = all) -> CampusBuilding? {
+        guard latitude.isFinite, longitude.isFinite, metres.isFinite, metres >= 0 else { return nil }
+        let radians = Double.pi / 180
+        return buildings.compactMap { building -> (CampusBuilding, Double)? in
+            let dy = (building.latitude - latitude) * radians
+            let dx = (building.longitude - longitude) * radians * cos((building.latitude + latitude) / 2 * radians)
+            let distance = 6_371_000 * hypot(dx, dy)
+            return distance.isFinite && distance <= metres ? (building, distance) : nil
+        }.min { $0.1 < $1.1 }?.0
     }
 
     private static func compact(_ string: String) -> String {

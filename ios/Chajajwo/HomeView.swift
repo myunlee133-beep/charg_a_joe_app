@@ -62,7 +62,13 @@ struct HomeView: View {
             VStack(spacing: 0) { bottomContent } // 시트가 없을 때도 높이 0으로 재도록 감싼다
                 .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { bottomHeight = $0 }
         }
-        .onChange(of: placeSheetKey) { _, _ in placeSheet = .normal }
+        .onChange(of: placeSheetKey) { _, _ in
+            #if DEBUG
+            placeSheet = ProcessInfo.processInfo.arguments.contains("-preview-building-expanded") ? .expanded : .normal
+            #else
+            placeSheet = .normal
+            #endif
+        }
         .sheet(item: $store.selectedQuest) { QuestDetailView(quest: $0) }
         .sheet(item: $selectedQuestGroup) { group in
             NavigationStack {
@@ -87,6 +93,12 @@ struct HomeView: View {
             if let id = store.lostPinID { selectedLostPinID = id }
             #if DEBUG
             if ProcessInfo.processInfo.arguments.contains("-preview-map-selected") { selectedMapQuest = store.quests.first }
+            let arguments = ProcessInfo.processInfo.arguments
+            if let index = arguments.firstIndex(of: "-preview-building"), index + 1 < arguments.count,
+               let building = CampusBuildingCatalog.all.first(where: { $0.number == arguments[index + 1] }) {
+                focus(on: building)
+                if arguments.contains("-preview-building-expanded") { placeSheet = .expanded }
+            }
             #endif
         }
         .onChange(of: store.lostPinID) { _, newValue in selectedLostPinID = newValue }
@@ -138,6 +150,9 @@ struct HomeView: View {
                          selectedQuestGroup = .init(id: ids.joined(separator: "-"), quests: store.quests.filter { ids.contains($0.id) })
                      }, onQuestDeselect: {
                          selectedMapQuest = nil
+                     }, allowsBuildingSelection: store.homeFilter == .all && !store.lostMapOnly,
+                     onSelectBuilding: { building in
+                         focus(on: building)
                      }, onSelect: { id in
                          searchFocused = false
                          selectedMapQuest = nil
@@ -383,6 +398,8 @@ struct HomeView: View {
 
     private func focus(on building: CampusBuilding) {
         searchFocused = false
+        selectedMapQuest = nil
+        selectedQuestGroup = nil
         store.filter = nil
         store.homeFilter = .all
         store.closeSheet()
@@ -394,7 +411,7 @@ struct HomeView: View {
     }
 
     private func buildingCard(_ building: CampusBuilding) -> some View {
-        SwipeSheet(detent: $placeSheet) {
+        SwipeSheet(detent: $placeSheet, normalHeight: 360) {
             HStack(alignment: .top, spacing: 8) {
                 Image(systemName: "building.2.crop.circle.fill")
                     .font(.title2).foregroundStyle(Color.cjTeal)
@@ -413,15 +430,12 @@ struct HomeView: View {
                 .accessibilityLabel("건물 위치 닫기")
             }
         } content: {
-            if let url = building.directionsURL {
-                Link(destination: url) {
-                    Label("길찾기", systemImage: "arrow.triangle.turn.up.right.diamond.fill")
-                        .font(.subheadline.weight(.semibold))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(Color.cjTeal.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
-                }
+            ScrollView {
+                CampusBuildingInformation(building: building)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.bottom, 16)
             }
+            .scrollIndicators(.visible)
         }
     }
 
@@ -485,5 +499,135 @@ struct HomeView: View {
         } else {
             store.toast("'\(q)' 검색 결과가 없어요")
         }
+    }
+}
+
+/// Shared by search selection and direct taps on a building in the native map.
+private struct CampusBuildingInformation: View {
+    let building: CampusBuilding
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            actions
+            if let details = building.details {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(details.category)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Color.cjTealText)
+                        .padding(.horizontal, 10).padding(.vertical, 4)
+                        .background(Color.cjTeal.opacity(0.1), in: Capsule())
+                    Text(details.summary)
+                        .font(.subheadline)
+                        .fixedSize(horizontal: false, vertical: true)
+                    if let address = details.address {
+                        Label(address, systemImage: "mappin.and.ellipse")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                }
+                ForEach(details.notices, id: \.self) { notice in
+                    VStack(alignment: .leading, spacing: 6) {
+                        Label(notice.title, systemImage: "info.circle.fill")
+                            .font(.subheadline.weight(.semibold))
+                        Text(notice.body).font(.caption)
+                        Link("공식 공지 · \(notice.checkedAt)", destination: notice.sourceURL)
+                            .font(.caption.weight(.semibold))
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(12)
+                    .background(Color.cjOrange.opacity(0.1), in: RoundedRectangle(cornerRadius: 12))
+                }
+                section("층별 시설") {
+                    if details.facilities.isEmpty {
+                        Text("공식 지도에 등록된 층별 시설 정보가 없습니다.")
+                            .font(.caption).foregroundStyle(.secondary)
+                    } else {
+                        ForEach(details.facilities) { facility in
+                            HStack(alignment: .top, spacing: 10) {
+                                Text(facility.floor ?? "층 미등록")
+                                    .font(.caption.weight(.medium))
+                                    .foregroundStyle(Color.cjTealText)
+                                    .frame(width: 64, alignment: .leading)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(facility.name).font(.subheadline)
+                                    Text(facility.category).font(.caption2).foregroundStyle(.secondary)
+                                }
+                                Spacer(minLength: 0)
+                            }
+                            .padding(.vertical, 4)
+                            Divider()
+                        }
+                    }
+                }
+                section("이용 안내") {
+                    Text(details.usage).font(.subheadline)
+                    if let phone = details.phone {
+                        Text("문의 · \(phone)").font(.caption).foregroundStyle(.secondary)
+                    }
+                    if let url = details.websiteURL {
+                        Link(destination: url) { Label("운영기관 홈페이지", systemImage: "arrow.up.right.square") }
+                            .font(.subheadline.weight(.semibold))
+                    }
+                }
+                if !details.accessibility.isEmpty {
+                    section("접근성 · 공식 지도 등록 정보") {
+                        ForEach(details.accessibility, id: \.self) { item in
+                            Label(item, systemImage: "figure.roll")
+                                .font(.caption)
+                        }
+                    }
+                }
+                section("정보 출처") {
+                    ForEach(details.sources, id: \.url) { source in
+                        Link(destination: source.url) {
+                            HStack(alignment: .top) {
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(source.title).font(.caption.weight(.medium))
+                                    Text("확인 \(source.checkedAt)").font(.caption2).foregroundStyle(.secondary)
+                                }
+                                Spacer(minLength: 8)
+                                Image(systemName: "arrow.up.right").font(.caption)
+                            }
+                        }
+                        .padding(.vertical, 3)
+                    }
+                    Text("시설·연락처 확인일 \(details.checkedAt)")
+                        .font(.caption2).foregroundStyle(.secondary)
+                }
+            } else {
+                Text("상세정보는 서울대학교 공식 캠퍼스맵에서 확인해주세요.")
+                    .font(.subheadline).foregroundStyle(.secondary)
+                Link("서울대학교 캠퍼스맵", destination: URL(string: "https://map.snu.ac.kr/")!)
+            }
+        }
+        .textSelection(.enabled)
+    }
+
+    private var actions: some View {
+        HStack(spacing: 10) {
+            if let url = building.directionsURL {
+                Link(destination: url) {
+                    Label("길찾기", systemImage: "arrow.triangle.turn.up.right.diamond.fill")
+                        .frame(maxWidth: .infinity).padding(.vertical, 11)
+                        .background(Color.cjTeal.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+                }
+            }
+            if let url = building.details?.phoneURL {
+                Link(destination: url) {
+                    Label("전화 문의", systemImage: "phone.fill")
+                        .frame(maxWidth: .infinity).padding(.vertical, 11)
+                        .background(Color.cjTeal.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+                }
+            }
+        }
+        .font(.subheadline.weight(.semibold))
+        .foregroundStyle(Color.cjTealText)
+    }
+
+    private func section<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(title).font(.subheadline.weight(.bold))
+            content()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
