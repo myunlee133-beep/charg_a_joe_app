@@ -87,6 +87,7 @@ struct HomeView: View {
             if let id = store.lostPinID { selectedLostPinID = id }
             #if DEBUG
             if ProcessInfo.processInfo.arguments.contains("-preview-map-selected") { selectedMapQuest = store.quests.first }
+            if ProcessInfo.processInfo.arguments.contains("-preview-map-building-center") { store.homeFilter = .food }
             #endif
         }
         .onChange(of: store.lostPinID) { _, newValue in selectedLostPinID = newValue }
@@ -121,7 +122,7 @@ struct HomeView: View {
 
 
     private var mainMap: some View {
-        KakaoMapView(places: places, counts: counts, selected: store.sel, sheetOpen: store.open,
+        KakaoMapView(places: places, counts: counts, selected: store.sel, bottomInset: bottomHeight,
                      focusedBuilding: focusedBuilding, focusSerial: focusSerial,
                      userCoordinate: userLocation.coordinate,
                      userHeadingDegrees: userLocation.headingDegrees,
@@ -136,8 +137,10 @@ struct HomeView: View {
                          selectedMapQuest = store.quests.first { $0.id == id }
                      }, onQuestGroupSelect: { ids in
                          selectedQuestGroup = .init(id: ids.joined(separator: "-"), quests: store.quests.filter { ids.contains($0.id) })
-                     }, onQuestDeselect: {
-                         selectedMapQuest = nil
+                     }, onDeselect: {
+                         clearMapSelection()
+                     }, onSelectBuilding: { building in
+                         focus(on: building, preserveFilter: true)
                      }, onSelect: { id in
                          searchFocused = false
                          selectedMapQuest = nil
@@ -365,6 +368,7 @@ struct HomeView: View {
                                 .padding(.horizontal, 14).padding(.vertical, 10)
                                 .contentShape(Rectangle())
                             }
+                            .accessibilityIdentifier("building-result-\(building.id)")
                             .buttonStyle(.plain)
                             .accessibilityLabel("\(building.displayTitle), 지도에서 보기")
                             Rectangle().fill(SearchResultColors.separator)
@@ -381,13 +385,24 @@ struct HomeView: View {
         .shadow(radius: 5, y: 3)
     }
 
-    private func focus(on building: CampusBuilding) {
-        searchFocused = false
-        store.filter = nil
-        store.homeFilter = .all
-        store.closeSheet()
+    private func clearMapSelection() {
+        selectedMapQuest = nil
+        focusedBuilding = nil
         selectedLostPinID = nil
-        store.lostMapOnly = false
+        store.closeSheet()
+    }
+
+    private func focus(on building: CampusBuilding, preserveFilter: Bool = false) {
+        searchFocused = false
+        clearMapSelection()
+        selectedQuestGroup = nil
+        pendingUserFocus = false
+        if !preserveFilter {
+            store.filter = nil
+            store.homeFilter = .all
+            store.lostMapOnly = false
+        }
+        placeSheet = .normal
         focusedBuilding = building
         focusSerial += 1  // Repeat taps on the same building still recenter the camera.
         query = ""        // Close results so the map location is clearly visible.
@@ -399,28 +414,97 @@ struct HomeView: View {
                 Image(systemName: "building.2.crop.circle.fill")
                     .font(.title2).foregroundStyle(Color.cjTeal)
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(building.name).font(.headline)
+                    Text(building.name).font(.headline).accessibilityAddTraits(.isHeader)
                     Text(building.buildingNumberLabel).font(.subheadline).foregroundStyle(Color.cjSub)
-                    if building.source == "openstreetmap" {
-                        Link("지도 좌표 © OpenStreetMap contributors", destination: URL(string: "https://www.openstreetmap.org/copyright")!)
-                            .font(.caption2).foregroundStyle(Color.cjSub)
-                    }
                 }
                 Spacer()
                 Button { focusedBuilding = nil } label: {
-                    Image(systemName: "xmark.circle.fill").foregroundStyle(Color.cjSub)
+                    Image(systemName: "xmark.circle.fill").font(.title2).foregroundStyle(Color.cjSub)
+                        .frame(width: 44, height: 44).contentShape(Rectangle())
                 }
-                .accessibilityLabel("건물 위치 닫기")
+                .buttonStyle(.plain)
+                .accessibilityLabel("건물 상세정보 닫기")
+                .accessibilityIdentifier("close-building-details")
             }
         } content: {
-            if let url = building.directionsURL {
-                Link(destination: url) {
-                    Label("길찾기", systemImage: "arrow.triangle.turn.up.right.diamond.fill")
-                        .font(.subheadline.weight(.semibold))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(Color.cjTeal.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+            HStack(spacing: 10) {
+                if let url = building.mapURL {
+                    Link(destination: url) {
+                        Label("카카오맵", systemImage: "map")
+                            .frame(maxWidth: .infinity, minHeight: 48)
+                            .background(Color.cjInset, in: RoundedRectangle(cornerRadius: 12))
+                    }
+                    .accessibilityLabel("\(building.name) 카카오맵에서 보기")
                 }
+                if let url = building.directionsURL {
+                    Link(destination: url) {
+                        Label("길찾기", systemImage: "arrow.triangle.turn.up.right.diamond.fill")
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity, minHeight: 48)
+                            .background(Color.cjTeal, in: RoundedRectangle(cornerRadius: 12))
+                    }
+                    .accessibilityLabel("\(building.name) 길찾기")
+                }
+            }
+            .font(.subheadline.weight(.semibold))
+
+            if placeSheet == .expanded {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Label("위치 정보", systemImage: "mappin.and.ellipse")
+                            .font(.subheadline.weight(.bold)).accessibilityAddTraits(.isHeader)
+                        if building.number != nil {
+                            LabeledContent("건물 번호", value: building.buildingNumberLabel)
+                        }
+                        Text(String(format: "위도 %.5f · 경도 %.5f", building.latitude, building.longitude))
+                            .font(.footnote.monospacedDigit()).foregroundStyle(Color.cjSub)
+                            .textSelection(.enabled)
+                        buildingDiningLinks(building)
+                        if building.source == "openstreetmap" {
+                            Link("지도 좌표 © OpenStreetMap contributors", destination: URL(string: "https://www.openstreetmap.org/copyright")!)
+                                .font(.caption)
+                        } else {
+                            Link("출처: 서울대학교 캠퍼스 지도", destination: URL(string: "https://map.snu.ac.kr/")!)
+                                .font(.caption)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.bottom, 12)
+                }
+            } else {
+                Button { placeSheet = .expanded } label: {
+                    HStack {
+                        Text("상세정보")
+                        Spacer()
+                        Image(systemName: "chevron.up")
+                    }
+                    .font(.subheadline.weight(.semibold))
+                    .frame(minHeight: 44).contentShape(Rectangle())
+                }
+                .accessibilityIdentifier("expand-building-details")
+            }
+        }
+        .accessibilityIdentifier("building-details")
+    }
+
+    @ViewBuilder private func buildingDiningLinks(_ building: CampusBuilding) -> some View {
+        let dining = Place.all.filter { $0.type == .food && building.number != nil && $0.building == building.buildingNumberLabel }
+        if !dining.isEmpty {
+            Divider()
+            Text("이 건물의 식당").font(.subheadline.weight(.bold)).accessibilityAddTraits(.isHeader)
+            ForEach(dining) { place in
+                Button {
+                    clearMapSelection()
+                    store.select(place.id)
+                } label: {
+                    HStack(spacing: 10) {
+                        Image(systemName: "fork.knife")
+                        Text(place.name).frame(maxWidth: .infinity, alignment: .leading)
+                        Image(systemName: "chevron.right")
+                    }
+                    .font(.subheadline).frame(minHeight: 44).contentShape(Rectangle())
+                }
+                .accessibilityHint("이 건물 식당의 식단을 확인합니다")
             }
         }
     }

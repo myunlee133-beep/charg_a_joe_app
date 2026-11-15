@@ -17,12 +17,15 @@ struct CampusBuilding: Codable, Identifiable, Hashable {
 
     var displayTitle: String { number == nil ? name : "\(buildingNumberLabel) · \(name)" }
 
-    var directionsURL: URL? {
-        // Use the installed Kakao Map app / web link without storing its credentials.
+    var coordinate: CampusCoordinate { .init(latitude: latitude, longitude: longitude) }
+    var mapURL: URL? { kakaoURL(action: "map") }
+    var directionsURL: URL? { kakaoURL(action: "to") }
+
+    private func kakaoURL(action: String) -> URL? {
         var allowed = CharacterSet.urlPathAllowed
         allowed.remove(charactersIn: ",")
-        let encoded = name.addingPercentEncoding(withAllowedCharacters: allowed) ?? name
-        return URL(string: "https://map.kakao.com/link/to/\(encoded),\(latitude),\(longitude)")
+        let encoded = displayTitle.addingPercentEncoding(withAllowedCharacters: allowed) ?? name
+        return URL(string: "https://map.kakao.com/link/\(action)/\(encoded),\(latitude),\(longitude)")
     }
 }
 
