@@ -125,7 +125,7 @@ struct HomeView: View {
 
 
     private var mainMap: some View {
-        KakaoMapView(places: places, counts: counts, selected: store.sel, bottomInset: bottomHeight,
+        KakaoMapView(places: places, counts: counts, selected: store.open ? store.sel : "", bottomInset: bottomHeight,
                      topObstruction: focusedBuilding == nil ? 0 : topBarBottom,
                      focusedBuilding: focusedBuilding, focusSerial: focusSerial,
                      userCoordinate: userLocation.coordinate,
