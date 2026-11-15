@@ -8,6 +8,7 @@ struct KakaoMapView: UIViewRepresentable {
     let counts: [String: Int]      // 거점별 보관 건수
     let selected: String
     let bottomInset: CGFloat       // Actual height of the current map card
+    let topObstruction: CGFloat    // Bottom edge of the search controls in window coordinates
     let focusedBuilding: CampusBuilding?  // Search- or map-selected campus building
     let focusSerial: Int                  // Increment to re-focus even for the same ID
     let userCoordinate: CLLocationCoordinate2D?
@@ -64,7 +65,7 @@ struct KakaoMapView: UIViewRepresentable {
         private var foodGeometry: [String: (CGSize, CGFloat)] = [:]
         private var addedStyles: Set<String> = []
         private var lastSelected: String?
-        private var lastBottomInset: CGFloat = 0
+        private var lastMapInsets = UIEdgeInsets.zero
         private var buildingPois: [String: Poi] = [:]
         private var buildingTapHandlers: [String: DisposableEventHandler] = [:]
         private var lastBuildingID: String?
@@ -208,11 +209,13 @@ struct KakaoMapView: UIViewRepresentable {
             // Apply the current card's margins before creating camera updates or
             // measuring labels; food -> quest selection otherwise uses stale margins.
             let bottomInset = min(max(0, parent.bottomInset), map.viewRect.height * 0.65)
-            let marginsChanged = abs(lastBottomInset - bottomInset) > 1
+            let originY = mapContainer?.convert(.zero, to: nil).y ?? 0
+            let topInset = parent.topObstruction > 0 ? max(0, parent.topObstruction - originY + 12) : 0
+            let marginsChanged = abs(lastMapInsets.bottom - bottomInset) > 1 || abs(lastMapInsets.top - topInset) > 1
             if marginsChanged {
-                if bottomInset > 0 { map.setMargins(UIEdgeInsets(top: 0, left: 0, bottom: bottomInset, right: 0)) }
+                if bottomInset > 0 || topInset > 0 { map.setMargins(UIEdgeInsets(top: topInset, left: 0, bottom: bottomInset, right: 0)) }
                 else { map.resetMargins() }
-                lastBottomInset = bottomInset
+                lastMapInsets = UIEdgeInsets(top: topInset, left: 0, bottom: bottomInset, right: 0)
             }
             // User marker is always visible, even at map levels where hub pins are hidden.
             refreshUserLocation(on: map, manager: manager)

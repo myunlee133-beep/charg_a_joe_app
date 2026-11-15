@@ -23,7 +23,7 @@ struct CampusBuilding: Codable, Identifiable, Hashable {
 
     private func kakaoURL(action: String) -> URL? {
         var allowed = CharacterSet.urlPathAllowed
-        allowed.remove(charactersIn: ",")
+        allowed.remove(charactersIn: ",/?#")
         let encoded = displayTitle.addingPercentEncoding(withAllowedCharacters: allowed) ?? name
         return URL(string: "https://map.kakao.com/link/\(action)/\(encoded),\(latitude),\(longitude)")
     }

@@ -105,7 +105,7 @@ final class CampusBuildingHitTestTests: XCTestCase {
     }
 
     func testNonfiniteProjectionOrCoordinateNeverSelectsABuilding() {
-        XCTAssertNil(CampusBuildingHitTest.select(at: .init(x: .nan, y: 350), coordinate: coordinate, zoom: 17, targets: [target("building")]))
+        XCTAssertNil(CampusBuildingHitTest.select(at: .init(x: CGFloat.nan, y: 350), coordinate: coordinate, zoom: 17, targets: [target("building")]))
         XCTAssertNil(CampusBuildingHitTest.select(at: touch, coordinate: .init(latitude: .nan, longitude: 126.95), zoom: 17, targets: [target("building")]))
         XCTAssertNil(CampusBuildingHitTest.select(at: touch, coordinate: coordinate, zoom: 17, targets: [target("invalid", x: .infinity)]))
     }

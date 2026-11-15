@@ -19,6 +19,8 @@ struct HomeView: View {
     @State private var showLocationSettings = false
     @State private var placeSheet = SheetDetent.normal  // 건물·분실물 핀·정류장·식단 시트 단계
     @State private var bottomHeight: CGFloat = 0        // 하단 시트 높이. 내 위치 버튼을 그 위에 둔다
+    @State private var topBarBottom: CGFloat = 0
+    @State private var mapFrame: CGRect = .zero
     @FocusState private var searchFocused: Bool
 
     private var searchResults: [CampusBuilding] { CampusBuildingCatalog.search(query) }
@@ -52,6 +54,7 @@ struct HomeView: View {
             mainMap
 
             topBar
+                .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).maxY } action: { topBarBottom = $0 }
         }
         .overlay(alignment: .bottomTrailing) {
             myLocationButton
@@ -123,6 +126,7 @@ struct HomeView: View {
 
     private var mainMap: some View {
         KakaoMapView(places: places, counts: counts, selected: store.sel, bottomInset: bottomHeight,
+                     topObstruction: focusedBuilding == nil ? 0 : topBarBottom,
                      focusedBuilding: focusedBuilding, focusSerial: focusSerial,
                      userCoordinate: userLocation.coordinate,
                      userHeadingDegrees: userLocation.headingDegrees,
@@ -154,6 +158,7 @@ struct HomeView: View {
                          store.closeSheet()
                          selectedLostPinID = id
                      })
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { mapFrame = $0 }
             .ignoresSafeArea(edges: .top)
     }
 
@@ -275,6 +280,7 @@ struct HomeView: View {
                     chip("전체", symbol: "square.grid.2x2.fill", filter: .all)
                     chip("퀘스트", symbol: "bolt.fill", filter: .quests)
                     Button {
+                        clearMapSelection()
                         store.lostMapOnly = true
                         store.homeFilter = .all
                         store.closeSheet()
@@ -409,13 +415,18 @@ struct HomeView: View {
     }
 
     private func buildingCard(_ building: CampusBuilding) -> some View {
-        SwipeSheet(detent: $placeSheet) {
+        let availableHeight = mapFrame.height - max(0, topBarBottom - mapFrame.minY) - 100
+        return SwipeSheet(detent: $placeSheet, expandedHeightLimit: max(220, availableHeight)) {
             HStack(alignment: .top, spacing: 8) {
                 Image(systemName: "building.2.crop.circle.fill")
                     .font(.title2).foregroundStyle(Color.cjTeal)
                 VStack(alignment: .leading, spacing: 4) {
                     Text(building.name).font(.headline).accessibilityAddTraits(.isHeader)
                     Text(building.buildingNumberLabel).font(.subheadline).foregroundStyle(Color.cjSub)
+                    if building.source == "openstreetmap" {
+                        Link("지도 좌표 © OpenStreetMap contributors", destination: URL(string: "https://www.openstreetmap.org/copyright")!)
+                            .font(.caption2)
+                    }
                 }
                 Spacer()
                 Button { focusedBuilding = nil } label: {
@@ -460,10 +471,7 @@ struct HomeView: View {
                             .font(.footnote.monospacedDigit()).foregroundStyle(Color.cjSub)
                             .textSelection(.enabled)
                         buildingDiningLinks(building)
-                        if building.source == "openstreetmap" {
-                            Link("지도 좌표 © OpenStreetMap contributors", destination: URL(string: "https://www.openstreetmap.org/copyright")!)
-                                .font(.caption)
-                        } else {
+                        if building.source != "openstreetmap" {
                             Link("출처: 서울대학교 캠퍼스 지도", destination: URL(string: "https://map.snu.ac.kr/")!)
                                 .font(.caption)
                         }
