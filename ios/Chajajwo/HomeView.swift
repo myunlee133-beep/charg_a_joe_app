@@ -492,7 +492,6 @@ struct HomeView: View {
                 .accessibilityIdentifier("expand-building-details")
             }
         }
-        .accessibilityIdentifier("building-details")
     }
 
     @ViewBuilder private func buildingDiningLinks(_ building: CampusBuilding) -> some View {
