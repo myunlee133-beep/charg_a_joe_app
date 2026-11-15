@@ -32,7 +32,7 @@ jobs:
           path: ${{ runner.temp }}/Chajajwo-simulator.zip
       - name: Launch the native home screen
         if: github.event_name != 'pull_request'
-        timeout-minutes: 6
+        timeout-minutes: 12
         run: |
           DEVICE_ID=$(xcrun simctl list devices available --json | python3 -c 'import sys,json; print(next(d["udid"] for ds in json.load(sys.stdin)["devices"].values() for d in ds if d["name"].startswith("iPhone")))')
           xcrun simctl boot "$DEVICE_ID"
