@@ -228,7 +228,7 @@ private final class DirectionsBrowser: NSObject, ObservableObject, WKNavigationD
     }
 
     // Prevent link context menus from offering an external browser or app.
-    func webView(_ webView: WKWebView, contextMenuConfigurationFor elementInfo: WKContextMenuElementInfo,
+    func webView(_ webView: WKWebView, contextMenuConfigurationForElement elementInfo: WKContextMenuElementInfo,
                  completionHandler: @escaping (UIContextMenuConfiguration?) -> Void) {
         completionHandler(nil)
     }
