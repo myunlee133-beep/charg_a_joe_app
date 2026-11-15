@@ -24,6 +24,9 @@ final class BuildingMapUITests: XCTestCase {
 
         app.buttons["expand-building-details"].tap()
         XCTAssertTrue(app.staticTexts["위치 정보"].waitForExistence(timeout: 5))
+        let zoomIn = app.buttons["지도 확대"]
+        XCTAssertTrue(zoomIn.isHittable)
+        XCTAssertGreaterThanOrEqual(zoomIn.frame.minY, searchControlsBottom(in: app))
         attachScreenshot(app, name: "building-expanded")
         close.tap()
         XCTAssertFalse(close.exists)
@@ -49,5 +52,9 @@ final class BuildingMapUITests: XCTestCase {
         attachment.name = name
         attachment.lifetime = .keepAlways
         add(attachment)
+    }
+
+    private func searchControlsBottom(in app: XCUIApplication) -> CGFloat {
+        app.buttons.matching(NSPredicate(format: "label == %@", "전체")).firstMatch.frame.maxY
     }
 }

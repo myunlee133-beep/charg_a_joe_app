@@ -187,18 +187,11 @@ struct HomeView: View {
     /// Standard map-app locate button. GPS is displayed continuously, but camera only
     /// recenters on explicit request: panning/searching a building remains user-controlled.
     private var myLocationButton: some View {
-        VStack(alignment: .trailing, spacing: 5) {
-            VStack(spacing: 0) {
-                Button { zoomRequest += 1 } label: { Image(systemName: "plus").frame(width: 44, height: 44) }
-                    .accessibilityLabel("지도 확대")
-                Divider().frame(width: 28)
-                Button { zoomRequest -= 1 } label: { Image(systemName: "minus").frame(width: 44, height: 44) }
-                    .accessibilityLabel("지도 축소")
-            }
-            .font(.system(size: 17, weight: .semibold)).foregroundStyle(Color.cjTealText)
-            .background(.white, in: RoundedRectangle(cornerRadius: 12))
-            .shadow(color: .black.opacity(0.12), radius: 4, y: 2)
-            .padding(.bottom, 5)
+        let clearHeight = mapFrame.height - max(0, topBarBottom - mapFrame.minY) - bottomHeight
+        let compact = mapFrame.height > 0 && clearHeight < 210
+        let controlsLayout = compact ? AnyLayout(HStackLayout(spacing: 8)) : AnyLayout(VStackLayout(alignment: .trailing, spacing: 10))
+        let zoomLayout = compact ? AnyLayout(HStackLayout(spacing: 0)) : AnyLayout(VStackLayout(spacing: 0))
+        return VStack(alignment: .trailing, spacing: 5) {
             if userLocation.approximateLocation && userLocation.coordinate != nil {
                 Text("대략적인 위치")
                     .font(.caption2.weight(.semibold))
@@ -206,18 +199,31 @@ struct HomeView: View {
                     .padding(.horizontal, 9).padding(.vertical, 5)
                     .background(.white, in: Capsule())
             }
-            Button(action: focusMyLocation) {
-                Image(systemName: userLocation.coordinate == nil ? "location" : "location.fill")
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(Color(hex: 0x287AF0))
-                    .frame(width: 52, height: 52)
-                    .background(.white, in: Circle())
-                    .overlay(Circle().stroke(Color(hex: 0xDDE7E8), lineWidth: 1))
-                    .shadow(color: .black.opacity(0.20), radius: 7, y: 2)
+            controlsLayout {
+                zoomLayout {
+                    Button { zoomRequest += 1 } label: { Image(systemName: "plus").frame(width: 44, height: 44) }
+                        .accessibilityLabel("지도 확대")
+                    if compact { Divider().frame(height: 28) }
+                    else { Divider().frame(width: 28) }
+                    Button { zoomRequest -= 1 } label: { Image(systemName: "minus").frame(width: 44, height: 44) }
+                        .accessibilityLabel("지도 축소")
+                }
+                .font(.system(size: 17, weight: .semibold)).foregroundStyle(Color.cjTealText)
+                .background(.white, in: RoundedRectangle(cornerRadius: 12))
+                .shadow(color: .black.opacity(0.12), radius: 4, y: 2)
+                Button(action: focusMyLocation) {
+                    Image(systemName: userLocation.coordinate == nil ? "location" : "location.fill")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundStyle(Color(hex: 0x287AF0))
+                        .frame(width: 52, height: 52)
+                        .background(.white, in: Circle())
+                        .overlay(Circle().stroke(Color(hex: 0xDDE7E8), lineWidth: 1))
+                        .shadow(color: .black.opacity(0.20), radius: 7, y: 2)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("내 위치로 이동")
+                .accessibilityHint("현재 위치가 확인되면 지도의 중심이 내 위치로 이동합니다")
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel("내 위치로 이동")
-            .accessibilityHint("현재 위치가 확인되면 지도의 중심이 내 위치로 이동합니다")
         }
     }
 
