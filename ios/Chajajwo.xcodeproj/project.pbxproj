@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D15000000000000000000005 /* BuildingDirectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D15000000000000000000006 /* BuildingDirectionsView.swift */; };
+		D15000000000000000000001 /* DirectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D15000000000000000000002 /* DirectionsView.swift */; };
+		D15000000000000000000003 /* DirectionsURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = D15000000000000000000004 /* DirectionsURL.swift */; };
 		EAB100000000000000000005 /* LostFoundRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB100000000000000000006 /* LostFoundRules.swift */; };
 		EAB100000000000000000003 /* LostFoundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB100000000000000000004 /* LostFoundView.swift */; };
 		EAB100000000000000000001 /* LostFoundAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB100000000000000000002 /* LostFoundAPI.swift */; };
@@ -39,6 +42,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D15000000000000000000006 /* BuildingDirectionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildingDirectionsView.swift; sourceTree = "<group>"; };
+		D15000000000000000000002 /* DirectionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectionsView.swift; sourceTree = "<group>"; };
+		D15000000000000000000004 /* DirectionsURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/DirectionsURL.swift"; sourceTree = "<group>"; };
 		EAB100000000000000000006 /* LostFoundRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LostFoundRules.swift; sourceTree = "<group>"; };
 		EAB100000000000000000004 /* LostFoundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LostFoundView.swift; sourceTree = "<group>"; };
 		EAB100000000000000000002 /* LostFoundAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LostFoundAPI.swift; sourceTree = "<group>"; };
@@ -94,6 +100,9 @@
 		9F502B7EFA45CE888CCCCFB4 /* Chajajwo */ = {
 			isa = PBXGroup;
 			children = (
+				D15000000000000000000006 /* BuildingDirectionsView.swift */,
+				D15000000000000000000002 /* DirectionsView.swift */,
+				D15000000000000000000004 /* DirectionsURL.swift */,
                 EAB100000000000000000006 /* LostFoundRules.swift */,
                 EAB100000000000000000004 /* LostFoundView.swift */,
                 EAB100000000000000000002 /* LostFoundAPI.swift */,
@@ -216,6 +225,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D15000000000000000000005 /* BuildingDirectionsView.swift in Sources */,
+				D15000000000000000000001 /* DirectionsView.swift in Sources */,
+				D15000000000000000000003 /* DirectionsURL.swift in Sources */,
 		        EAB100000000000000000005 /* LostFoundRules.swift in Sources */,
 		        EAB100000000000000000003 /* LostFoundView.swift in Sources */,
 		        EAB100000000000000000001 /* LostFoundAPI.swift in Sources */,

@@ -71,9 +71,8 @@ struct Place: Identifiable {
     static let byID = Dictionary(uniqueKeysWithValues: all.map { ($0.id, $0) })
     static let hubs = all.filter { $0.type == .hub }
 
-    var directionsURL: URL {
-        let n = name.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? ""
-        return URL(string: "https://map.kakao.com/link/to/\(n),\(lat),\(lng)")!
+    var directionsURL: URL? {
+        DirectionsURL.destination(name: name, latitude: lat, longitude: lng)
     }
 }
 

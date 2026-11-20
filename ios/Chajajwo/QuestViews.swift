@@ -418,7 +418,7 @@ struct HomePlaceCard: View {
             }
         } content: {
             ShuttleStatusContent() // 정류장 전용. 식당은 SheetView의 식단 시트로 연다.
-            Link(destination: place.directionsURL) { Label("길찾기", systemImage: "arrow.triangle.turn.up.right.diamond") }.font(.subheadline)
+            DirectionsButton(destination: place.directionsURL, name: place.name) { Label("길찾기", systemImage: "arrow.triangle.turn.up.right.diamond") }.font(.subheadline)
         }
     }
 }

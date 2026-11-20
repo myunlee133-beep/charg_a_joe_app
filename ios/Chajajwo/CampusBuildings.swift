@@ -18,11 +18,11 @@ struct CampusBuilding: Codable, Identifiable, Hashable {
     var displayTitle: String { number == nil ? name : "\(buildingNumberLabel) · \(name)" }
 
     var directionsURL: URL? {
-        // Use the installed Kakao Map app / web link without storing its credentials.
-        var allowed = CharacterSet.urlPathAllowed
-        allowed.remove(charactersIn: ",")
-        let encoded = name.addingPercentEncoding(withAllowedCharacters: allowed) ?? name
-        return URL(string: "https://map.kakao.com/link/to/\(encoded),\(latitude),\(longitude)")
+        DirectionsURL.destination(name: name, latitude: latitude, longitude: longitude)
+    }
+
+    var directionsEndpoint: DirectionsEndpoint {
+        .init(name: displayTitle, latitude: latitude, longitude: longitude)
     }
 }
 
