@@ -23,6 +23,8 @@ struct KakaoMapView: UIViewRepresentable {
     var onQuestSelect: ((String) -> Void)? = nil
     var onQuestGroupSelect: (([String]) -> Void)? = nil
     var onQuestDeselect: (() -> Void)? = nil
+    var allowsBuildingSelection = true
+    var onSelectBuilding: ((CampusBuilding) -> Void)? = nil
     let onSelect: (String) -> Void
     let onSelectLost: (String) -> Void
 
@@ -613,8 +615,15 @@ struct KakaoMapView: UIViewRepresentable {
                 .filter { $0.1 <= radius }
                 .min { $0.1 < $1.1 }
             if let lostHit { parent.onSelectLost(lostHit.0); return }
-            if pinsVisible, let hit { parent.onSelect(hit.0) }
-            else { parent.onQuestDeselect?() }
+            if pinsVisible, let hit { parent.onSelect(hit.0); return }
+            if parent.allowsBuildingSelection, kakaoMap.zoomLevel >= 16,
+               let building = CampusBuildingCatalog.nearest(
+                   latitude: probe.latitude, longitude: probe.longitude,
+                   within: min(40, max(12, radius * 111_320))) {
+                parent.onSelectBuilding?(building)
+                return
+            }
+            parent.onQuestDeselect?()
         }
 
         // MARK: 핀 이미지
