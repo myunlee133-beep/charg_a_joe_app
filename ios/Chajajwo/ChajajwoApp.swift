@@ -25,6 +25,9 @@ struct ContentView: View {
     @EnvironmentObject var store: Store
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var shuttle = CircularShuttleService()
+    #if DEBUG
+    @State private var previewDirections = false
+    #endif
 
     private var shouldTrackShuttle: Bool {
         scenePhase == .active && store.tab == .home &&
@@ -57,9 +60,27 @@ struct ContentView: View {
             .background(Color.cjSurface.shadow(color: .black.opacity(0.06), radius: 5, y: -2).ignoresSafeArea(edges: .bottom))
         }
         .environmentObject(shuttle)
+        #if DEBUG
+        .fullScreenCover(isPresented: $previewDirections) {
+            if ProcessInfo.processInfo.arguments.contains("-preview-building-directions") {
+                BuildingDirectionsView(origin: CampusBuildingCatalog.search("학생회관").first,
+                                       destination: CampusBuildingCatalog.search("중앙도서관").first)
+            } else if ProcessInfo.processInfo.arguments.contains("-preview-building-route"),
+                      let start = CampusBuildingCatalog.search("학생회관").first,
+                      let end = CampusBuildingCatalog.search("중앙도서관").first,
+                      let url = DirectionsURL.route(from: start.directionsEndpoint, to: end.directionsEndpoint) {
+                DirectionsView(destination: url, name: "학생회관 → 중앙도서관")
+            } else if let url = CampusBuildingCatalog.search("학생회관").first?.directionsURL {
+                DirectionsView(destination: url, name: "학생회관")
+            }
+        }
+        #endif
         .onAppear {
             #if DEBUG
             if ProcessInfo.processInfo.arguments.contains("-preview-quests") { store.tab = .quests }
+            if ProcessInfo.processInfo.arguments.contains(where: {
+                ["-preview-directions", "-preview-building-directions", "-preview-building-route"].contains($0)
+            }) { previewDirections = true }
             #endif
         }
         .overlay(alignment: .bottom) {
