@@ -11,6 +11,7 @@ struct HomeView: View {
     @State private var zoomRequest = 0
     @State private var query = ""
     @State private var focusedBuilding: CampusBuilding?
+    @State private var buildingDirectionsRequest: BuildingDirectionsRequest?
     @State private var focusSerial = 0
     @StateObject private var userLocation = UserLocationService()
     @Environment(\.scenePhase) private var scenePhase
@@ -67,6 +68,9 @@ struct HomeView: View {
         }
         .onChange(of: placeSheetKey) { _, _ in placeSheet = .normal }
         .sheet(item: $store.selectedQuest) { QuestDetailView(quest: $0) }
+        .sheet(item: $buildingDirectionsRequest) { request in
+            BuildingDirectionsView(destination: request.destination)
+        }
         .sheet(item: $selectedQuestGroup) { group in
             NavigationStack {
                 List(group.quests) { quest in
@@ -256,6 +260,17 @@ struct HomeView: View {
                 .padding(.vertical, 4).padding(.leading, 4).padding(.trailing, 12)
                 .background(Color.cjSurface.opacity(0.95), in: RoundedRectangle(cornerRadius: 14))
                 Spacer()
+                Button {
+                    searchFocused = false
+                    buildingDirectionsRequest = .init()
+                } label: {
+                    Label("길찾기", systemImage: "arrow.triangle.turn.up.right.diamond.fill")
+                        .font(.subheadline.weight(.semibold))
+                        .padding(.horizontal, 14).frame(minHeight: 44)
+                        .background(Color.cjSurface, in: RoundedRectangle(cornerRadius: 14))
+                }
+                .accessibilityLabel("건물 간 길찾기")
+                .accessibilityIdentifier("directions.plan")
             }
 
             HStack(spacing: 10) {
@@ -444,23 +459,30 @@ struct HomeView: View {
                 .accessibilityIdentifier("close-building-details")
             }
         } content: {
-            HStack(spacing: 10) {
-                if let url = building.mapURL {
-                    Link(destination: url) {
-                        Label("카카오맵", systemImage: "map")
-                            .frame(maxWidth: .infinity, minHeight: 48)
-                            .background(Color.cjInset, in: RoundedRectangle(cornerRadius: 12))
+            VStack(spacing: 10) {
+                HStack(spacing: 10) {
+                    if let url = building.mapURL {
+                        Link(destination: url) {
+                            Label("카카오맵", systemImage: "map")
+                                .frame(maxWidth: .infinity, minHeight: 48)
+                                .background(Color.cjInset, in: RoundedRectangle(cornerRadius: 12))
+                        }
+                        .accessibilityLabel("\(building.name) 카카오맵에서 보기")
                     }
-                    .accessibilityLabel("\(building.name) 카카오맵에서 보기")
+                    if let url = building.directionsURL {
+                        DirectionsButton(destination: url, name: building.name) {
+                            Label("길찾기", systemImage: "arrow.triangle.turn.up.right.diamond.fill")
+                                .foregroundStyle(.white)
+                                .frame(maxWidth: .infinity, minHeight: 48)
+                                .background(Color.cjTeal, in: RoundedRectangle(cornerRadius: 12))
+                        }
+                        .accessibilityLabel("\(building.name) 길찾기")
+                    }
                 }
-                if let url = building.directionsURL {
-                    Link(destination: url) {
-                        Label("길찾기", systemImage: "arrow.triangle.turn.up.right.diamond.fill")
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity, minHeight: 48)
-                            .background(Color.cjTeal, in: RoundedRectangle(cornerRadius: 12))
-                    }
-                    .accessibilityLabel("\(building.name) 길찾기")
+                Button { buildingDirectionsRequest = .init(destination: building) } label: {
+                    Text("건물 간 길찾기")
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .background(Color.cjTeal.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
                 }
             }
             .font(.subheadline.weight(.semibold))

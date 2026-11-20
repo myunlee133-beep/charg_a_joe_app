@@ -14,7 +14,7 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
-      - name: Test quest and circular-shuttle models
+      - name: Test campus models and in-app directions links
         run: swift test
       - name: Generate the iOS project with map interaction tests
         run: |
@@ -63,6 +63,18 @@ jobs:
           xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-quests
           sleep 5
           xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/quests.png"
+          xcrun simctl terminate "$DEVICE_ID" org.chargajoe.chajajwo
+          xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-directions
+          sleep 12
+          xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/directions.png"
+          xcrun simctl spawn "$DEVICE_ID" launchctl list | grep org.chargajoe.chajajwo
+          for PREVIEW in building-directions building-route; do
+            xcrun simctl terminate "$DEVICE_ID" org.chargajoe.chajajwo
+            xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo "-preview-$PREVIEW"
+            sleep 12
+            xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/$PREVIEW.png"
+            xcrun simctl spawn "$DEVICE_ID" launchctl list | grep org.chargajoe.chajajwo
+          done
       - uses: actions/upload-artifact@v4
         if: github.event_name != 'pull_request'
         with:

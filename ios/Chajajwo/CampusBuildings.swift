@@ -18,14 +18,20 @@ struct CampusBuilding: Codable, Identifiable, Hashable {
     var displayTitle: String { number == nil ? name : "\(buildingNumberLabel) · \(name)" }
 
     var coordinate: CampusCoordinate { .init(latitude: latitude, longitude: longitude) }
-    var mapURL: URL? { kakaoURL(action: "map") }
-    var directionsURL: URL? { kakaoURL(action: "to") }
 
-    private func kakaoURL(action: String) -> URL? {
+    var mapURL: URL? {
         var allowed = CharacterSet.urlPathAllowed
         allowed.remove(charactersIn: ",/?#")
         let encoded = displayTitle.addingPercentEncoding(withAllowedCharacters: allowed) ?? name
-        return URL(string: "https://map.kakao.com/link/\(action)/\(encoded),\(latitude),\(longitude)")
+        return URL(string: "https://map.kakao.com/link/map/\(encoded),\(latitude),\(longitude)")
+    }
+
+    var directionsURL: URL? {
+        DirectionsURL.destination(name: name, latitude: latitude, longitude: longitude)
+    }
+
+    var directionsEndpoint: DirectionsEndpoint {
+        .init(name: displayTitle, latitude: latitude, longitude: longitude)
     }
 }
 
