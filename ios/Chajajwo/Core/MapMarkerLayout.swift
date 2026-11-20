@@ -1,6 +1,31 @@
 import Foundation
 import CoreGraphics
 
+/// A bounded fallback for campus buildings whose base-map label wasn't tapped.
+/// Both screen points and metres matter: zooming out must not turn an empty
+/// part of the map into a hit on an unrelated building.
+struct CampusBuildingMapTarget {
+    let id: String
+    let coordinate: CampusCoordinate
+    let point: CGPoint
+}
+
+enum CampusBuildingHitTest {
+    static func select(at point: CGPoint, coordinate: CampusCoordinate, zoom: Int,
+                       targets: [CampusBuildingMapTarget]) -> String? {
+        guard zoom >= 15, coordinate.isValid, point.x.isFinite, point.y.isFinite else { return nil }
+        return targets.compactMap { target -> (id: String, distance: CGFloat)? in
+            guard target.coordinate.isValid, target.point.x.isFinite, target.point.y.isFinite,
+                  coordinate.distance(to: target.coordinate) <= 45 else { return nil }
+            let distance = hypot(target.point.x - point.x, target.point.y - point.y)
+            guard distance <= 32 else { return nil }
+            return (target.id, distance)
+        }.min {
+            $0.distance == $1.distance ? $0.id < $1.id : $0.distance < $1.distance
+        }?.id
+    }
+}
+
 /// Screen-space geometry is independent of the map SDK and never changes a
 /// place's geographic coordinate. Only its label receives the returned offset.
 struct MapMarkerFootprint {

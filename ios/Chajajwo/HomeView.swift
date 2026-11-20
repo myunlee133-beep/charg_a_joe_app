@@ -20,6 +20,8 @@ struct HomeView: View {
     @State private var showLocationSettings = false
     @State private var placeSheet = SheetDetent.normal  // 건물·분실물 핀·정류장·식단 시트 단계
     @State private var bottomHeight: CGFloat = 0        // 하단 시트 높이. 내 위치 버튼을 그 위에 둔다
+    @State private var topBarBottom: CGFloat = 0
+    @State private var mapFrame: CGRect = .zero
     @FocusState private var searchFocused: Bool
 
     private var searchResults: [CampusBuilding] { CampusBuildingCatalog.search(query) }
@@ -53,6 +55,7 @@ struct HomeView: View {
             mainMap
 
             topBar
+                .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).maxY } action: { topBarBottom = $0 }
         }
         .overlay(alignment: .bottomTrailing) {
             myLocationButton
@@ -91,6 +94,7 @@ struct HomeView: View {
             if let id = store.lostPinID { selectedLostPinID = id }
             #if DEBUG
             if ProcessInfo.processInfo.arguments.contains("-preview-map-selected") { selectedMapQuest = store.quests.first }
+            if ProcessInfo.processInfo.arguments.contains("-preview-map-building-center") { store.homeFilter = .food }
             #endif
         }
         .onChange(of: store.lostPinID) { _, newValue in selectedLostPinID = newValue }
@@ -125,7 +129,8 @@ struct HomeView: View {
 
 
     private var mainMap: some View {
-        KakaoMapView(places: places, counts: counts, selected: store.sel, sheetOpen: store.open,
+        KakaoMapView(places: places, counts: counts, selected: store.open ? store.sel : "", bottomInset: bottomHeight,
+                     topObstruction: focusedBuilding == nil ? 0 : topBarBottom,
                      focusedBuilding: focusedBuilding, focusSerial: focusSerial,
                      userCoordinate: userLocation.coordinate,
                      userHeadingDegrees: userLocation.headingDegrees,
@@ -140,8 +145,10 @@ struct HomeView: View {
                          selectedMapQuest = store.quests.first { $0.id == id }
                      }, onQuestGroupSelect: { ids in
                          selectedQuestGroup = .init(id: ids.joined(separator: "-"), quests: store.quests.filter { ids.contains($0.id) })
-                     }, onQuestDeselect: {
-                         selectedMapQuest = nil
+                     }, onDeselect: {
+                         clearMapSelection()
+                     }, onSelectBuilding: { building in
+                         focus(on: building, preserveFilter: true)
                      }, onSelect: { id in
                          searchFocused = false
                          selectedMapQuest = nil
@@ -155,6 +162,7 @@ struct HomeView: View {
                          store.closeSheet()
                          selectedLostPinID = id
                      })
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { mapFrame = $0 }
             .ignoresSafeArea(edges: .top)
     }
 
@@ -183,18 +191,11 @@ struct HomeView: View {
     /// Standard map-app locate button. GPS is displayed continuously, but camera only
     /// recenters on explicit request: panning/searching a building remains user-controlled.
     private var myLocationButton: some View {
-        VStack(alignment: .trailing, spacing: 5) {
-            VStack(spacing: 0) {
-                Button { zoomRequest += 1 } label: { Image(systemName: "plus").frame(width: 44, height: 44) }
-                    .accessibilityLabel("지도 확대")
-                Divider().frame(width: 28)
-                Button { zoomRequest -= 1 } label: { Image(systemName: "minus").frame(width: 44, height: 44) }
-                    .accessibilityLabel("지도 축소")
-            }
-            .font(.system(size: 17, weight: .semibold)).foregroundStyle(Color.cjTealText)
-            .background(.white, in: RoundedRectangle(cornerRadius: 12))
-            .shadow(color: .black.opacity(0.12), radius: 4, y: 2)
-            .padding(.bottom, 5)
+        let clearHeight = mapFrame.height - max(0, topBarBottom - mapFrame.minY) - bottomHeight
+        let compact = mapFrame.height > 0 && clearHeight < 210
+        let controlsLayout = compact ? AnyLayout(HStackLayout(spacing: 8)) : AnyLayout(VStackLayout(alignment: .trailing, spacing: 10))
+        let zoomLayout = compact ? AnyLayout(HStackLayout(spacing: 0)) : AnyLayout(VStackLayout(spacing: 0))
+        return VStack(alignment: .trailing, spacing: 5) {
             if userLocation.approximateLocation && userLocation.coordinate != nil {
                 Text("대략적인 위치")
                     .font(.caption2.weight(.semibold))
@@ -202,18 +203,31 @@ struct HomeView: View {
                     .padding(.horizontal, 9).padding(.vertical, 5)
                     .background(.white, in: Capsule())
             }
-            Button(action: focusMyLocation) {
-                Image(systemName: userLocation.coordinate == nil ? "location" : "location.fill")
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(Color(hex: 0x287AF0))
-                    .frame(width: 52, height: 52)
-                    .background(.white, in: Circle())
-                    .overlay(Circle().stroke(Color(hex: 0xDDE7E8), lineWidth: 1))
-                    .shadow(color: .black.opacity(0.20), radius: 7, y: 2)
+            controlsLayout {
+                zoomLayout {
+                    Button { zoomRequest += 1 } label: { Image(systemName: "plus").frame(width: 44, height: 44) }
+                        .accessibilityLabel("지도 확대")
+                    if compact { Divider().frame(height: 28) }
+                    else { Divider().frame(width: 28) }
+                    Button { zoomRequest -= 1 } label: { Image(systemName: "minus").frame(width: 44, height: 44) }
+                        .accessibilityLabel("지도 축소")
+                }
+                .font(.system(size: 17, weight: .semibold)).foregroundStyle(Color.cjTealText)
+                .background(.white, in: RoundedRectangle(cornerRadius: 12))
+                .shadow(color: .black.opacity(0.12), radius: 4, y: 2)
+                Button(action: focusMyLocation) {
+                    Image(systemName: userLocation.coordinate == nil ? "location" : "location.fill")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundStyle(Color(hex: 0x287AF0))
+                        .frame(width: 52, height: 52)
+                        .background(.white, in: Circle())
+                        .overlay(Circle().stroke(Color(hex: 0xDDE7E8), lineWidth: 1))
+                        .shadow(color: .black.opacity(0.20), radius: 7, y: 2)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("내 위치로 이동")
+                .accessibilityHint("현재 위치가 확인되면 지도의 중심이 내 위치로 이동합니다")
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel("내 위치로 이동")
-            .accessibilityHint("현재 위치가 확인되면 지도의 중심이 내 위치로 이동합니다")
         }
     }
 
@@ -287,6 +301,7 @@ struct HomeView: View {
                     chip("전체", symbol: "square.grid.2x2.fill", filter: .all)
                     chip("퀘스트", symbol: "bolt.fill", filter: .quests)
                     Button {
+                        clearMapSelection()
                         store.lostMapOnly = true
                         store.homeFilter = .all
                         store.closeSheet()
@@ -380,6 +395,7 @@ struct HomeView: View {
                                 .padding(.horizontal, 14).padding(.vertical, 10)
                                 .contentShape(Rectangle())
                             }
+                            .accessibilityIdentifier("building-result-\(building.id)")
                             .buttonStyle(.plain)
                             .accessibilityLabel("\(building.displayTitle), 지도에서 보기")
                             Rectangle().fill(SearchResultColors.separator)
@@ -396,53 +412,134 @@ struct HomeView: View {
         .shadow(radius: 5, y: 3)
     }
 
-    private func focus(on building: CampusBuilding) {
-        searchFocused = false
-        store.filter = nil
-        store.homeFilter = .all
-        store.closeSheet()
+    private func clearMapSelection() {
+        selectedMapQuest = nil
+        focusedBuilding = nil
         selectedLostPinID = nil
-        store.lostMapOnly = false
+        store.closeSheet()
+    }
+
+    private func focus(on building: CampusBuilding, preserveFilter: Bool = false) {
+        searchFocused = false
+        clearMapSelection()
+        selectedQuestGroup = nil
+        pendingUserFocus = false
+        if !preserveFilter {
+            store.filter = nil
+            store.homeFilter = .all
+            store.lostMapOnly = false
+        }
+        placeSheet = .normal
         focusedBuilding = building
         focusSerial += 1  // Repeat taps on the same building still recenter the camera.
         query = ""        // Close results so the map location is clearly visible.
     }
 
     private func buildingCard(_ building: CampusBuilding) -> some View {
-        SwipeSheet(detent: $placeSheet) {
+        let availableHeight = mapFrame.height - max(0, topBarBottom - mapFrame.minY) - 100
+        return SwipeSheet(detent: $placeSheet, expandedHeightLimit: max(220, availableHeight)) {
             HStack(alignment: .top, spacing: 8) {
                 Image(systemName: "building.2.crop.circle.fill")
                     .font(.title2).foregroundStyle(Color.cjTeal)
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(building.name).font(.headline)
+                    Text(building.name).font(.headline).accessibilityAddTraits(.isHeader)
                     Text(building.buildingNumberLabel).font(.subheadline).foregroundStyle(Color.cjSub)
                     if building.source == "openstreetmap" {
                         Link("지도 좌표 © OpenStreetMap contributors", destination: URL(string: "https://www.openstreetmap.org/copyright")!)
-                            .font(.caption2).foregroundStyle(Color.cjSub)
+                            .font(.caption2)
                     }
                 }
                 Spacer()
                 Button { focusedBuilding = nil } label: {
-                    Image(systemName: "xmark.circle.fill").foregroundStyle(Color.cjSub)
+                    Image(systemName: "xmark.circle.fill").font(.title2).foregroundStyle(Color.cjSub)
+                        .frame(width: 44, height: 44).contentShape(Rectangle())
                 }
-                .accessibilityLabel("건물 위치 닫기")
+                .buttonStyle(.plain)
+                .accessibilityLabel("건물 상세정보 닫기")
+                .accessibilityIdentifier("close-building-details")
             }
         } content: {
-            HStack(spacing: 8) {
-                if let url = building.directionsURL {
-                    DirectionsButton(destination: url, name: building.name) {
-                        Label("길찾기", systemImage: "arrow.triangle.turn.up.right.diamond.fill")
-                            .font(.subheadline.weight(.semibold))
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                            .background(Color.cjTeal.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+            VStack(spacing: 10) {
+                HStack(spacing: 10) {
+                    if let url = building.mapURL {
+                        Link(destination: url) {
+                            Label("카카오맵", systemImage: "map")
+                                .frame(maxWidth: .infinity, minHeight: 48)
+                                .background(Color.cjInset, in: RoundedRectangle(cornerRadius: 12))
+                        }
+                        .accessibilityLabel("\(building.name) 카카오맵에서 보기")
+                    }
+                    if let url = building.directionsURL {
+                        DirectionsButton(destination: url, name: building.name) {
+                            Label("길찾기", systemImage: "arrow.triangle.turn.up.right.diamond.fill")
+                                .foregroundStyle(.white)
+                                .frame(maxWidth: .infinity, minHeight: 48)
+                                .background(Color.cjTeal, in: RoundedRectangle(cornerRadius: 12))
+                        }
+                        .accessibilityLabel("\(building.name) 길찾기")
                     }
                 }
                 Button { buildingDirectionsRequest = .init(destination: building) } label: {
                     Text("건물 간 길찾기")
-                        .font(.subheadline.weight(.semibold))
                         .frame(maxWidth: .infinity, minHeight: 44)
-                        .background(Color.cjTeal.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+                        .background(Color.cjTeal.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
                 }
+            }
+            .font(.subheadline.weight(.semibold))
+
+            if placeSheet == .expanded {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Label("위치 정보", systemImage: "mappin.and.ellipse")
+                            .font(.subheadline.weight(.bold)).accessibilityAddTraits(.isHeader)
+                        if building.number != nil {
+                            LabeledContent("건물 번호", value: building.buildingNumberLabel)
+                        }
+                        Text(String(format: "위도 %.5f · 경도 %.5f", building.latitude, building.longitude))
+                            .font(.footnote.monospacedDigit()).foregroundStyle(Color.cjSub)
+                            .textSelection(.enabled)
+                        buildingDiningLinks(building)
+                        if building.source != "openstreetmap" {
+                            Link("출처: 서울대학교 캠퍼스 지도", destination: URL(string: "https://map.snu.ac.kr/")!)
+                                .font(.caption)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.bottom, 12)
+                }
+            } else {
+                Button { placeSheet = .expanded } label: {
+                    HStack {
+                        Text("상세정보")
+                        Spacer()
+                        Image(systemName: "chevron.up")
+                    }
+                    .font(.subheadline.weight(.semibold))
+                    .frame(minHeight: 44).contentShape(Rectangle())
+                }
+                .accessibilityIdentifier("expand-building-details")
+            }
+        }
+    }
+
+    @ViewBuilder private func buildingDiningLinks(_ building: CampusBuilding) -> some View {
+        let dining = Place.all.filter { $0.type == .food && building.number != nil && $0.building == building.buildingNumberLabel }
+        if !dining.isEmpty {
+            Divider()
+            Text("이 건물의 식당").font(.subheadline.weight(.bold)).accessibilityAddTraits(.isHeader)
+            ForEach(dining) { place in
+                Button {
+                    clearMapSelection()
+                    store.select(place.id)
+                } label: {
+                    HStack(spacing: 10) {
+                        Image(systemName: "fork.knife")
+                        Text(place.name).frame(maxWidth: .infinity, alignment: .leading)
+                        Image(systemName: "chevron.right")
+                    }
+                    .font(.subheadline).frame(minHeight: 44).contentShape(Rectangle())
+                }
+                .accessibilityHint("이 건물 식당의 식단을 확인합니다")
             }
         }
     }

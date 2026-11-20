@@ -17,6 +17,15 @@ struct CampusBuilding: Codable, Identifiable, Hashable {
 
     var displayTitle: String { number == nil ? name : "\(buildingNumberLabel) · \(name)" }
 
+    var coordinate: CampusCoordinate { .init(latitude: latitude, longitude: longitude) }
+
+    var mapURL: URL? {
+        var allowed = CharacterSet.urlPathAllowed
+        allowed.remove(charactersIn: ",/?#")
+        let encoded = displayTitle.addingPercentEncoding(withAllowedCharacters: allowed) ?? name
+        return URL(string: "https://map.kakao.com/link/map/\(encoded),\(latitude),\(longitude)")
+    }
+
     var directionsURL: URL? {
         DirectionsURL.destination(name: name, latitude: latitude, longitude: longitude)
     }

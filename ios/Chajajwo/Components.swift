@@ -106,10 +106,11 @@ enum SheetDetent { case collapsed, normal, expanded }
 struct SwipeSheet<Header: View, Content: View>: View {
     @Binding var detent: SheetDetent
     var normalHeight: CGFloat? = nil  // nil이면 내용 높이
+    var expandedHeightLimit: CGFloat? = nil
     @ViewBuilder var header: Header
     @ViewBuilder var content: Content
 
-    private var expandedHeight: CGFloat { min(580, UIScreen.main.bounds.height * 0.65) }
+    private var expandedHeight: CGFloat { min(580, UIScreen.main.bounds.height * 0.65, expandedHeightLimit ?? .infinity) }
 
     private func step(up: Bool) {
         withAnimation(.easeInOut(duration: 0.25)) {

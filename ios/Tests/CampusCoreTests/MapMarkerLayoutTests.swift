@@ -75,3 +75,53 @@ final class MapMarkerLayoutTests: XCTestCase {
         XCTAssertNil(CampusScreenProjection(center: .zero, origin: origin, horizontal: origin, vertical: origin, span: 64))
     }
 }
+
+final class CampusBuildingHitTestTests: XCTestCase {
+    private let coordinate = CampusCoordinate(latitude: 37.46027, longitude: 126.95234)
+    private let touch = CGPoint(x: 200, y: 350)
+
+    private func target(_ id: String, x: CGFloat = 200, y: CGFloat = 350,
+                        latitude: Double = 37.46027) -> CampusBuildingMapTarget {
+        .init(id: id, coordinate: .init(latitude: latitude, longitude: coordinate.longitude), point: .init(x: x, y: y))
+    }
+
+    func testTapSelectsClosestBuildingAndIgnoresCatalogOrder() {
+        let targets = [target("further", x: 220), target("nearest", x: 204)]
+        for ordered in [targets, Array(targets.reversed())] {
+            XCTAssertEqual(CampusBuildingHitTest.select(at: touch, coordinate: coordinate, zoom: 17, targets: ordered), "nearest")
+        }
+    }
+
+    func testEmptyMapDoesNotSelectAWholeCampusFromItsNearestPoint() {
+        XCTAssertNil(CampusBuildingHitTest.select(at: touch, coordinate: coordinate, zoom: 17, targets: [target("outside", x: 233)]))
+        // A nearby screen point while zoomed out can still be hundreds of metres away.
+        XCTAssertNil(CampusBuildingHitTest.select(at: touch, coordinate: coordinate, zoom: 15, targets: [target("distant", latitude: 37.462)]))
+        XCTAssertNil(CampusBuildingHitTest.select(at: touch, coordinate: coordinate, zoom: 17, targets: []))
+    }
+
+    func testOverviewRequiresZoomButDefaultCampusViewRemainsTappable() {
+        XCTAssertNil(CampusBuildingHitTest.select(at: touch, coordinate: coordinate, zoom: 14, targets: [target("building")]))
+        XCTAssertEqual(CampusBuildingHitTest.select(at: touch, coordinate: coordinate, zoom: 15, targets: [target("building")]), "building")
+    }
+
+    func testNonfiniteProjectionOrCoordinateNeverSelectsABuilding() {
+        XCTAssertNil(CampusBuildingHitTest.select(at: .init(x: CGFloat.nan, y: 350), coordinate: coordinate, zoom: 17, targets: [target("building")]))
+        XCTAssertNil(CampusBuildingHitTest.select(at: touch, coordinate: .init(latitude: .nan, longitude: 126.95), zoom: 17, targets: [target("building")]))
+        XCTAssertNil(CampusBuildingHitTest.select(at: touch, coordinate: coordinate, zoom: 17, targets: [target("invalid", x: .infinity)]))
+    }
+
+    func testEqualDistanceHasDeterministicSelection() {
+        let targets = [target("b", x: 190), target("a", x: 210)]
+        XCTAssertEqual(CampusBuildingHitTest.select(at: touch, coordinate: coordinate, zoom: 18, targets: targets), "a")
+    }
+
+    func testSelectionUsesRotatedSdkProjection() throws {
+        let horizontal = CampusCoordinate(latitude: coordinate.latitude + 0.0001, longitude: coordinate.longitude)
+        let vertical = CampusCoordinate(latitude: coordinate.latitude, longitude: coordinate.longitude + 0.0001)
+        let projection = try XCTUnwrap(CampusScreenProjection(center: touch, origin: coordinate,
+            horizontal: horizontal, vertical: vertical, span: 64))
+        let building = CampusBuildingMapTarget(id: "rotated", coordinate: horizontal, point: projection.point(for: horizontal))
+        XCTAssertEqual(CampusBuildingHitTest.select(at: .init(x: 264, y: 350), coordinate: horizontal, zoom: 19, targets: [building]), "rotated")
+        XCTAssertNil(CampusBuildingHitTest.select(at: touch, coordinate: coordinate, zoom: 19, targets: [building]))
+    }
+}
