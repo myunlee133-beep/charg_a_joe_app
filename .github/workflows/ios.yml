@@ -7,7 +7,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: ios-${{ github.ref }}
+  group: ios-${{ github.event.pull_request.head.ref || github.ref_name }}
   cancel-in-progress: true
 jobs:
   validate:
@@ -34,7 +34,7 @@ jobs:
           path: ${{ runner.temp }}/Chajajwo-simulator.zip
       - name: Launch the native home screen
         if: github.event_name != 'pull_request'
-        timeout-minutes: 6
+        timeout-minutes: 10
         run: |
           DEVICE_ID=$(xcrun simctl list devices available --json | python3 -c 'import sys,json; print(next(d["udid"] for ds in json.load(sys.stdin)["devices"].values() for d in ds if d["name"].startswith("iPhone")))')
           xcrun simctl boot "$DEVICE_ID"
@@ -83,9 +83,13 @@ jobs:
           name: native-home-preview
           path: ${{ runner.temp }}/native-preview/*.png
       - name: Test native building selection, lab disclosure, cafe photos and restaurant UI
-        timeout-minutes: 14
+        timeout-minutes: 20
         run: |
           DEVICE_ID=$(xcrun simctl list devices available --json | python3 -c 'import sys,json; print(next(d["udid"] for ds in json.load(sys.stdin)["devices"].values() for d in ds if d["name"].startswith("iPhone")))')
+          xcrun simctl boot "$DEVICE_ID" 2>/dev/null || true
+          xcrun simctl bootstatus "$DEVICE_ID" -b
+          xcrun simctl install "$DEVICE_ID" "$RUNNER_TEMP/ChajajwoBuild/Build/Products/Debug-iphonesimulator/Chajajwo.app"
+          xcrun simctl privacy "$DEVICE_ID" grant location org.chargajoe.chajajwo
           xcodebuild -project ios/Chajajwo.xcodeproj -scheme Chajajwo -sdk iphonesimulator -destination "platform=iOS Simulator,id=$DEVICE_ID" -parallel-testing-enabled NO -derivedDataPath "$RUNNER_TEMP/ChajajwoBuild" -resultBundlePath "$RUNNER_TEMP/BuildingMapTests.xcresult" CODE_SIGNING_ALLOWED=NO test
       - name: Export native interaction screenshots
         if: always()

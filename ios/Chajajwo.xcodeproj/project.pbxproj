@@ -64,7 +64,7 @@
 		A18000000000000000000002 /* UserLocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLocationService.swift; sourceTree = "<group>"; };
 		A18000000000000000000004 /* UserLocationMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLocationMath.swift; sourceTree = "<group>"; };
 		B00100000000000000000002 /* CampusBuildings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/CampusBuildings.swift"; sourceTree = "<group>"; };
-		B00100000000000000000004 /* campus_buildings.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = campus_buildings.json; sourceTree = "<group>"; };
+		B00100000000000000000004 /* campus_buildings.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "../Core/Resources/campus_buildings.json"; sourceTree = "<group>"; };
 		B445B1C3F9C3315DE62A7DF8 /* Tabs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tabs.swift; sourceTree = "<group>"; };
 		C24000000000000000000002 /* CommunityAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityAPI.swift; sourceTree = "<group>"; };
 		C24000000000000000000004 /* CommunityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityView.swift; sourceTree = "<group>"; };

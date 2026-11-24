@@ -17,7 +17,9 @@ final class PlaceDiscoveryUITests: XCTestCase {
         if largeText { app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"] }
         app.launch()
         let floors = app.buttons["building.floors"]
-        XCTAssertTrue(floors.waitForExistence(timeout: 20))
+        XCTAssertTrue(app.navigationBars["건물 둘러보기"].waitForExistence(timeout: 20))
+        for _ in 0..<3 where !floors.exists || !floors.isHittable { app.swipeUp() }
+        XCTAssertTrue(floors.exists)
         capture(app, largeText ? "large-01-building" : "01-building")
         floors.tap()
         let search = app.searchFields.firstMatch
@@ -30,7 +32,7 @@ final class PlaceDiscoveryUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["강유 교수"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.staticTexts["lab.description"].exists)
         if largeText { app.swipeUp() }
-        let disclosure = app.buttons["lab.disclosure"]
+        let disclosure = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "연구실 설명")).firstMatch
         XCTAssertTrue(disclosure.waitForExistence(timeout: 5))
         capture(app, largeText ? "large-03-lab" : "03-lab")
         if !disclosure.isHittable { app.swipeUp() }
@@ -59,11 +61,10 @@ final class PlaceDiscoveryUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["가격은 매장에서 확인"].exists)
         capture(app, "06-menu-detail")
         app.navigationBars.buttons.firstMatch.tap()
-        app.swipeDown()
         app.navigationBars.buttons.firstMatch.tap()
         app.navigationBars.buttons.firstMatch.tap()
         app.buttons["building-explorer.close"].tap()
-        app.buttons.matching(NSPredicate(format: "label == %@", "식당")).firstMatch.tap()
+        app.buttons["main-tab-식당"].tap()
         XCTAssertTrue(app.buttons["전날 식단"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.buttons["다음날 식단"].exists)
         XCTAssertTrue(app.buttons["dining.cafes"].exists)

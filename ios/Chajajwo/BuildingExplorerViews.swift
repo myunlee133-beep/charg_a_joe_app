@@ -199,7 +199,6 @@ struct ResearchLabView: View {
                 } label: {
                     Text(expanded ? "연구실 설명 접기" : "연구실 설명 펼쳐보기").font(.subheadline.weight(.semibold)).padding(.vertical, 12)
                 }
-                .accessibilityIdentifier("lab.disclosure")
             }
             .padding(24).frame(maxWidth: .infinity, alignment: .leading)
         }

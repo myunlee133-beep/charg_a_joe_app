@@ -116,6 +116,7 @@ struct ContentView: View {
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(store.tab == value ? .isSelected : [])
+        .accessibilityIdentifier("main-tab-\(title)")
     }
 }
 
