@@ -31,7 +31,7 @@ struct BuildingOverviewView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     Text(building.buildingNumberLabel).font(.subheadline.weight(.semibold)).foregroundStyle(Color.cjTealText)
                     Text(building.name).font(.title2.bold()).accessibilityAddTraits(.isHeader)
-                    if let details = building.details { Text(details.summary).font(.subheadline).foregroundStyle(.secondary) }
+                    if let details = building.details { Text(details.category).font(.subheadline).foregroundStyle(.secondary) }
                 }
                 .padding(.vertical, 10)
             }
@@ -249,6 +249,7 @@ struct BuildingGuideView: View {
                 if let url = building.mapURL { Link("카카오맵에서 위치 보기", destination: url) }
             }
             if let details = building.details {
+                Section("건물 소개") { Text(details.summary) }
                 Section("이용 안내") {
                     Text(details.usage)
                     if let phone = details.phone, let url = details.phoneURL { Link(phone, destination: url) }
