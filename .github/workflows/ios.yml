@@ -14,6 +14,8 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+      - name: Validate offline place data and official menu photos
+        run: python3 tools/validate_place_resources.py
       - name: Test campus models and in-app directions links
         run: swift test
       - name: Generate the iOS project with map interaction tests
@@ -80,8 +82,8 @@ jobs:
         with:
           name: native-home-preview
           path: ${{ runner.temp }}/native-preview/*.png
-      - name: Test native building selection, details and search
-        timeout-minutes: 8
+      - name: Test native building selection, lab disclosure, cafe photos and restaurant UI
+        timeout-minutes: 14
         run: |
           DEVICE_ID=$(xcrun simctl list devices available --json | python3 -c 'import sys,json; print(next(d["udid"] for ds in json.load(sys.stdin)["devices"].values() for d in ds if d["name"].startswith("iPhone")))')
           xcodebuild -project ios/Chajajwo.xcodeproj -scheme Chajajwo -sdk iphonesimulator -destination "platform=iOS Simulator,id=$DEVICE_ID" -parallel-testing-enabled NO -derivedDataPath "$RUNNER_TEMP/ChajajwoBuild" -resultBundlePath "$RUNNER_TEMP/BuildingMapTests.xcresult" CODE_SIGNING_ALLOWED=NO test

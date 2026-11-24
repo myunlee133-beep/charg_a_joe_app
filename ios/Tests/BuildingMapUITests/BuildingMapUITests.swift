@@ -23,11 +23,13 @@ final class BuildingMapUITests: XCTestCase {
         attachScreenshot(app, name: "building-from-map")
 
         app.buttons["expand-building-details"].tap()
-        XCTAssertTrue(app.staticTexts["위치 정보"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["building.floors"].waitForExistence(timeout: 5))
+        attachScreenshot(app, name: "building-overview")
+        app.buttons["building-explorer.close"].tap()
         let zoomIn = app.buttons["지도 확대"]
         XCTAssertTrue(zoomIn.isHittable)
         XCTAssertGreaterThanOrEqual(zoomIn.frame.minY, searchControlsBottom(in: app))
-        attachScreenshot(app, name: "building-expanded")
+        attachScreenshot(app, name: "building-summary")
         close.tap()
         XCTAssertFalse(close.exists)
     }

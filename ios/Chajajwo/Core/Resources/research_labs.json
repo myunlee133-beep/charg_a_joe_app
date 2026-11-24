@@ -1,0 +1,881 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-11-23",
+  "sourceURL": "https://cse.snu.ac.kr/ko/research/labs",
+  "labs": [
+    {
+      "id": "cse-1",
+      "name": "데이터 마이닝 연구실",
+      "buildingNumber": "301",
+      "room": "301동 515호 / 518호 / 551-1호 / 551-3호",
+      "rooms": [
+        "515",
+        "518",
+        "551-1",
+        "551-3"
+      ],
+      "floor": "지상5층",
+      "floorDerived": true,
+      "professor": "강유",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/1",
+      "phone": "(02) 880-7263",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/1",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "딥러닝·기계학습",
+        "그래프·텐서 분석",
+        "추천 시스템",
+        "금융 인공지능"
+      ],
+      "field": "데이터 시스템",
+      "category": "연구실",
+      "summary": "큰 데이터에서 패턴을 찾고 예측·추천에 활용하는 모델과 알고리즘을 개발합니다."
+    },
+    {
+      "id": "cse-91",
+      "name": "데이터 인공지능 연구실",
+      "buildingNumber": "301",
+      "room": "301동 453호",
+      "rooms": [
+        "453"
+      ],
+      "floor": "지상4층",
+      "floorDerived": true,
+      "professor": "유재민",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/233",
+      "phone": "(02) 880-1829",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/91",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "그래프 신경망",
+        "시계열 예측",
+        "테이블 파운데이션 모델",
+        "추천·이상 탐지"
+      ],
+      "field": "데이터 시스템",
+      "category": "연구실",
+      "summary": "노이즈와 결측이 있는 실제 데이터를 다루는 신뢰성 높은 인공지능을 연구합니다."
+    },
+    {
+      "id": "cse-89",
+      "name": "리얼리티 연구실",
+      "buildingNumber": "302",
+      "room": "302동 313-1호",
+      "rooms": [
+        "313-1"
+      ],
+      "floor": "지상3층",
+      "floorDerived": true,
+      "professor": "최수연",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/229",
+      "phone": "",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/89",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "물리적 인터페이스",
+        "물리 시스템과 알고리즘의 공동 설계"
+      ],
+      "field": "그래픽스 및 사람 중심 컴퓨팅",
+      "category": "연구실",
+      "summary": "사람과 로봇, 그래픽스, AI를 연결하는 물리적 인터페이스를 설계합니다."
+    },
+    {
+      "id": "cse-93",
+      "name": "메타 인지 연구실",
+      "buildingNumber": "302",
+      "room": "302동 327호",
+      "rooms": [
+        "327"
+      ],
+      "floor": "지상3층",
+      "floorDerived": true,
+      "professor": "민하오 추이(최민호)",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/231",
+      "phone": "",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/93",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "무선 신호 기반 인지",
+        "주변 신호 센싱",
+        "시각 정보 보완"
+      ],
+      "field": "그래픽스 및 사람 중심 컴퓨팅",
+      "category": "연구실",
+      "summary": "무선·위성 등 주변 신호로 가려진 환경과 사물의 특성을 감지하는 방법을 연구합니다."
+    },
+    {
+      "id": "cse-4",
+      "name": "바이오지능 연구실",
+      "buildingNumber": "302",
+      "room": "302동 314-1호",
+      "rooms": [
+        "314-1"
+      ],
+      "floor": "지상3층",
+      "floorDerived": true,
+      "professor": "장병탁",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/55",
+      "phone": "(02) 880-1835",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/4",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "뇌정보처리 모델",
+        "멀티모달 학습",
+        "인지 기반 추천",
+        "라이프로그 분석"
+      ],
+      "field": "인공지능",
+      "category": "연구실",
+      "summary": "뇌의 정보처리와 인지 과정을 모델링해 사용자 의도와 상황을 이해하는 기술을 만듭니다."
+    },
+    {
+      "id": "cse-95",
+      "name": "범용 로봇학습 연구실",
+      "buildingNumber": "302",
+      "room": "302-430",
+      "rooms": [
+        "430"
+      ],
+      "floor": "지상4층",
+      "floorDerived": true,
+      "professor": "이영운",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/235",
+      "phone": "",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/95",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "강화학습·모방학습",
+        "월드 모델",
+        "휴머노이드 제어",
+        "물체 조작"
+      ],
+      "field": "인공지능",
+      "category": "연구실",
+      "summary": "다양한 실제 작업에 적응하는 로봇 학습과 전신 제어를 연구합니다."
+    },
+    {
+      "id": "cse-5",
+      "name": "분산시스템 연구실",
+      "buildingNumber": "302",
+      "room": "302동 319호",
+      "rooms": [
+        "319"
+      ],
+      "floor": "지상3층",
+      "floorDerived": true,
+      "professor": "엄현상",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/16",
+      "phone": "(02) 880-9330",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/5",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "운영체제·스토리지",
+        "분산 데이터 처리",
+        "결함 내성"
+      ],
+      "field": "시스템 소프트웨어",
+      "category": "연구실",
+      "summary": "데이터를 빠르고 안전하게 처리하는 분산시스템과 저장장치 소프트웨어를 개발합니다."
+    },
+    {
+      "id": "cse-6",
+      "name": "비주얼 컴퓨팅 연구실",
+      "buildingNumber": "302",
+      "room": "302동 310-1호",
+      "rooms": [
+        "310-1"
+      ],
+      "floor": "지상3층",
+      "floorDerived": true,
+      "professor": "주한별",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/58",
+      "phone": "",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/6",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "컴퓨터 비전",
+        "기계학습",
+        "컴퓨터 그래픽스"
+      ],
+      "field": "인공지능",
+      "category": "연구실",
+      "summary": "시각 정보를 이해하는 기계와 로봇을 위해 비전과 그래픽스를 함께 연구합니다."
+    },
+    {
+      "id": "cse-7",
+      "name": "빅데이터 분석 연구실",
+      "buildingNumber": "301",
+      "room": "301동 453호",
+      "rooms": [
+        "453"
+      ],
+      "floor": "지상4층",
+      "floorDerived": true,
+      "professor": "김형주",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/8",
+      "phone": "(02) 880-1830",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/7",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "온톨로지 관리",
+        "태그 시각화",
+        "태그 추천"
+      ],
+      "field": "데이터 시스템",
+      "category": "연구실",
+      "summary": "대규모 데이터의 의미와 관계를 관리하고 시각화·추천에 활용하는 기술을 연구합니다."
+    },
+    {
+      "id": "cse-8",
+      "name": "생물정보 및 생명정보 연구실",
+      "buildingNumber": "301",
+      "room": "301동 551-3호 / 554-2호 / 554-3호",
+      "rooms": [
+        "551-3",
+        "554-2",
+        "554-3"
+      ],
+      "floor": "지상5층",
+      "floorDerived": true,
+      "professor": "김선",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/4",
+      "phone": "",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/8",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "유전체·후성유전체 분석",
+        "생물정보 네트워크",
+        "기계학습"
+      ],
+      "field": "인공지능",
+      "category": "연구실",
+      "summary": "생명정보와 유전자 네트워크를 분석해 유전자 기능을 예측합니다."
+    },
+    {
+      "id": "cse-9",
+      "name": "소프트웨어 원리 연구실",
+      "buildingNumber": "302",
+      "room": "302동 312-2호",
+      "rooms": [
+        "312-2"
+      ],
+      "floor": "지상3층",
+      "floorDerived": true,
+      "professor": "허충길",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/60",
+      "phone": "(02) 880-1865",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/9",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "소프트웨어 이론과 원리"
+      ],
+      "field": "프로그래밍 원리 및 도구",
+      "category": "연구실",
+      "summary": "소프트웨어의 기초 원리와 실제 프로그램에 적용할 수 있는 이론을 연구합니다."
+    },
+    {
+      "id": "cse-10",
+      "name": "소프트웨어 플랫폼 연구실",
+      "buildingNumber": "302",
+      "room": "302동 420호",
+      "rooms": [
+        "420"
+      ],
+      "floor": "지상4층",
+      "floorDerived": true,
+      "professor": "전병곤",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/56",
+      "phone": "02) 880-1611",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/10",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "운영체제",
+        "분산시스템",
+        "클라우드 컴퓨팅",
+        "모바일 시스템·보안"
+      ],
+      "field": "시스템 소프트웨어",
+      "category": "연구실",
+      "summary": "빅데이터와 모바일 서비스를 뒷받침하는 운영체제·클라우드 플랫폼을 연구합니다."
+    },
+    {
+      "id": "cse-83",
+      "name": "시스템 보안 연구실",
+      "buildingNumber": "301",
+      "room": "301동 554-3호, 516호",
+      "rooms": [
+        "554-3",
+        "516"
+      ],
+      "floor": "지상5층",
+      "floorDerived": true,
+      "professor": "정대룡",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/179",
+      "phone": "",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/83",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "리눅스 커널 보안",
+        "하이퍼바이저",
+        "안드로이드 플랫폼 보안"
+      ],
+      "field": "시스템 소프트웨어",
+      "category": "연구실",
+      "summary": "시스템의 취약점을 분석하고 실제 운영 환경에 적용할 방어 기법을 개발합니다."
+    },
+    {
+      "id": "cse-12",
+      "name": "시스템 소프트웨어 및 구조 연구실",
+      "buildingNumber": "301",
+      "room": "301동 515호 / 516호 / 517호",
+      "rooms": [
+        "515",
+        "516",
+        "517"
+      ],
+      "floor": "지상5층",
+      "floorDerived": true,
+      "professor": "김진수",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/6",
+      "phone": "(02) 880-7296",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/12",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "시스템 소프트웨어",
+        "고성능 하드웨어 활용",
+        "성능·신뢰성·에너지 효율"
+      ],
+      "field": "시스템 소프트웨어",
+      "category": "연구실",
+      "summary": "운영체제 등 시스템 소프트웨어를 개선해 하드웨어를 효율적으로 활용합니다."
+    },
+    {
+      "id": "cse-13",
+      "name": "실시간 유비쿼터스 시스템 연구실",
+      "buildingNumber": "301",
+      "room": "301동 415호",
+      "rooms": [
+        "415"
+      ],
+      "floor": "지상4층",
+      "floorDerived": true,
+      "professor": "이창건",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/54",
+      "phone": "(02) 880-2562",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/13",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "사이버물리시스템",
+        "실시간 시스템",
+        "보조 기술",
+        "기기 인터페이스"
+      ],
+      "field": "컴퓨터구조 및 임베디드 시스템",
+      "category": "연구실",
+      "summary": "물리 환경과 연결된 컴퓨팅 시스템의 실시간 동작과 소프트웨어 설계를 연구합니다."
+    },
+    {
+      "id": "cse-15",
+      "name": "암호 및 프라이버시 연구실",
+      "buildingNumber": "301",
+      "room": "301동 451-1호",
+      "rooms": [
+        "451-1"
+      ],
+      "floor": "지상4층",
+      "floorDerived": true,
+      "professor": "송용수",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/13",
+      "phone": "",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/15",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "동형암호",
+        "안전한 다자간 연산",
+        "프라이버시 보호 기계학습"
+      ],
+      "field": "알고리즘 및 정보 보안",
+      "category": "연구실",
+      "summary": "데이터를 보호하면서 계산과 기계학습을 수행할 수 있는 암호 기술을 연구합니다."
+    },
+    {
+      "id": "cse-16",
+      "name": "양자정보 및 양자컴퓨팅 연구실",
+      "buildingNumber": "301",
+      "room": "301동 416호",
+      "rooms": [
+        "416"
+      ],
+      "floor": "지상4층",
+      "floorDerived": true,
+      "professor": "김태현",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/7",
+      "phone": "(02) 880-4165",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/16",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "양자컴퓨터 하드웨어",
+        "양자암호·중계기",
+        "양자 알고리즘"
+      ],
+      "field": "양자 컴퓨팅",
+      "category": "연구실",
+      "summary": "양자정보를 계산과 통신에 활용하기 위한 하드웨어와 알고리즘을 개발합니다."
+    },
+    {
+      "id": "cse-17",
+      "name": "언어 및 데이터지능 연구실",
+      "buildingNumber": "302",
+      "room": "302동 320호",
+      "rooms": [
+        "320"
+      ],
+      "floor": "지상3층",
+      "floorDerived": true,
+      "professor": "황승원",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/61",
+      "phone": "",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/17",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "자연어 처리",
+        "정보 검색",
+        "지식 기반 기계학습"
+      ],
+      "field": "인공지능",
+      "category": "연구실",
+      "summary": "언어를 이해하는 모델에 대규모 데이터와 검색으로 얻은 지식을 결합합니다."
+    },
+    {
+      "id": "cse-87",
+      "name": "언어 인지 및 피지컬 지능 연구실",
+      "buildingNumber": "302",
+      "room": "302동 319호",
+      "rooms": [
+        "319"
+      ],
+      "floor": "지상3층",
+      "floorDerived": true,
+      "professor": "유영재",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/177",
+      "phone": "(02) 880-8455",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/87",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "멀티모달 추론",
+        "인간·로봇 상호작용",
+        "월드 모델",
+        "AI 안전성"
+      ],
+      "field": "인공지능",
+      "category": "연구실",
+      "summary": "언어·인지·행동을 연결해 물리 세계와 상호작용하는 AI를 연구합니다."
+    },
+    {
+      "id": "cse-18",
+      "name": "운동 연구실",
+      "buildingNumber": "302",
+      "room": "302동 312-1호",
+      "rooms": [
+        "312-1"
+      ],
+      "floor": "지상3층",
+      "floorDerived": true,
+      "professor": "이제희",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/52",
+      "phone": "(02) 880-1864",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/18",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "물리 기반 제어",
+        "동작 학습·생성",
+        "인체 모델링"
+      ],
+      "field": "그래픽스 및 사람 중심 컴퓨팅",
+      "category": "연구실",
+      "summary": "사람과 다양한 생물의 움직임을 모델링하고 자연스러운 동작을 생성합니다."
+    },
+    {
+      "id": "cse-19",
+      "name": "이동 컴퓨팅 및 통신 연구실",
+      "buildingNumber": "302",
+      "room": "302동 313-1호",
+      "rooms": [
+        "313-1"
+      ],
+      "floor": "지상3층",
+      "floorDerived": true,
+      "professor": "전화숙",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/57",
+      "phone": "(02) 880-1841",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/19",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "인지 라디오",
+        "무선 자원 관리"
+      ],
+      "field": "네트워크 시스템",
+      "category": "연구실",
+      "summary": "무선 통신 환경에서 주파수와 네트워크 자원을 효율적으로 사용하는 방법을 연구합니다."
+    },
+    {
+      "id": "cse-20",
+      "name": "인간 중심 컴퓨터 시스템 연구실",
+      "buildingNumber": "301",
+      "room": "301동 412호",
+      "rooms": [
+        "412"
+      ],
+      "floor": "지상4층",
+      "floorDerived": true,
+      "professor": "이영기",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/43",
+      "phone": "(02) 880-4165",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/20",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "온디바이스 AI",
+        "증강·가상·혼합현실",
+        "모바일 시스템"
+      ],
+      "field": "그래픽스 및 사람 중심 컴퓨팅",
+      "category": "연구실",
+      "summary": "사람 중심의 새로운 컴퓨팅 서비스를 설계하고 이를 실행하는 시스템을 개발합니다."
+    },
+    {
+      "id": "cse-21",
+      "name": "인터넷 융합 및 보안 연구실",
+      "buildingNumber": "301",
+      "room": "301동 551-1호 / 551-2호 / 554-1호 / 516호",
+      "rooms": [
+        "551-1",
+        "551-2",
+        "554-1",
+        "516"
+      ],
+      "floor": "지상5층",
+      "floorDerived": true,
+      "professor": "권태경",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/2",
+      "phone": "",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/21",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "인터넷 구조",
+        "소프트웨어 정의 네트워킹",
+        "모바일 센싱",
+        "보안"
+      ],
+      "field": "네트워크 시스템",
+      "category": "연구실",
+      "summary": "네트워크 구조와 모바일 환경의 연결·센싱·보안을 연구합니다."
+    },
+    {
+      "id": "cse-22",
+      "name": "임베디드 시스템 연구실",
+      "buildingNumber": "302",
+      "room": "302동 315-2호",
+      "rooms": [
+        "315-2"
+      ],
+      "floor": "지상3층",
+      "floorDerived": true,
+      "professor": "김지홍",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/5",
+      "phone": "(02) 880-1861",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/22",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "플래시 저장장치",
+        "스마트 기기 최적화",
+        "저전력·고신뢰 설계"
+      ],
+      "field": "컴퓨터구조 및 임베디드 시스템",
+      "category": "연구실",
+      "summary": "임베디드 기기의 성능과 전력 효율을 높이는 소프트웨어 설계 기법을 개발합니다."
+    },
+    {
+      "id": "cse-23",
+      "name": "지능형 데이터 시스템 연구실",
+      "buildingNumber": "301",
+      "room": "301동 420호",
+      "rooms": [
+        "420"
+      ],
+      "floor": "지상4층",
+      "floorDerived": true,
+      "professor": "이상구",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/42",
+      "phone": "(02) 880-1859",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/23",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "자연어 처리",
+        "이미지 생성·변형",
+        "추천 시스템"
+      ],
+      "field": "데이터 시스템",
+      "category": "연구실",
+      "summary": "데이터 기반 AI로 언어와 이미지를 처리하고 실제 서비스에 적용합니다."
+    },
+    {
+      "id": "cse-24",
+      "name": "지능형 동작 연구실",
+      "buildingNumber": "302",
+      "room": "302동 312-1호",
+      "rooms": [
+        "312-1"
+      ],
+      "floor": "지상3층",
+      "floorDerived": true,
+      "professor": "원정담",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/39",
+      "phone": "(02) 880-1864",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/24",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "동작 이해·생성",
+        "컴퓨터 그래픽스",
+        "로보틱스"
+      ],
+      "field": "그래픽스 및 사람 중심 컴퓨팅",
+      "category": "연구실",
+      "summary": "사람·동물·로봇의 동작을 분석하고 자연스러운 움직임을 생성하는 방법을 연구합니다."
+    },
+    {
+      "id": "cse-25",
+      "name": "천둥 연구실",
+      "buildingNumber": "301",
+      "room": "301동 515호",
+      "rooms": [
+        "515"
+      ],
+      "floor": "지상5층",
+      "floorDerived": true,
+      "professor": "이재진",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/45",
+      "phone": "(02) 880-1837",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/25",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "GPU·FPGA 가속",
+        "이종 컴퓨팅",
+        "프로그래밍 모델·컴파일러"
+      ],
+      "field": "시스템 소프트웨어",
+      "category": "연구실",
+      "summary": "서로 다른 연산 장치를 함께 사용하는 고성능 컴퓨팅 기법을 연구합니다."
+    },
+    {
+      "id": "cse-28",
+      "name": "컴퓨터 시스템 및 플랫폼 연구실",
+      "buildingNumber": "301",
+      "room": "301동 419호",
+      "rooms": [
+        "419"
+      ],
+      "floor": "지상4층",
+      "floorDerived": true,
+      "professor": "에거 버나드",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/17",
+      "phone": "(02) 880-1819",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/28",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "재구성 가능 아키텍처",
+        "매니코어 운영체제"
+      ],
+      "field": "시스템 소프트웨어",
+      "category": "연구실",
+      "summary": "재구성 가능한 프로세서와 다수 코어 시스템의 구조·운영체제를 연구합니다."
+    },
+    {
+      "id": "cse-30",
+      "name": "컴퓨팅 메모리 구조 연구실",
+      "buildingNumber": "138",
+      "room": "138동 313호",
+      "rooms": [
+        "313"
+      ],
+      "floor": "지상3층",
+      "floorDerived": true,
+      "professor": "유승주",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/40",
+      "phone": "(02) 874-5296",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/30",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "메모리 중심 칩 구조",
+        "메모리 내 연산(PIM)",
+        "딥러닝 가속"
+      ],
+      "field": "컴퓨터구조 및 임베디드 시스템",
+      "category": "연구실",
+      "summary": "메모리에서 수행하는 연산과 칩 구조를 활용해 딥러닝 처리를 개선합니다."
+    },
+    {
+      "id": "cse-31",
+      "name": "통합설계 및 병렬 처리 연구실",
+      "buildingNumber": "301",
+      "room": "301동 455-1호",
+      "rooms": [
+        "455-1"
+      ],
+      "floor": "지상4층",
+      "floorDerived": true,
+      "professor": "하순회",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/59",
+      "phone": "(02) 880-7292",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/31",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "병렬 임베디드 설계",
+        "임베디드 딥러닝",
+        "사물인터넷 플랫폼"
+      ],
+      "field": "컴퓨터구조 및 임베디드 시스템",
+      "category": "연구실",
+      "summary": "병렬 처리와 임베디드 AI를 위한 시스템·소프트웨어 설계를 연구합니다."
+    },
+    {
+      "id": "cse-32",
+      "name": "프로그래밍 연구실",
+      "buildingNumber": "302",
+      "room": "302동 312-2호",
+      "rooms": [
+        "312-2"
+      ],
+      "floor": "지상3층",
+      "floorDerived": true,
+      "professor": "이광근",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/41",
+      "phone": "(02) 880-1865",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/32",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "프로그래밍 언어",
+        "정적 프로그램 분석",
+        "소프트웨어 오류 탐지"
+      ],
+      "field": "프로그래밍 원리 및 도구",
+      "category": "연구실",
+      "summary": "프로그램을 실행하기 전에 분석해 오류를 찾고 안전성을 높이는 방법을 연구합니다."
+    },
+    {
+      "id": "cse-33",
+      "name": "휴먼-컴퓨터 인터액션 연구실",
+      "buildingNumber": "302",
+      "room": "302동 314-2호",
+      "rooms": [
+        "314-2"
+      ],
+      "floor": "지상3층",
+      "floorDerived": true,
+      "professor": "서진욱",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/12",
+      "phone": "(02) 880-7044",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/33",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "인간·컴퓨터 상호작용",
+        "시각적 분석·정보 시각화",
+        "설명 가능한 AI"
+      ],
+      "field": "그래픽스 및 사람 중심 컴퓨팅",
+      "category": "연구실",
+      "summary": "사람이 데이터와 AI를 이해하고 활용하기 쉬운 인터페이스와 시각화 도구를 만듭니다."
+    }
+  ],
+  "unmappedLabs": [
+    {
+      "id": "cse-3",
+      "name": "머신러닝 연구실",
+      "buildingNumber": "303",
+      "room": "303동 657호",
+      "rooms": [
+        "657"
+      ],
+      "floor": "지상6층",
+      "floorDerived": true,
+      "professor": "송현오",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/14",
+      "phone": "",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/3",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "최적화",
+        "통계 학습",
+        "딥러닝 이론"
+      ],
+      "field": "인공지능",
+      "category": "연구실",
+      "summary": "기계학습의 수학적 원리를 분석하고 이를 AI 문제 해결에 적용합니다."
+    },
+    {
+      "id": "cse-73",
+      "name": "시각 및 기하지능 연구실",
+      "buildingNumber": "303",
+      "room": "303동 6층 북측",
+      "rooms": [],
+      "floor": "지상6층",
+      "floorDerived": false,
+      "professor": "박재식",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/165",
+      "phone": "(02) 880-1612",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/73",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "사물·공간 인지",
+        "컴퓨터 비전·그래픽스",
+        "로보틱스"
+      ],
+      "field": "인공지능",
+      "category": "연구실",
+      "summary": "실제 환경에서 상호작용하는 AI를 위해 사물과 공간을 인지하고 생성하는 방법을 연구합니다."
+    },
+    {
+      "id": "cse-11",
+      "name": "시각 및 학습 연구실",
+      "buildingNumber": "303",
+      "room": "303동 6층 북측",
+      "rooms": [],
+      "floor": "지상6층",
+      "floorDerived": false,
+      "professor": "김건희",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/3",
+      "phone": "(02) 880-7289",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/11",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "시각·언어 통합",
+        "기계학습·최적화",
+        "다형식 데이터 이해·합성"
+      ],
+      "field": "인공지능",
+      "category": "연구실",
+      "summary": "사진·영상·언어를 함께 이해하는 비전 모델과 기계학습 기법을 연구합니다."
+    },
+    {
+      "id": "cse-14",
+      "name": "아키텍처 및 코드 최적화 연구실",
+      "buildingNumber": "303",
+      "room": "303동 6층 북측",
+      "rooms": [],
+      "floor": "지상6층",
+      "floorDerived": false,
+      "professor": "이재욱",
+      "professorURL": "https://cse.snu.ac.kr/ko/people/faculty/44",
+      "phone": "(02) 880-1836",
+      "url": "https://cse.snu.ac.kr/ko/research/labs/14",
+      "checkedAt": "2026-11-23",
+      "topics": [
+        "컴퓨터 아키텍처",
+        "병렬 컴퓨팅",
+        "시스템·소프트웨어 최적화"
+      ],
+      "field": "컴퓨터구조 및 임베디드 시스템",
+      "category": "연구실",
+      "summary": "새로운 응용에 맞춰 하드웨어와 시스템 소프트웨어를 함께 최적화합니다."
+    }
+  ]
+}

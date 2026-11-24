@@ -80,6 +80,10 @@ struct DiningView: View {
                     Button("오늘") { date = Date() }
                         .font(.subheadline.weight(.semibold)).foregroundStyle(Color.cjOrangeText)
                 }
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink { CafeDirectoryView() } label: { Label("카페", systemImage: "cup.and.saucer") }
+                        .accessibilityIdentifier("dining.cafes")
+                }
             }
             .onChange(of: date) { _, _ in if !isToday { onlyOpen = false } }
         }

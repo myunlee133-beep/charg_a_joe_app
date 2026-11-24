@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-11-23",
+  "venues": [
+    {
+      "id": "cafe-109",
+      "buildingNumber": "109",
+      "name": "카페109 by 스누코스",
+      "aliases": [
+        "느티나무 자하연점",
+        "카페109 by 스누코스"
+      ],
+      "category": "카페",
+      "floor": "지상1층",
+      "phone": "02-880-7889",
+      "weekdayHours": "08:30–18:30",
+      "checkedAt": "2026-11-23",
+      "sourceURL": "https://snuco.snu.ac.kr/카페안내/",
+      "menuSourceURL": "https://new.snu.ac.kr/snunow/snu_story?bbsidx=176312&md=v",
+      "menuNote": "대학 공식 기사에서 소개한 메뉴예요. 당일 판매·가격은 매장에서 확인해 주세요.",
+      "menus": [
+        {
+          "name": "우유생크림도넛",
+          "category": "디저트",
+          "description": "서울대학교 공식 소개에 안내된 생협 카페109의 도넛입니다.",
+          "priceWon": null
+        },
+        {
+          "name": "무화과쏙쏙도넛",
+          "category": "디저트",
+          "description": "무화과를 활용한 도넛입니다. 당일 판매 여부는 매장에 확인해 주세요.",
+          "priceWon": null
+        },
+        {
+          "name": "우베생크림도넛",
+          "category": "디저트",
+          "description": "우베를 활용한 생크림 도넛입니다. 가격과 재고는 매장에 확인해 주세요.",
+          "priceWon": null
+        }
+      ],
+      "photoAsset": "menu_photos/cafe109-desserts.jpg",
+      "photoSourceURL": "https://new.snu.ac.kr/webdata/boardimages/konews/img_20260929_002.jpg",
+      "photoCaption": "카페109 디저트 모음",
+      "photoCredit": "사진 출처 · 서울대학교 공식 소개"
+    },
+    {
+      "id": "cafe-111",
+      "buildingNumber": "111",
+      "name": "파스쿠찌",
+      "aliases": [
+        "파스쿠치",
+        "파스쿠찌"
+      ],
+      "category": "카페",
+      "floor": "지상1층",
+      "phone": "02-882-8497",
+      "weekdayHours": "08:00–22:00",
+      "checkedAt": "2026-11-23",
+      "sourceURL": "https://snuco.snu.ac.kr/카페안내/",
+      "menuSourceURL": "https://www.pascucci.co.kr/product/productList.asp?typeCode=00100020",
+      "menuNote": "브랜드 공식 메뉴예요. 서울대점의 판매·옵션·가격은 매장에서 확인해 주세요.",
+      "menus": [
+        {
+          "name": "아메리카노",
+          "category": "커피",
+          "description": "브랜드 공식 커피 메뉴입니다.",
+          "priceWon": null,
+          "photoAsset": "menu_photos/pascucci-americano.png",
+          "photoSourceURL": "https://www.pascucci.co.kr/upload/product/%EC%95%84%EB%A9%94%EB%A6%AC%EC%B9%B4%EB%85%B8_173756.png",
+          "photoCredit": "사진 제공 · 파스쿠찌 공식 메뉴",
+          "featured": false
+        },
+        {
+          "name": "카페라떼",
+          "category": "커피",
+          "description": "브랜드 공식 커피 메뉴입니다.",
+          "priceWon": null,
+          "photoAsset": "menu_photos/pascucci-latte.png",
+          "photoSourceURL": "https://www.pascucci.co.kr/upload/product/%EC%B9%B4%ED%8E%98%EB%9D%BC%EB%96%BC_17399.png",
+          "photoCredit": "사진 제공 · 파스쿠찌 공식 메뉴",
+          "featured": false
+        },
+        {
+          "name": "바닐라빈 골든라떼",
+          "category": "커피",
+          "description": "브랜드 공식 커피 메뉴입니다.",
+          "priceWon": null,
+          "photoAsset": "menu_photos/pascucci-golden-latte.png",
+          "photoSourceURL": "https://www.pascucci.co.kr/upload/product/%EB%B0%94%EB%8B%90%EB%9D%BC%EB%B9%88%EA%B3%A8%EB%93%A0%EB%9D%BC%EB%96%BC_174724.png",
+          "photoCredit": "사진 제공 · 파스쿠찌 공식 메뉴",
+          "featured": true
+        },
+        {
+          "name": "카푸치노",
+          "category": "커피",
+          "description": "브랜드 공식 메뉴의 따뜻한 커피입니다.",
+          "priceWon": null,
+          "photoAsset": "menu_photos/pascucci-cappuccino.png",
+          "photoSourceURL": "https://www.pascucci.co.kr/upload/product/%EC%B9%B4%ED%91%B8%EC%B9%98%EB%85%B8_174016.png",
+          "photoCredit": "사진 제공 · 파스쿠찌 공식 메뉴",
+          "featured": false
+        },
+        {
+          "name": "카페 모카",
+          "category": "커피",
+          "description": "브랜드 공식 커피 메뉴입니다.",
+          "priceWon": null,
+          "photoAsset": "menu_photos/pascucci-mocha.png",
+          "photoSourceURL": "https://www.pascucci.co.kr/upload/product/%EC%B9%B4%ED%8E%98%EB%AA%A8%EC%B9%B4_173925.png",
+          "photoCredit": "사진 제공 · 파스쿠찌 공식 메뉴",
+          "featured": false
+        }
+      ]
+    },
+    {
+      "id": "cafe-137-1",
+      "buildingNumber": "137-1",
+      "name": "카페137 by 스누코스",
+      "aliases": [
+        "느티나무 137동점",
+        "카페137 by 스누코스"
+      ],
+      "category": "카페",
+      "floor": "지상1층",
+      "phone": "02-880-5552",
+      "weekdayHours": "08:00–18:30",
+      "checkedAt": "2026-11-23",
+      "sourceURL": "https://snuco.snu.ac.kr/카페안내/",
+      "menuSourceURL": "https://snuco.snu.ac.kr/카페안내/",
+      "menuNote": "공식 안내의 메뉴 종류예요. 개별 메뉴판과 가격은 아직 제공되지 않았어요.",
+      "menus": [
+        {
+          "name": "커피",
+          "category": "메뉴 종류",
+          "description": "공식 운영 안내에 기재된 메뉴 종류입니다. 개별 메뉴와 가격은 매장에 확인해 주세요.",
+          "priceWon": null
+        },
+        {
+          "name": "베이커리",
+          "category": "메뉴 종류",
+          "description": "공식 운영 안내에 기재된 메뉴 종류입니다. 개별 메뉴와 가격은 매장에 확인해 주세요.",
+          "priceWon": null
+        }
+      ]
+    },
+    {
+      "id": "cafe-113",
+      "buildingNumber": "113",
+      "name": "카페113 by 스누코스",
+      "aliases": [
+        "느티나무 동원관점",
+        "카페113 by 스누코스"
+      ],
+      "category": "카페",
+      "floor": "지상1층",
+      "phone": "02-880-8694",
+      "weekdayHours": "08:15–17:45",
+      "checkedAt": "2026-11-23",
+      "sourceURL": "https://snuco.snu.ac.kr/카페안내/",
+      "menuSourceURL": "https://snuco.snu.ac.kr/카페안내/",
+      "menuNote": "공식 안내의 메뉴 종류예요. 개별 메뉴판과 가격은 아직 제공되지 않았어요.",
+      "menus": [
+        {
+          "name": "커피",
+          "category": "메뉴 종류",
+          "description": "공식 운영 안내에 기재된 메뉴 종류입니다. 개별 메뉴와 가격은 매장에 확인해 주세요.",
+          "priceWon": null
+        },
+        {
+          "name": "베이커리",
+          "category": "메뉴 종류",
+          "description": "공식 운영 안내에 기재된 메뉴 종류입니다. 개별 메뉴와 가격은 매장에 확인해 주세요.",
+          "priceWon": null
+        }
+      ]
+    },
+    {
+      "id": "cafe-63",
+      "buildingNumber": "63",
+      "name": "라운지스낵",
+      "aliases": [
+        "라운지스낵"
+      ],
+      "category": "카페",
+      "floor": "지상2층",
+      "phone": "02-880-6787",
+      "weekdayHours": "07:30–19:00",
+      "checkedAt": "2026-11-23",
+      "sourceURL": "https://snuco.snu.ac.kr/카페안내/",
+      "menuSourceURL": "https://snuco.snu.ac.kr/카페안내/",
+      "menuNote": "공식 안내의 메뉴 종류예요. 개별 메뉴판과 가격은 아직 제공되지 않았어요.",
+      "menus": [
+        {
+          "name": "커피",
+          "category": "메뉴 종류",
+          "description": "공식 운영 안내에 기재된 메뉴 종류입니다. 개별 메뉴와 가격은 매장에 확인해 주세요.",
+          "priceWon": null
+        },
+        {
+          "name": "샌드위치",
+          "category": "메뉴 종류",
+          "description": "공식 운영 안내에 기재된 메뉴 종류입니다. 개별 메뉴와 가격은 매장에 확인해 주세요.",
+          "priceWon": null
+        }
+      ]
+    },
+    {
+      "id": "cafe-104-1",
+      "buildingNumber": "104-1",
+      "name": "카페1847",
+      "aliases": [
+        "1847 커피앤샐러드",
+        "카페1847"
+      ],
+      "category": "카페",
+      "floor": "지상1층",
+      "phone": "02-880-5465",
+      "weekdayHours": "08:30–18:30",
+      "checkedAt": "2026-11-23",
+      "sourceURL": "https://snuco.snu.ac.kr/카페안내/",
+      "menuSourceURL": "https://snuco.snu.ac.kr/카페안내/",
+      "menuNote": "공식 안내의 메뉴 종류예요. 개별 메뉴판과 가격은 아직 제공되지 않았어요.",
+      "menus": [
+        {
+          "name": "커피",
+          "category": "메뉴 종류",
+          "description": "공식 운영 안내에 기재된 메뉴 종류입니다. 개별 메뉴와 가격은 매장에 확인해 주세요.",
+          "priceWon": null
+        },
+        {
+          "name": "베이커리",
+          "category": "메뉴 종류",
+          "description": "공식 운영 안내에 기재된 메뉴 종류입니다. 개별 메뉴와 가격은 매장에 확인해 주세요.",
+          "priceWon": null
+        }
+      ]
+    },
+    {
+      "id": "cafe-301",
+      "buildingNumber": "301",
+      "name": "퀴즈노스",
+      "aliases": [
+        "퀴즈노스"
+      ],
+      "category": "카페",
+      "floor": "",
+      "phone": "02-871-9329",
+      "weekdayHours": "07:30–19:30",
+      "checkedAt": "2026-11-23",
+      "sourceURL": "https://snuco.snu.ac.kr/카페안내/",
+      "menuSourceURL": "https://snuco.snu.ac.kr/카페안내/",
+      "menuNote": "공식 안내의 메뉴 종류예요. 개별 메뉴판과 가격은 아직 제공되지 않았어요.",
+      "menus": [
+        {
+          "name": "커피",
+          "category": "메뉴 종류",
+          "description": "공식 운영 안내에 기재된 메뉴 종류입니다. 개별 메뉴와 가격은 매장에 확인해 주세요.",
+          "priceWon": null
+        },
+        {
+          "name": "샌드위치",
+          "category": "메뉴 종류",
+          "description": "공식 운영 안내에 기재된 메뉴 종류입니다. 개별 메뉴와 가격은 매장에 확인해 주세요.",
+          "priceWon": null
+        }
+      ]
+    }
+  ]
+}

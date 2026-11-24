@@ -1,0 +1,35 @@
+{
+  "checkedAt": "2026-11-23",
+  "photos": [
+    {
+      "asset": "menu_photos/pascucci-americano.png",
+      "sourceURL": "https://www.pascucci.co.kr/upload/product/%EC%95%84%EB%A9%94%EB%A6%AC%EC%B9%B4%EB%85%B8_173756.png",
+      "sha256": "6dfe55e1d50a5311987ea04d23cf7bdc9f4f626e6d846d5c3c92411887a0f809"
+    },
+    {
+      "asset": "menu_photos/pascucci-latte.png",
+      "sourceURL": "https://www.pascucci.co.kr/upload/product/%EC%B9%B4%ED%8E%98%EB%9D%BC%EB%96%BC_17399.png",
+      "sha256": "e81946211e590ce9368ca251b89511e8e074356d469bad2845939454e8938ebf"
+    },
+    {
+      "asset": "menu_photos/pascucci-golden-latte.png",
+      "sourceURL": "https://www.pascucci.co.kr/upload/product/%EB%B0%94%EB%8B%90%EB%9D%BC%EB%B9%88%EA%B3%A8%EB%93%A0%EB%9D%BC%EB%96%BC_174724.png",
+      "sha256": "cadffbd927639eecd208b70b2f33a38e759bba133bc47d04e1e7e0ae28f54689"
+    },
+    {
+      "asset": "menu_photos/pascucci-cappuccino.png",
+      "sourceURL": "https://www.pascucci.co.kr/upload/product/%EC%B9%B4%ED%91%B8%EC%B9%98%EB%85%B8_174016.png",
+      "sha256": "3f4557462e16eda75626fa2c1022da9aff26b72200045d7d7363f4f3e9bbfde6"
+    },
+    {
+      "asset": "menu_photos/pascucci-mocha.png",
+      "sourceURL": "https://www.pascucci.co.kr/upload/product/%EC%B9%B4%ED%8E%98%EB%AA%A8%EC%B9%B4_173925.png",
+      "sha256": "837e4a82905a655e4d519a1dcdaf933c19d7d83d65dcba54c92f04e8f9ae5db1"
+    },
+    {
+      "asset": "menu_photos/cafe109-desserts.jpg",
+      "sourceURL": "https://new.snu.ac.kr/webdata/boardimages/konews/img_20260929_002.jpg",
+      "sha256": "5dc68df815594cca3650f4d25594acbdcf7b68c69ceedf007e5d1e871925ed7c"
+    }
+  ]
+}
