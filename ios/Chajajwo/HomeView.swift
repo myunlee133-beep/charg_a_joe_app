@@ -20,6 +20,9 @@ struct HomeView: View {
     @State private var placeSheet = SheetDetent.normal  // 건물·분실물 핀·정류장·식단 시트 단계
     @State private var bottomHeight: CGFloat = 0        // 하단 시트 높이. 내 위치 버튼을 그 위에 둔다
     @FocusState private var searchFocused: Bool
+    @StateObject private var landmarks = LandmarkCollection()
+    @State private var arLandmark: Landmark?
+    @State private var showDex = false
 
     private var searchResults: [CampusBuilding] { CampusBuildingCatalog.search(query) }
     private var hasSearchText: Bool { !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
@@ -42,6 +45,12 @@ struct HomeView: View {
     private var quests: [Quest] {
         [] // 식당·셔틀 전용 빌드
     }
+    private var hereCoordinate: CampusCoordinate? {
+        userLocation.coordinate.map { CampusCoordinate(latitude: $0.latitude, longitude: $0.longitude) }
+    }
+    private var nearbyLandmark: Landmark? {
+        hereCoordinate.flatMap { Landmark.nearest(to: $0, excluding: landmarks.ids) }
+    }
     private var counts: [String: Int] {
         Dictionary(grouping: store.items, by: \.hub).mapValues(\.count)
     }
@@ -58,10 +67,17 @@ struct HomeView: View {
                 .padding(.bottom, bottomHeight + 16) // 지금 떠 있는 하단 시트 바로 위
         }
         .overlay(alignment: .bottom) {
-            VStack(spacing: 0) { bottomContent } // 시트가 없을 때도 높이 0으로 재도록 감싼다
+            VStack(spacing: 0) { // 시트가 없을 때도 높이 0으로 재도록 감싼다
+                if let landmark = nearbyLandmark { landmarkBanner(landmark) }
+                bottomContent
+            }
                 .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { bottomHeight = $0 }
         }
         .onChange(of: placeSheetKey) { _, _ in placeSheet = .normal }
+        .fullScreenCover(item: $arLandmark) { landmark in
+            LandmarkARView(landmark: landmark) { landmarks.collect(landmark) }
+        }
+        .sheet(isPresented: $showDex) { LandmarkDexView(collection: landmarks, here: hereCoordinate) }
         .sheet(item: $store.selectedQuest) { QuestDetailView(quest: $0) }
         .sheet(item: $selectedQuestGroup) { group in
             NavigationStack {
@@ -168,6 +184,26 @@ struct HomeView: View {
         }
     }
 
+    private func landmarkBanner(_ landmark: Landmark) -> some View {
+        Button { arLandmark = landmark } label: {
+            HStack(spacing: 10) {
+                Image(systemName: landmark.symbol).font(.headline).foregroundStyle(.white)
+                    .frame(width: 36, height: 36).background(Color.cjTeal, in: Circle())
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(landmark.name) 근처예요").font(.subheadline.weight(.bold))
+                    Text("카메라로 랜드마크 배지를 수집하세요").font(.caption).foregroundStyle(Color.cjSub)
+                }
+                Spacer()
+                Image(systemName: "camera.viewfinder").font(.title3).foregroundStyle(Color.cjTealText)
+            }
+            .padding(12).background(Color.cjSurface, in: RoundedRectangle(cornerRadius: 16))
+            .shadow(color: .black.opacity(0.15), radius: 6, y: 2)
+        }
+        .buttonStyle(.plain)
+        .padding(.horizontal, 12).padding(.bottom, 8)
+        .accessibilityHint("AR 카메라로 \(landmark.name)을 수집합니다")
+    }
+
     /// 지금 떠 있는 장소 시트. 다른 장소를 고르면 시트를 기본 높이로 다시 연다.
     private var placeSheetKey: String {
         "\(focusedBuilding?.id ?? "")|\(selectedLostPinID ?? "")|\(store.open ? store.sel : "")"
@@ -239,6 +275,13 @@ struct HomeView: View {
                 .padding(.vertical, 4).padding(.leading, 4).padding(.trailing, 12)
                 .background(Color.cjSurface.opacity(0.95), in: RoundedRectangle(cornerRadius: 14))
                 Spacer()
+                Button { showDex = true } label: {
+                    Label("\(landmarks.ids.count)/\(Landmark.all.count)", systemImage: "medal.fill")
+                        .font(.subheadline.weight(.bold)).foregroundStyle(Color.cjTealText)
+                        .padding(.horizontal, 12).frame(height: 42)
+                        .background(Color.cjSurface.opacity(0.95), in: RoundedRectangle(cornerRadius: 14))
+                }
+                .accessibilityLabel("랜드마크 도감, \(Landmark.all.count)곳 중 \(landmarks.ids.count)곳 수집")
             }
 
             HStack(spacing: 10) {
