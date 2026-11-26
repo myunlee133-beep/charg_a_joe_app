@@ -25,6 +25,9 @@ struct HomeView: View {
     @State private var topBarBottom: CGFloat = 0
     @State private var mapFrame: CGRect = .zero
     @FocusState private var searchFocused: Bool
+    @StateObject private var landmarks = LandmarkCollection()
+    @State private var arLandmark: Landmark?
+    @State private var showDex = false
 
     private var searchResults: [CampusBuilding] { CampusBuildingCatalog.search(query) }
     private var hasSearchText: Bool { !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
@@ -42,11 +45,16 @@ struct HomeView: View {
         }
     }
     private var lostPins: [LostFoundMapPin] {
-        store.lostMapOnly || store.homeFilter == .all ? lf.pins : []
+        [] // 식당·셔틀 전용 빌드
     }
     private var quests: [Quest] {
-        guard !store.lostMapOnly, store.homeFilter == .all || store.homeFilter == .quests else { return [] }
-        return store.quests.filter { !hasSearchText || ($0.title + $0.place + $0.building).localizedCaseInsensitiveContains(query) }
+        [] // 식당·셔틀 전용 빌드
+    }
+    private var hereCoordinate: CampusCoordinate? {
+        userLocation.coordinate.map { CampusCoordinate(latitude: $0.latitude, longitude: $0.longitude) }
+    }
+    private var nearbyLandmark: Landmark? {
+        hereCoordinate.flatMap { Landmark.nearest(to: $0, excluding: landmarks.ids) }
     }
     private var counts: [String: Int] {
         Dictionary(grouping: store.items, by: \.hub).mapValues(\.count)
@@ -65,10 +73,17 @@ struct HomeView: View {
                 .padding(.bottom, bottomHeight + 16) // 지금 떠 있는 하단 시트 바로 위
         }
         .overlay(alignment: .bottom) {
-            VStack(spacing: 0) { bottomContent } // 시트가 없을 때도 높이 0으로 재도록 감싼다
+            VStack(spacing: 0) { // 시트가 없을 때도 높이 0으로 재도록 감싼다
+                if let landmark = nearbyLandmark { landmarkBanner(landmark) }
+                bottomContent
+            }
                 .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { bottomHeight = $0 }
         }
         .onChange(of: placeSheetKey) { _, _ in placeSheet = .normal }
+        .fullScreenCover(item: $arLandmark) { landmark in
+            LandmarkARView(landmark: landmark) { landmarks.collect(landmark) }
+        }
+        .sheet(isPresented: $showDex) { LandmarkDexView(collection: landmarks, here: hereCoordinate) }
         .sheet(item: $store.selectedQuest) { QuestDetailView(quest: $0) }
         .sheet(item: $buildingDirectionsRequest) { request in
             BuildingDirectionsView(destination: request.destination)
@@ -201,9 +216,27 @@ struct HomeView: View {
             HomePlaceCard(place: place, detent: $placeSheet)
         } else if store.open { // 식당은 날짜별 아침·점심·저녁 식단 시트, 거점은 보관 물품 시트
             SheetView(detent: $placeSheet)
-        } else if store.homeFilter == .all && !store.lostMapOnly {
-            QuestBottomSheet(quests: quests)
         }
+    }
+
+    private func landmarkBanner(_ landmark: Landmark) -> some View {
+        Button { arLandmark = landmark } label: {
+            HStack(spacing: 10) {
+                Image(systemName: landmark.symbol).font(.headline).foregroundStyle(.white)
+                    .frame(width: 36, height: 36).background(Color.cjTeal, in: Circle())
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(landmark.name) 근처예요").font(.subheadline.weight(.bold))
+                    Text("카메라로 랜드마크 배지를 수집하세요").font(.caption).foregroundStyle(Color.cjSub)
+                }
+                Spacer()
+                Image(systemName: "camera.viewfinder").font(.title3).foregroundStyle(Color.cjTealText)
+            }
+            .padding(12).background(Color.cjSurface, in: RoundedRectangle(cornerRadius: 16))
+            .shadow(color: .black.opacity(0.15), radius: 6, y: 2)
+        }
+        .buttonStyle(.plain)
+        .padding(.horizontal, 12).padding(.bottom, 8)
+        .accessibilityHint("AR 카메라로 \(landmark.name)을 수집합니다")
     }
 
     /// 지금 떠 있는 장소 시트. 다른 장소를 고르면 시트를 기본 높이로 다시 연다.
@@ -283,6 +316,13 @@ struct HomeView: View {
                 .padding(.vertical, 4).padding(.leading, 4).padding(.trailing, 12)
                 .background(Color.cjSurface.opacity(0.95), in: RoundedRectangle(cornerRadius: 14))
                 Spacer()
+                Button { showDex = true } label: {
+                    Label("\(landmarks.ids.count)/\(Landmark.all.count)", systemImage: "medal.fill")
+                        .font(.subheadline.weight(.bold)).foregroundStyle(Color.cjTealText)
+                        .padding(.horizontal, 12).frame(height: 42)
+                        .background(Color.cjSurface.opacity(0.95), in: RoundedRectangle(cornerRadius: 14))
+                }
+                .accessibilityLabel("랜드마크 도감, \(Landmark.all.count)곳 중 \(landmarks.ids.count)곳 수집")
                 Button {
                     searchFocused = false
                     buildingDirectionsRequest = .init()
@@ -298,7 +338,7 @@ struct HomeView: View {
 
             HStack(spacing: 10) {
                 Image(systemName: "magnifyingglass").foregroundStyle(.primary)
-                TextField("건물·퀘스트·분실물을 검색하세요", text: $query)
+                TextField("건물을 검색하세요", text: $query)
                     .submitLabel(.search)
                     .focused($searchFocused)
                     .onSubmit(search)
@@ -322,20 +362,6 @@ struct HomeView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     chip("전체", symbol: "square.grid.2x2.fill", filter: .all)
-                    chip("퀘스트", symbol: "bolt.fill", filter: .quests)
-                    Button {
-                        clearMapSelection()
-                        store.lostMapOnly = true
-                        store.homeFilter = .all
-                        store.closeSheet()
-                        selectedLostPinID = nil
-                    } label: {
-                        Label("분실물", systemImage: "shippingbox.fill")
-                            .font(.subheadline.weight(.medium))
-                            .foregroundStyle(store.lostMapOnly ? Color.white : Color.primary)
-                            .padding(.horizontal, 16).frame(height: 38)
-                            .background(store.lostMapOnly ? Color.cjTeal : Color.cjSurface, in: Capsule())
-                    }
                     chip("식당", symbol: "fork.knife", filter: .food)
                     chip("셔틀", symbol: "bus.fill", filter: .shuttle)
                 }

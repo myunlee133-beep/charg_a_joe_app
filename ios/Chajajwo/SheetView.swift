@@ -152,7 +152,6 @@ struct SheetView: View {
             }
 
             HStack(spacing: 10) {
-                Button { store.tab = .lostFound } label: { BigLabel(text: "분실물 보기", style: .orangeFill) }
                 DirectionsButton(destination: place.directionsURL, name: place.name) { BigLabel(text: "길찾기", style: .orangeLine) }
             }
             .padding(.top, 12)
