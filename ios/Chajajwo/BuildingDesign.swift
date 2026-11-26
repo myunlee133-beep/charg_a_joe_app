@@ -4,7 +4,7 @@ enum BuildingDesign {
     static let green = Color(hex: 0x00866b)
     static let mint = Color(hex: 0xe5f5ef)
     static let line = Color(hex: 0xe4eae7)
-    static let canvas = Color(uiColor: .systemGroupedBackground)
+    static let canvas = Color(hex: 0xf8faf9)
 }
 
 struct BuildingSurface<Content: View>: View {
@@ -21,6 +21,7 @@ struct BuildingSurface<Content: View>: View {
 struct BuildingHeroPhoto: View {
     let building: CampusBuilding
     var height: CGFloat = 168
+    @Environment(\.dynamicTypeSize) private var typeSize
     private var photo: CampusBuildingPhoto? { CampusBuildingPhoto.photo(for: building) }
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -31,7 +32,7 @@ struct BuildingHeroPhoto: View {
                 } else { placeholder }
             }
             .frame(maxWidth: .infinity).frame(height: height).clipped()
-            if photo != nil {
+            if photo != nil && !typeSize.isAccessibilitySize {
                 Text("공식 건물 사진").font(.caption2.weight(.medium)).foregroundStyle(.white)
                     .padding(.horizontal, 10).padding(.vertical, 6).background(.black.opacity(0.5), in: Capsule()).padding(10)
             }
@@ -53,15 +54,18 @@ struct BuildingHeroPhoto: View {
 
 struct BuildingDirectionsBanner: View {
     let building: CampusBuilding
+    @Environment(\.dynamicTypeSize) private var typeSize
     var body: some View {
         if let url = building.directionsURL {
             DirectionsButton(destination: url, name: building.name) {
                 HStack(spacing: 12) {
                     Image(systemName: "location").font(.title2)
-                    Text("길찾기").font(.headline)
+                    Text("길찾기").font(.headline).fixedSize(horizontal: true, vertical: false)
                     Image(systemName: "chevron.right").font(.subheadline.weight(.semibold))
                     Spacer()
-                    Image(systemName: "point.topleft.down.to.point.bottomright.curvepath").font(.system(size: 38, weight: .light)).opacity(0.3)
+                    if !typeSize.isAccessibilitySize {
+                        Image(systemName: "point.topleft.down.to.point.bottomright.curvepath").font(.system(size: 38, weight: .light)).opacity(0.3).accessibilityHidden(true)
+                    }
                 }
                 .foregroundStyle(BuildingDesign.green).padding(.horizontal, 20).frame(minHeight: 58)
                 .background(LinearGradient(colors: [BuildingDesign.mint, Color(hex: 0xc8eade)], startPoint: .leading, endPoint: .trailing), in: RoundedRectangle(cornerRadius: 18))

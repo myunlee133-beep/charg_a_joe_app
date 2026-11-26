@@ -63,7 +63,7 @@ struct BuildingOverviewView: View {
                     header
                     BuildingHeroPhoto(building: building)
                     BuildingDirectionsBanner(building: building)
-                }.padding(.horizontal, 18).padding(.bottom, 12)
+                }.padding(.horizontal, 18).padding(.bottom, 12).background(Color(uiColor: .systemBackground))
                 Section {
                     VStack(spacing: 18) {
                         switch tab {
@@ -91,7 +91,7 @@ struct BuildingOverviewView: View {
             Spacer(minLength: 0)
             Button { planner.toggleFavorite(building) } label: {
                 Image(systemName: planner.data.favoriteBuildings.contains(building.id) ? "star.fill" : "star")
-                    .font(.title3).frame(width: 44, height: 44)
+                    .font(.system(size: 21)).frame(width: 44, height: 44)
                     .background(BuildingDesign.mint, in: Circle())
             }
             .accessibilityLabel(planner.data.favoriteBuildings.contains(building.id) ? "즐겨찾기 해제" : "즐겨찾기 추가")

@@ -99,7 +99,7 @@ struct BuildingIndoorView: View {
     private var labs: [ResearchLab] { PlaceDirectory.labs(in: building).filter { PlaceDirectory.matches(query, fields: $0.searchFields) } }
     var body: some View {
         List {
-            Section {} footer: { Text("공식 층·호실 정보를 안내해요. 실내 보행 경로나 출입구 위치는 제공되지 않아 임의 경로를 그리지 않아요.") }
+            Section {} footer: { Text("등록된 층과 호실로 공간을 찾아보세요. 실내 보행 경로와 출입구 위치는 운영기관에 확인해 주세요.") }
             ForEach(labs) { lab in NavigationLink { ResearchLabView(lab: lab) } label: { VStack(alignment: .leading, spacing: 6) { Text(lab.name).font(.headline); Text(lab.room).font(.subheadline).foregroundStyle(.secondary) } } }
             ForEach(facilities) { facility in
                 VStack(alignment: .leading, spacing: 8) {

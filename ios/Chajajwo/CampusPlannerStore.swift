@@ -66,7 +66,8 @@ final class CampusPlannerStore: ObservableObject {
             content.body = task.title + (task.location.isEmpty ? "" : " · " + task.location)
             content.sound = .default
             content.userInfo = ["buildingID": task.buildingID, "taskID": task.id.uuidString]
-            let components = CampusPlanning.calendar.dateComponents([.year, .month, .day, .hour, .minute, .timeZone], from: task.due)
+            var components = CampusPlanning.calendar.dateComponents([.year, .month, .day, .hour, .minute, .timeZone], from: task.due)
+            components.calendar = CampusPlanning.calendar
             let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
             try await center.add(UNNotificationRequest(identifier: "campus-visit-" + id.uuidString, content: content, trigger: trigger))
             guard let i = data.tasks.firstIndex(where: { $0.id == id }), !data.tasks[i].completed, data.tasks[i].due == task.due else {

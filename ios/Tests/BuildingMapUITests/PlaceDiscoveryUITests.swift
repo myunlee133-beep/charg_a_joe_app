@@ -120,15 +120,16 @@ final class PlaceDiscoveryUITests: XCTestCase {
         app.buttons["방문 추천 시간"].tap()
         capture(app, "reference-06-visit-time")
         app.navigationBars.buttons.firstMatch.tap()
-        app.swipeDown()
         let tasks = app.buttons["building.tasks"]
-        for _ in 0..<3 where !tasks.isHittable { app.swipeUp() }
+        for _ in 0..<3 where !tasks.isHittable { app.swipeDown() }
         tasks.tap(); app.buttons["planner.add-task"].tap()
         app.textFields["task.title"].tap(); app.textFields["task.title"].typeText("UI 검증 방문")
         app.buttons["task.save"].tap()
         XCTAssertTrue(app.staticTexts["UI 검증 방문"].waitForExistence(timeout: 5))
         capture(app, "reference-07-tasks")
         app.terminate(); app.launch()
+        XCTAssertTrue(app.buttons["building-explorer.close"].waitForExistence(timeout: 15))
+        for _ in 0..<4 where !app.staticTexts["UI 검증 방문"].exists { app.swipeUp() }
         XCTAssertTrue(app.staticTexts["UI 검증 방문"].waitForExistence(timeout: 15))
     }
 }

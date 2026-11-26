@@ -85,7 +85,7 @@ struct CampusTaskEditorView: View {
                 TextField("층·공간 이름 (선택)", text: $location).accessibilityIdentifier("task.location")
                 DatePicker("방문 시간", selection: $due, displayedComponents: [.date, .hourAndMinute])
             }
-            Section {} footer: { Text("할 일은 이 기기에 저장돼요. 저장 후 종 아이콘을 누르면 방문 알림을 설정할 수 있어요.") }
+            Section {} footer: { Text(original?.reminderEnabled == true ? "수정하면 기존 알림은 해제돼요. 저장한 뒤 종 아이콘을 눌러 다시 설정해 주세요." : "할 일은 이 기기에 저장돼요. 저장 후 종 아이콘을 누르면 방문 알림을 설정할 수 있어요.") }
             Section {
                 Button("저장") {
                     var task = original ?? CampusVisitTask(title: title, buildingID: building.id, location: location, due: due)
@@ -115,8 +115,13 @@ struct CampusTimetableView: View {
                 else {
                     if planner.data.classes.isEmpty {
                         BuildingEmptyCard(symbol: "calendar.badge.plus", title: "내 수업을 추가해 보세요", text: "수업 사이의 공강을 찾아 방문할 수 있는 시간을 안내해 드려요.")
+                        NavigationLink { CampusClassEditorView() } label: {
+                            Label("첫 수업 추가", systemImage: "plus").font(.headline).frame(maxWidth: .infinity, minHeight: 52)
+                                .background(BuildingDesign.green, in: Capsule()).foregroundStyle(.white)
+                        }
+                    } else {
+                        CampusWeekGrid(classes: planner.data.classes)
                     }
-                    CampusWeekGrid(classes: planner.data.classes)
                     ForEach(planner.data.classes.sorted { ($0.weekday, $0.startMinute) < ($1.weekday, $1.startMinute) }) { item in
                         NavigationLink { CampusClassEditorView(item: item) } label: {
                             BuildingSurface {
@@ -134,7 +139,7 @@ struct CampusTimetableView: View {
                         }.buttonStyle(.plain)
                     }
                 }
-                Text("직접 등록한 일정만 사용하며 시간표는 이 기기에 저장돼요.").font(.caption).foregroundStyle(.secondary)
+                Text("서울 시간 기준 · 직접 등록한 일정만 사용하며 이 기기에 저장돼요.").font(.caption).foregroundStyle(.secondary)
             }.padding(18)
         }.background(BuildingDesign.canvas).navigationTitle("내 시간표").navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -182,7 +187,7 @@ struct CampusWeekGrid: View {
                         }
                     }.frame(height: CGFloat(lastHour - firstHour) * 48)
                 }
-            }.clipShape(RoundedRectangle(cornerRadius: 12)).overlay(RoundedRectangle(cornerRadius: 12).stroke(BuildingDesign.line))
+            }.background(.white).clipShape(RoundedRectangle(cornerRadius: 12)).overlay(RoundedRectangle(cornerRadius: 12).stroke(BuildingDesign.line))
                 .accessibilityHidden(true)
             Text("주간 미리보기 · 아래 수업을 선택하면 수정할 수 있어요.").font(.caption).foregroundStyle(.secondary)
         }
@@ -261,7 +266,7 @@ struct CampusVisitRecommendations: View {
                 let sourceHours = hours.isEmpty ? [CampusMinuteRange(start: 540, end: 1080)] : hours
                 let after = weekday == CampusPlanning.calendar.component(.weekday, from: Date()) ? CampusPlanning.minute(of: Date(), calendar: CampusPlanning.calendar) : 0
                 let ranges = CampusPlanning.visitRanges(classes: planner.data.classes, weekday: weekday, openingHours: sourceHours, after: after)
-                Text(hours.isEmpty ? "시설 운영시간 미등록 · 09–18시 공강만 표시해요" : "등록한 수업과 식당·카페의 공개 운영시간 기준이에요").font(.footnote).foregroundStyle(.secondary)
+                Text(hours.isEmpty ? "이 요일의 공개 운영 구간 없음 · 09–18시 공강만 표시해요" : "등록한 수업과 식당·카페의 공개 운영시간 기준이에요").font(.footnote).foregroundStyle(.secondary)
                 ForEach(Array(ranges.prefix(4).enumerated()), id: \.offset) { _, range in
                     BuildingSurface {
                         VStack(alignment: .leading, spacing: 10) {
