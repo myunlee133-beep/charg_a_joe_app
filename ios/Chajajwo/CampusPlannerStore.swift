@@ -65,6 +65,7 @@ final class CampusPlannerStore: ObservableObject {
             content.title = "방문할 시간이에요"
             content.body = task.title + (task.location.isEmpty ? "" : " · " + task.location)
             content.sound = .default
+            content.userInfo = ["buildingID": task.buildingID, "taskID": task.id.uuidString]
             let components = CampusPlanning.calendar.dateComponents([.year, .month, .day, .hour, .minute, .timeZone], from: task.due)
             let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
             try await center.add(UNNotificationRequest(identifier: "campus-visit-" + id.uuidString, content: content, trigger: trigger))
@@ -77,5 +78,25 @@ final class CampusPlannerStore: ObservableObject {
 
     func tasks(in building: CampusBuilding, completed: Bool = false) -> [CampusVisitTask] {
         data.tasks.filter { $0.buildingID == building.id && $0.completed == completed }.sorted { $0.due < $1.due }
+    }
+}
+
+final class CampusVisitNotifications: NSObject, UNUserNotificationCenterDelegate {
+    static let shared = CampusVisitNotifications()
+    static let selected = Notification.Name("campus.visit.selected")
+    static let pendingKey = "cj_pending_visit_building"
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification,
+                                withCompletionHandler completion: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completion(notification.request.identifier.hasPrefix("campus-visit-") ? [.banner, .sound] : [])
+    }
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse,
+                                withCompletionHandler completion: @escaping () -> Void) {
+        if response.notification.request.identifier.hasPrefix("campus-visit-"),
+           let buildingID = response.notification.request.content.userInfo["buildingID"] as? String,
+           CampusBuildingCatalog.all.contains(where: { $0.id == buildingID }) {
+            UserDefaults.standard.set(buildingID, forKey: Self.pendingKey)
+            DispatchQueue.main.async { NotificationCenter.default.post(name: Self.selected, object: buildingID) }
+        }
+        completion()
     }
 }

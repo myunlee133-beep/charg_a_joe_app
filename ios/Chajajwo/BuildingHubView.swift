@@ -5,13 +5,16 @@ struct BuildingExplorerSheet: View {
     var onRestaurant: (Place) -> Void
     var onDirections: () -> Void
     var onHeightChange: (CGFloat) -> Void = { _ in }
+    var showTasksOnOpen = false
     @Environment(\.dismiss) private var dismiss
     @StateObject private var planner = CampusPlannerStore.shared
     @State private var detent: PresentationDetent = .fraction(0.68)
+    @State private var showingTasks = false
 
     var body: some View {
         NavigationStack {
             BuildingOverviewView(building: building, onRestaurant: onRestaurant, onDirections: onDirections)
+                .navigationDestination(isPresented: $showingTasks) { CampusTaskListView(building: building) }
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button { dismiss() } label: { Image(systemName: "xmark").font(.subheadline.weight(.semibold)).frame(width: 44, height: 44) }
@@ -27,10 +30,12 @@ struct BuildingExplorerSheet: View {
         .presentationBackgroundInteraction(.enabled(upThrough: .fraction(0.68)))
         .presentationDragIndicator(.visible).presentationCornerRadius(28)
         .onAppear {
+            showingTasks = showTasksOnOpen
             #if DEBUG
             if ProcessInfo.processInfo.arguments.contains("-preview-place-building") { detent = .large }
             #endif
         }
+        .onChange(of: showTasksOnOpen) { _, value in if value { showingTasks = true } }
         .alert("방문 알림", isPresented: Binding(get: { planner.message != nil }, set: { if !$0 { planner.message = nil } })) {
             Button("확인", role: .cancel) { planner.message = nil }
         } message: { Text(planner.message ?? "") }

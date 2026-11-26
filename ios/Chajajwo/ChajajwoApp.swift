@@ -1,13 +1,17 @@
 // xcode: set sdk=iOS
 
 import SwiftUI
+import UserNotifications
 
 @main
 struct ChajajwoApp: App {
     @StateObject private var store = Store()
     @StateObject private var lostFound = LostFoundAPI()
 
-    init() { KakaoMapView.initSDK() }
+    init() {
+        KakaoMapView.initSDK()
+        UNUserNotificationCenter.current().delegate = CampusVisitNotifications.shared
+    }
 
     var body: some Scene {
         WindowGroup {

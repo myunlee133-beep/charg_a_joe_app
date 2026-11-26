@@ -13,6 +13,7 @@ struct HomeView: View {
     @State private var focusedBuilding: CampusBuilding?
     @State private var exploredBuilding: CampusBuilding?
     @State private var explorerHeight: CGFloat = 0
+    @State private var openVisitTasks = false
     @State private var pendingBuildingRoute: CampusBuilding?
     @State private var buildingDirectionsRequest: BuildingDirectionsRequest?
     @State private var focusSerial = 0
@@ -91,6 +92,7 @@ struct HomeView: View {
         }
         .sheet(item: $exploredBuilding, onDismiss: {
             explorerHeight = 0
+            openVisitTasks = false
             if let building = pendingBuildingRoute {
                 pendingBuildingRoute = nil
                 buildingDirectionsRequest = .init(destination: building)
@@ -103,7 +105,7 @@ struct HomeView: View {
             }, onDirections: {
                 pendingBuildingRoute = building
                 exploredBuilding = nil
-            }, onHeightChange: { explorerHeight = $0 })
+            }, onHeightChange: { explorerHeight = $0 }, showTasksOnOpen: openVisitTasks)
         }
         .sheet(item: $selectedQuestGroup) { group in
             NavigationStack {
@@ -126,6 +128,7 @@ struct HomeView: View {
             if scenePhase == .active && store.tab == .home { userLocation.start() }
             Task { await lf.prepare() }
             if let id = store.lostPinID { selectedLostPinID = id }
+            openPendingVisit()
             #if DEBUG
             if ProcessInfo.processInfo.arguments.contains("-preview-map-selected") { selectedMapQuest = store.quests.first }
             if ProcessInfo.processInfo.arguments.contains("-preview-map-building-center") { store.homeFilter = .food }
@@ -138,6 +141,7 @@ struct HomeView: View {
             #endif
         }
         .onChange(of: store.lostPinID) { _, newValue in selectedLostPinID = newValue }
+        .onReceive(NotificationCenter.default.publisher(for: CampusVisitNotifications.selected)) { _ in openPendingVisit() }
         .onDisappear { userLocation.stop(); pendingUserFocus = false }
         .onChange(of: store.tab) { _, tab in
             if tab == .home && scenePhase == .active { userLocation.start() }
@@ -471,6 +475,7 @@ struct HomeView: View {
     }
 
     private func focus(on building: CampusBuilding, preserveFilter: Bool = false) {
+        openVisitTasks = false
         searchFocused = false
         clearMapSelection()
         selectedQuestGroup = nil
@@ -485,6 +490,15 @@ struct HomeView: View {
         exploredBuilding = building
         focusSerial += 1  // Repeat taps on the same building still recenter the camera.
         query = ""        // Close results so the map location is clearly visible.
+    }
+
+    private func openPendingVisit() {
+        guard let id = UserDefaults.standard.string(forKey: CampusVisitNotifications.pendingKey),
+              let building = CampusBuildingCatalog.all.first(where: { $0.id == id }) else { return }
+        UserDefaults.standard.removeObject(forKey: CampusVisitNotifications.pendingKey)
+        store.tab = .home; store.showDining = false
+        focus(on: building, preserveFilter: true)
+        openVisitTasks = true
     }
 
     private func buildingCard(_ building: CampusBuilding) -> some View {
