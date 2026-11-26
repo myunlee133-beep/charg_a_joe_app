@@ -33,3 +33,22 @@ targets:
         DEVELOPMENT_TEAM: UZ3883JFZS
         SWIFT_VERSION: "5.0"
         TARGETED_DEVICE_FAMILY: "1"
+  BuildingMapUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [Tests/BuildingMapUITests]
+    dependencies:
+      - target: Chajajwo
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.chargajoe.chajajwo.building-map-tests
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1"
+schemes:
+  Chajajwo:
+    build:
+      targets:
+        Chajajwo: all
+    test:
+      targets: [BuildingMapUITests]

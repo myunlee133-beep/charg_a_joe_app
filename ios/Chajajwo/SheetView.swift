@@ -152,7 +152,7 @@ struct SheetView: View {
             }
 
             HStack(spacing: 10) {
-                Link(destination: place.directionsURL) { BigLabel(text: "길찾기", style: .orangeLine) }
+                DirectionsButton(destination: place.directionsURL, name: place.name) { BigLabel(text: "길찾기", style: .orangeLine) }
             }
             .padding(.top, 12)
         }
@@ -254,7 +254,7 @@ struct SheetView: View {
     private var stopBody: some View {
         VStack(alignment: .leading, spacing: 0) {
             ShuttleStatusContent().padding(.vertical, 14)
-            Link(destination: place.directionsURL) { BigLabel(text: "길찾기", style: .tealLine) }.padding(.top, 14)
+            DirectionsButton(destination: place.directionsURL, name: place.name) { BigLabel(text: "길찾기", style: .tealLine) }.padding(.top, 14)
         }
     }
 

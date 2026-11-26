@@ -14,8 +14,12 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
-      - name: Test quest and circular-shuttle models
+      - name: Test campus models and in-app directions links
         run: swift test
+      - name: Generate the iOS project with map interaction tests
+        run: |
+          if ! command -v xcodegen >/dev/null; then brew install xcodegen; fi
+          xcodegen generate --spec ios/project.yml
       - name: Build the iOS simulator app without signing
         run: xcodebuild -project ios/Chajajwo.xcodeproj -scheme Chajajwo -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/ChajajwoBuild" CODE_SIGNING_ALLOWED=NO build
       - name: Package the verified app for Appetize
@@ -59,8 +63,39 @@ jobs:
           xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-quests
           sleep 5
           xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/quests.png"
+          xcrun simctl terminate "$DEVICE_ID" org.chargajoe.chajajwo
+          xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo -preview-directions
+          sleep 12
+          xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/directions.png"
+          xcrun simctl spawn "$DEVICE_ID" launchctl list | grep org.chargajoe.chajajwo
+          for PREVIEW in building-directions building-route; do
+            xcrun simctl terminate "$DEVICE_ID" org.chargajoe.chajajwo
+            xcrun simctl launch "$DEVICE_ID" org.chargajoe.chajajwo "-preview-$PREVIEW"
+            sleep 12
+            xcrun simctl io "$DEVICE_ID" screenshot "$RUNNER_TEMP/native-preview/$PREVIEW.png"
+            xcrun simctl spawn "$DEVICE_ID" launchctl list | grep org.chargajoe.chajajwo
+          done
       - uses: actions/upload-artifact@v4
         if: github.event_name != 'pull_request'
         with:
           name: native-home-preview
           path: ${{ runner.temp }}/native-preview/*.png
+      - name: Test native building selection, details and search
+        timeout-minutes: 8
+        run: |
+          DEVICE_ID=$(xcrun simctl list devices available --json | python3 -c 'import sys,json; print(next(d["udid"] for ds in json.load(sys.stdin)["devices"].values() for d in ds if d["name"].startswith("iPhone")))')
+          xcodebuild -project ios/Chajajwo.xcodeproj -scheme Chajajwo -sdk iphonesimulator -destination "platform=iOS Simulator,id=$DEVICE_ID" -parallel-testing-enabled NO -derivedDataPath "$RUNNER_TEMP/ChajajwoBuild" -resultBundlePath "$RUNNER_TEMP/BuildingMapTests.xcresult" CODE_SIGNING_ALLOWED=NO test
+      - name: Export native interaction screenshots
+        if: always()
+        run: |
+          if [ -d "$RUNNER_TEMP/BuildingMapTests.xcresult" ]; then
+            xcrun xcresulttool export attachments --path "$RUNNER_TEMP/BuildingMapTests.xcresult" --output-path "$RUNNER_TEMP/building-map-screenshots"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: building-map-ui-tests
+          path: |
+            ${{ runner.temp }}/BuildingMapTests.xcresult
+            ${{ runner.temp }}/building-map-screenshots
+          if-no-files-found: ignore

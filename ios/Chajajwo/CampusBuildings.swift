@@ -17,12 +17,21 @@ struct CampusBuilding: Codable, Identifiable, Hashable {
 
     var displayTitle: String { number == nil ? name : "\(buildingNumberLabel) · \(name)" }
 
-    var directionsURL: URL? {
-        // Use the installed Kakao Map app / web link without storing its credentials.
+    var coordinate: CampusCoordinate { .init(latitude: latitude, longitude: longitude) }
+
+    var mapURL: URL? {
         var allowed = CharacterSet.urlPathAllowed
-        allowed.remove(charactersIn: ",")
-        let encoded = name.addingPercentEncoding(withAllowedCharacters: allowed) ?? name
-        return URL(string: "https://map.kakao.com/link/to/\(encoded),\(latitude),\(longitude)")
+        allowed.remove(charactersIn: ",/?#")
+        let encoded = displayTitle.addingPercentEncoding(withAllowedCharacters: allowed) ?? name
+        return URL(string: "https://map.kakao.com/link/map/\(encoded),\(latitude),\(longitude)")
+    }
+
+    var directionsURL: URL? {
+        DirectionsURL.destination(name: name, latitude: latitude, longitude: longitude)
+    }
+
+    var directionsEndpoint: DirectionsEndpoint {
+        .init(name: displayTitle, latitude: latitude, longitude: longitude)
     }
 }
 

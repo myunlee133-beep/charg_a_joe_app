@@ -7,8 +7,9 @@ struct KakaoMapView: UIViewRepresentable {
     let places: [Place]            // 지금 필터에 맞는 장소
     let counts: [String: Int]      // 거점별 보관 건수
     let selected: String
-    let sheetOpen: Bool            // 하단 카드가 펼쳐졌는지
-    let focusedBuilding: CampusBuilding?  // Search-selected campus building
+    let bottomInset: CGFloat       // Actual height of the current map card
+    let topObstruction: CGFloat    // Bottom edge of the search controls in window coordinates
+    let focusedBuilding: CampusBuilding?  // Search- or map-selected campus building
     let focusSerial: Int                  // Increment to re-focus even for the same ID
     let userCoordinate: CLLocationCoordinate2D?
     let userHeadingDegrees: Double?
@@ -22,7 +23,8 @@ struct KakaoMapView: UIViewRepresentable {
     var zoomRequest = 0
     var onQuestSelect: ((String) -> Void)? = nil
     var onQuestGroupSelect: (([String]) -> Void)? = nil
-    var onQuestDeselect: (() -> Void)? = nil
+    var onDeselect: (() -> Void)? = nil
+    let onSelectBuilding: (CampusBuilding) -> Void
     let onSelect: (String) -> Void
     let onSelectLost: (String) -> Void
 
@@ -33,6 +35,10 @@ struct KakaoMapView: UIViewRepresentable {
 
     func makeUIView(context: Context) -> KMViewContainer {
         let container = KMViewContainer()
+        container.accessibilityIdentifier = "campus-map"
+        container.isAccessibilityElement = true
+        container.accessibilityLabel = "캠퍼스 지도"
+        container.accessibilityTraits = [.allowsDirectInteraction]
         context.coordinator.createController(container)
         shuttle?.onPositionsChange = { [weak coordinator = context.coordinator] in coordinator?.shuttlesChanged() }
         return container
@@ -52,14 +58,16 @@ struct KakaoMapView: UIViewRepresentable {
     @MainActor final class Coordinator: NSObject, MapControllerDelegate, KakaoMapEventDelegate {
         var parent: KakaoMapView
         private var controller: KMController?
+        private weak var mapContainer: KMViewContainer?
         private var pois: [String: Poi] = [:]
         private var appliedStyle: [String: String] = [:]
         private var placeTapHandlers: [String: DisposableEventHandler] = [:]
         private var foodGeometry: [String: (CGSize, CGFloat)] = [:]
         private var addedStyles: Set<String> = []
         private var lastSelected: String?
-        private var lastSheetOpen = false
+        private var lastMapInsets = UIEdgeInsets.zero
         private var buildingPois: [String: Poi] = [:]
+        private var buildingTapHandlers: [String: DisposableEventHandler] = [:]
         private var lastBuildingID: String?
         private var lastFocusSerial = -1
         private let layerID = "places"
@@ -80,6 +88,8 @@ struct KakaoMapView: UIViewRepresentable {
         private var lastQuestTapAt = -Double.infinity
         private var lastQuestTapID: String?
         private var lastPlaceTapAt = -Double.infinity
+        private var lastBuildingTapAt = -Double.infinity
+        private var lastBuildingTapID: String?
         private var userDot: Poi?
         private var userDirection: Poi?
         private let lostLayerID = "lost-found"
@@ -101,6 +111,7 @@ struct KakaoMapView: UIViewRepresentable {
         }
 
         func createController(_ container: KMViewContainer) {
+            mapContainer = container
             let c = KMController(viewContainer: container)
             c.delegate = self
             controller = c
@@ -112,6 +123,8 @@ struct KakaoMapView: UIViewRepresentable {
             questTapHandlers.removeAll()
             placeTapHandlers.values.forEach { $0.dispose() }
             placeTapHandlers.removeAll()
+            buildingTapHandlers.values.forEach { $0.dispose() }
+            buildingTapHandlers.removeAll()
             // The six-tab container removes the home view when changing tabs.
             // Release this engine before a later home view creates another one.
             controller?.pauseEngine()
@@ -145,6 +158,11 @@ struct KakaoMapView: UIViewRepresentable {
                 initialLevel = 17
                 initialCoordinate = .init(latitude: 37.45925, longitude: 126.9506)
             }
+            if let index = args.firstIndex(of: "-preview-map-building-center"), index + 1 < args.count,
+               let building = CampusBuildingCatalog.all.first(where: { $0.id == args[index + 1] }) {
+                initialLevel = 18
+                initialCoordinate = building.coordinate
+            }
             #endif
             let info = MapviewInfo(viewName: viewName, viewInfoName: "map",
                                    defaultPosition: MapPoint(longitude: initialCoordinate.longitude, latitude: initialCoordinate.latitude), defaultLevel: initialLevel)
@@ -153,6 +171,7 @@ struct KakaoMapView: UIViewRepresentable {
         func addViewSucceeded(_ viewName: String, viewInfoName: String) {
             guard let map = controller?.getView(viewName) as? KakaoMap else { return }
             map.eventDelegate = self
+            map.poiClickable = true // Base-map building names are selectable too.
             let manager = map.getLabelManager()
             _ = manager.addLabelLayer(option: LabelLayerOptions(layerID: layerID, competitionType: .none,
                                                                 competitionUnit: .symbolFirst, orderType: .rank, zOrder: 20000)) // 지도 기본 글자(zOrder ~10000)보다 위에 그려야 이름표가 안 가려진다
@@ -173,6 +192,7 @@ struct KakaoMapView: UIViewRepresentable {
                 if id == questLayerID { manager.getLabelLayer(layerID: id)?.setClickable(true) }
             }
             refresh()
+            mapContainer?.accessibilityValue = "지도를 사용할 수 있습니다"
         }
         func addViewFailed(_ viewName: String, viewInfoName: String) { print("카카오맵 뷰 추가 실패") }
         func containerDidResized(_ size: CGSize) {
@@ -188,10 +208,14 @@ struct KakaoMapView: UIViewRepresentable {
             guard let layer = manager.getLabelLayer(layerID: layerID) else { return }
             // Apply the current card's margins before creating camera updates or
             // measuring labels; food -> quest selection otherwise uses stale margins.
-            if lastSheetOpen != parent.sheetOpen {
-                if parent.sheetOpen { map.setMargins(UIEdgeInsets(top: 0, left: 0, bottom: 190, right: 0)) }
+            let bottomInset = min(max(0, parent.bottomInset), map.viewRect.height * 0.65)
+            let originY = mapContainer?.convert(.zero, to: nil).y ?? 0
+            let topInset = parent.topObstruction > 0 ? max(0, parent.topObstruction - originY + 12) : 0
+            let marginsChanged = abs(lastMapInsets.bottom - bottomInset) > 1 || abs(lastMapInsets.top - topInset) > 1
+            if marginsChanged {
+                if bottomInset > 0 || topInset > 0 { map.setMargins(UIEdgeInsets(top: topInset, left: 0, bottom: bottomInset, right: 0)) }
                 else { map.resetMargins() }
-                lastSheetOpen = parent.sheetOpen
+                lastMapInsets = UIEdgeInsets(top: topInset, left: 0, bottom: bottomInset, right: 0)
             }
             // User marker is always visible, even at map levels where hub pins are hidden.
             refreshUserLocation(on: map, manager: manager)
@@ -256,17 +280,18 @@ struct KakaoMapView: UIViewRepresentable {
                     if buildingPois[building.id] == nil {
                         let opt = PoiOptions(styleID: styleID, poiID: "campus-\(building.id)")
                         opt.rank = 200
-                        opt.clickable = false // Search selection handled in SwiftUI.
+                        opt.clickable = true
                         let poi = layer.addPoi(option: opt, at: MapPoint(longitude: building.longitude, latitude: building.latitude))
                         buildingPois[building.id] = poi
+                        buildingTapHandlers[building.id] = poi?.addPoiTappedEventHandler(target: self, handler: Coordinator.buildingPoiTapped)
                     }
                     buildingPois[building.id]?.show()
                 }
                 lastBuildingID = parent.focusedBuilding?.id
             }
-            if let building = parent.focusedBuilding, parent.focusSerial != lastFocusSerial {
+            if let building = parent.focusedBuilding, parent.focusSerial != lastFocusSerial || marginsChanged {
                 let target = MapPoint(longitude: building.longitude, latitude: building.latitude)
-                let update = CameraUpdate.make(target: target, zoomLevel: 17, mapView: map)
+                let update = CameraUpdate.make(target: target, zoomLevel: max(17, Int(map.zoomLevel)), mapView: map)
                 map.animateCamera(cameraUpdate: update,
                                   options: CameraAnimationOptions(autoElevation: false, consecutive: false, durationInMillis: 500))
                 lastFocusSerial = parent.focusSerial
@@ -438,6 +463,33 @@ struct KakaoMapView: UIViewRepresentable {
             dismissKeyboard(); parent.onSelect(param.poiItem.itemID)
         }
 
+        private func buildingPoiTapped(_ param: PoiInteractionEventParam) {
+            guard let building = parent.focusedBuilding, "campus-\(building.id)" == param.poiItem.itemID else { return }
+            selectBuilding(building)
+        }
+
+        private func selectBuilding(_ building: CampusBuilding) {
+            let now = ProcessInfo.processInfo.systemUptime
+            guard building.id != lastBuildingTapID || now - lastBuildingTapAt > 0.3 else { return }
+            lastBuildingTapAt = now
+            lastBuildingTapID = building.id
+            dismissKeyboard()
+            parent.onSelectBuilding(building)
+        }
+
+        func poiDidTapped(kakaoMap: KakaoMap, layerID: String, poiID: String, position: MapPoint) {
+            // Custom layers have their own precise handlers/hit areas. Only
+            // resolve SDK base-map POIs against our offline campus catalog here.
+            guard ![self.layerID, questLayerID, questLeaderLayerID, lostLayerID, userLayerID, shuttleLayerID].contains(layerID) else { return }
+            let geo = position.wgsCoord
+            let coordinate = CampusCoordinate(latitude: geo.latitude, longitude: geo.longitude)
+            guard coordinate.isValid,
+                  let building = CampusBuildingCatalog.all.min(by: {
+                      $0.coordinate.distance(to: coordinate) < $1.coordinate.distance(to: coordinate)
+                  }), building.coordinate.distance(to: coordinate) <= 45 else { return }
+            selectBuilding(building)
+        }
+
         private func questPoiTapped(_ param: PoiInteractionEventParam) {
             guard let map = controller?.getView(viewName) as? KakaoMap,
                   let group = questGroups.first(where: { "quest-\($0.id)" == param.poiItem.itemID }) else { return }
@@ -562,11 +614,19 @@ struct KakaoMapView: UIViewRepresentable {
             return PoiStyle(styleID: "user-position-direction", styles: [PerLevelPoiStyle(iconStyle: icon, level: 0)])
         }
 
-        // ponytail: SDK의 핀 클릭 판정이 우리 핀에 안 먹어서, 탭 좌표를 지도 좌표로 바꿔 가장 가까운 핀을 직접 고른다.
         func kakaoMapDidTapped(kakaoMap: KakaoMap, point: CGPoint) {
+            // Defer the terrain fallback so a native POI event from this same
+            // touch wins regardless of the SDK's delegate-callback order.
+            DispatchQueue.main.async { [weak self, weak kakaoMap] in
+                guard let self, let kakaoMap else { return }
+                self.selectMapContent(on: kakaoMap, at: point)
+            }
+        }
+
+        private func selectMapContent(on kakaoMap: KakaoMap, at point: CGPoint) {
             dismissKeyboard() // 지도를 누르면 키보드 내림. 제스처를 따로 얹으면 SDK 탭이 안 먹어서 SDK 콜백에서 처리한다.
             // A POI tap can also emit a map tap. Keep one selection/zoom per touch.
-            if ProcessInfo.processInfo.systemUptime - max(lastQuestTapAt, lastPlaceTapAt) < 0.2 { return }
+            if ProcessInfo.processInfo.systemUptime - max(lastBuildingTapAt, max(lastQuestTapAt, lastPlaceTapAt)) < 0.2 { return }
             // Hit-test lost-and-found pins independently of zoom and old hub pin visibility.
             // 점 중심이 앵커라서 탭한 지점을 그대로 기준으로 삼고, 반경은 화면 22pt 만큼의 거리.
             let probe = kakaoMap.getPosition(CGPoint(x: point.x, y: point.y)).wgsCoord
@@ -613,8 +673,20 @@ struct KakaoMapView: UIViewRepresentable {
                 .filter { $0.1 <= radius }
                 .min { $0.1 < $1.1 }
             if let lostHit { parent.onSelectLost(lostHit.0); return }
-            if pinsVisible, let hit { parent.onSelect(hit.0) }
-            else { parent.onQuestDeselect?() }
+            if pinsVisible, let hit { parent.onSelect(hit.0); return }
+            if let projection = screenProjection(on: kakaoMap) {
+                let targets = CampusBuildingCatalog.all.map {
+                    CampusBuildingMapTarget(id: $0.id, coordinate: $0.coordinate, point: projection.point(for: $0.coordinate))
+                }
+                let coordinate = CampusCoordinate(latitude: probe.latitude, longitude: probe.longitude)
+                if let id = CampusBuildingHitTest.select(at: point, coordinate: coordinate,
+                                                        zoom: Int(kakaoMap.zoomLevel), targets: targets),
+                   let building = CampusBuildingCatalog.all.first(where: { $0.id == id }) {
+                    selectBuilding(building)
+                    return
+                }
+            }
+            parent.onDeselect?()
         }
 
         // MARK: 핀 이미지
@@ -776,7 +848,7 @@ struct MapDot: View {
     }
 }
 
-/// Dedicated marker for a building searched in the top search bar.
+/// Dedicated marker for a building selected from the map or search results.
 private struct CampusBuildingPin: View {
     var body: some View {
         VStack(spacing: -3) {

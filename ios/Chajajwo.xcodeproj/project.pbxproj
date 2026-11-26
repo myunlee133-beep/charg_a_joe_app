@@ -7,14 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0B0A7E3B4E7360563BAA3385 /* DirectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2F52FF960EB55F98538E22 /* DirectionsView.swift */; };
 		0B4E195027406313B44E9223 /* LostFoundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC21F98CFD1895AAD82D10FE /* LostFoundView.swift */; };
 		11A8BF0797516E5D961BD3D9 /* circular_route.json in Resources */ = {isa = PBXBuildFile; fileRef = 808638B35848D673CA233666 /* circular_route.json */; };
 		14E7AF195F738BD481C30EBA /* LandmarkAR.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29E4CB945E24E7559264D63 /* LandmarkAR.swift */; };
 		23646A349DD28C0BF7096B37 /* QuestViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8CDF9E385C52C36866B0F0C /* QuestViews.swift */; };
+		340F1BCA0E695A61B71BAE5E /* BuildingDirectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDABC54716A934B2299DB6E7 /* BuildingDirectionsView.swift */; };
 		3F37CE322734D466EF679B0A /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167AB2FB5772FA754F4D351D /* Models.swift */; };
 		585C05044B324F04B61564F5 /* UserLocationMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7612C68CE14A6DD8E3AD5B48 /* UserLocationMath.swift */; };
 		5A6D35ECAE96BCBD18A5220E /* UserLocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E56FC5DFAD1C5B249B4468E9 /* UserLocationService.swift */; };
 		5AD97816C765A62B2AAB0928 /* CommunityRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C98B3616C371B106BB0E60B /* CommunityRules.swift */; };
+		5B70E789048C47AF57D7A0D8 /* DirectionsURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = F38BEEF105B884264DBDF81F /* DirectionsURL.swift */; };
 		6345E3CA1B8866006C34F451 /* SheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 597ED81F0302CB4D4B2A46D4 /* SheetView.swift */; };
 		689967753C20DF3AF16687D3 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0002B9E7C0B2A55E705C4A1F /* HomeView.swift */; };
 		779E06E3A38A5A81A408FE83 /* DiningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C71793D2BDEBBE0B4104048F /* DiningView.swift */; };
@@ -22,6 +25,7 @@
 		8369EDD153D71FC5FC215AA6 /* CommunityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FC672EB5A27283B23755E31 /* CommunityView.swift */; };
 		8480E099E329F7E2735F8EC5 /* meals.json in Resources */ = {isa = PBXBuildFile; fileRef = 99839F37C55FF9AC8F108599 /* meals.json */; };
 		8969D7A83AF52727A43AC987 /* KakaoMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E2D883C39979A1D67886B1C /* KakaoMapView.swift */; };
+		90D822CA4C692BCAA59D8970 /* BuildingMapUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AAC6BE907A7E34B54EC31C3 /* BuildingMapUITests.swift */; };
 		93C05C931C68DE277C07B217 /* Tabs.swift in Sources */ = {isa = PBXBuildFile; fileRef = B445B1C3F9C3315DE62A7DF8 /* Tabs.swift */; };
 		95050154E215ADABB568BC2E /* DiningData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F752E28546F71532B695A3B0 /* DiningData.swift */; };
 		950CE96DBC69007E291A54CC /* CircularShuttleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F5D76F2FF614DD3BC002AB7 /* CircularShuttleService.swift */; };
@@ -41,13 +45,25 @@
 		FBB100F12AD054D80E0D24A6 /* MapMarkerLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744048ABEDEA5FB44E87CB45 /* MapMarkerLayout.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		820D246EF4F1AA349BC599E9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 25D2D66A469F8BFB085EE6DF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 07F4424508D760E5ED271734;
+			remoteInfo = Chajajwo;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		0002B9E7C0B2A55E705C4A1F /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		03C207D17DCE45115AC8457F /* CircularShuttle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularShuttle.swift; sourceTree = "<group>"; };
 		0C98B3616C371B106BB0E60B /* CommunityRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityRules.swift; sourceTree = "<group>"; };
 		167AB2FB5772FA754F4D351D /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		2A2F52FF960EB55F98538E22 /* DirectionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectionsView.swift; sourceTree = "<group>"; };
 		2D19537DD6F6D6939F565D17 /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		2F5D76F2FF614DD3BC002AB7 /* CircularShuttleService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularShuttleService.swift; sourceTree = "<group>"; };
+		3AAC6BE907A7E34B54EC31C3 /* BuildingMapUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildingMapUITests.swift; sourceTree = "<group>"; };
 		4A8209FF5016CD695DCA2E87 /* Landmarks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Landmarks.swift; sourceTree = "<group>"; };
 		4FC672EB5A27283B23755E31 /* CommunityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityView.swift; sourceTree = "<group>"; };
 		597ED81F0302CB4D4B2A46D4 /* SheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetView.swift; sourceTree = "<group>"; };
@@ -66,15 +82,18 @@
 		B445B1C3F9C3315DE62A7DF8 /* Tabs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tabs.swift; sourceTree = "<group>"; };
 		C37F690BF5CA084C0DAD6C3B /* ChajajwoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChajajwoApp.swift; sourceTree = "<group>"; };
 		C71793D2BDEBBE0B4104048F /* DiningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiningView.swift; sourceTree = "<group>"; };
+		CDABC54716A934B2299DB6E7 /* BuildingDirectionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildingDirectionsView.swift; sourceTree = "<group>"; };
 		D8CDF9E385C52C36866B0F0C /* QuestViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestViews.swift; sourceTree = "<group>"; };
 		D9E64762475D71D84F1E2F12 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E29E4CB945E24E7559264D63 /* LandmarkAR.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandmarkAR.swift; sourceTree = "<group>"; };
 		E56FC5DFAD1C5B249B4468E9 /* UserLocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLocationService.swift; sourceTree = "<group>"; };
 		E6FD255F2ECB57ABE416FCDD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		ED23814E5EBEC9C48764C0FC /* LostFoundAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LostFoundAPI.swift; sourceTree = "<group>"; };
+		F38BEEF105B884264DBDF81F /* DirectionsURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectionsURL.swift; sourceTree = "<group>"; };
 		F461CB414651DB77A5DF1D66 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		F752E28546F71532B695A3B0 /* DiningData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiningData.swift; sourceTree = "<group>"; };
 		F759704119CA34EB4DB817DB /* LostFoundRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LostFoundRules.swift; sourceTree = "<group>"; };
+		FC1AE0A415775ABD536AE859 /* BuildingMapUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = BuildingMapUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,6 +111,7 @@
 		287919BDF084C35295606D06 = {
 			isa = PBXGroup;
 			children = (
+				F1631E48027C9F352FB82FA9 /* BuildingMapUITests */,
 				9F502B7EFA45CE888CCCCFB4 /* Chajajwo */,
 				EC5C160B3E376A3E4DD218BF /* Products */,
 			);
@@ -109,6 +129,7 @@
 			isa = PBXGroup;
 			children = (
 				03C207D17DCE45115AC8457F /* CircularShuttle.swift */,
+				F38BEEF105B884264DBDF81F /* DirectionsURL.swift */,
 				4A8209FF5016CD695DCA2E87 /* Landmarks.swift */,
 				744048ABEDEA5FB44E87CB45 /* MapMarkerLayout.swift */,
 				872D3D7E402CBE0534436772 /* QuestModels.swift */,
@@ -121,6 +142,7 @@
 			isa = PBXGroup;
 			children = (
 				E6FD255F2ECB57ABE416FCDD /* Assets.xcassets */,
+				CDABC54716A934B2299DB6E7 /* BuildingDirectionsView.swift */,
 				75AC97CC562074701E85E585 /* CampusBuildings.swift */,
 				C37F690BF5CA084C0DAD6C3B /* ChajajwoApp.swift */,
 				2F5D76F2FF614DD3BC002AB7 /* CircularShuttleService.swift */,
@@ -130,6 +152,7 @@
 				8448DF90FAA152C7BBC65918 /* Components.swift */,
 				F752E28546F71532B695A3B0 /* DiningData.swift */,
 				C71793D2BDEBBE0B4104048F /* DiningView.swift */,
+				2A2F52FF960EB55F98538E22 /* DirectionsView.swift */,
 				0002B9E7C0B2A55E705C4A1F /* HomeView.swift */,
 				D9E64762475D71D84F1E2F12 /* Info.plist */,
 				6E2D883C39979A1D67886B1C /* KakaoMapView.swift */,
@@ -163,9 +186,19 @@
 		EC5C160B3E376A3E4DD218BF /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				FC1AE0A415775ABD536AE859 /* BuildingMapUITests.xctest */,
 				86C82520DD181A83C5A81347 /* Chajajwo.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		F1631E48027C9F352FB82FA9 /* BuildingMapUITests */ = {
+			isa = PBXGroup;
+			children = (
+				3AAC6BE907A7E34B54EC31C3 /* BuildingMapUITests.swift */,
+			);
+			name = BuildingMapUITests;
+			path = Tests/BuildingMapUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -191,6 +224,24 @@
 			productReference = 86C82520DD181A83C5A81347 /* Chajajwo.app */;
 			productType = "com.apple.product-type.application";
 		};
+		667B9E41F62BA5E56FDB9AB2 /* BuildingMapUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 295693EC24ECC5A1CBC4658E /* Build configuration list for PBXNativeTarget "BuildingMapUITests" */;
+			buildPhases = (
+				775DC8363B8A94C623AAEF06 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F69FCF91F1AEF87AF997A0C4 /* PBXTargetDependency */,
+			);
+			name = BuildingMapUITests;
+			packageProductDependencies = (
+			);
+			productName = BuildingMapUITests;
+			productReference = FC1AE0A415775ABD536AE859 /* BuildingMapUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -202,6 +253,9 @@
 				TargetAttributes = {
 					07F4424508D760E5ED271734 = {
 						DevelopmentTeam = UZ3883JFZS;
+					};
+					667B9E41F62BA5E56FDB9AB2 = {
+						TestTargetID = 07F4424508D760E5ED271734;
 					};
 				};
 			};
@@ -223,6 +277,7 @@
 			projectRoot = "";
 			targets = (
 				07F4424508D760E5ED271734 /* Chajajwo */,
+				667B9E41F62BA5E56FDB9AB2 /* BuildingMapUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -247,6 +302,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				340F1BCA0E695A61B71BAE5E /* BuildingDirectionsView.swift in Sources */,
 				FB2CD538E92D73DC1BC2325E /* CampusBuildings.swift in Sources */,
 				F91F2A6C09D8B8C144B1BC8B /* ChajajwoApp.swift in Sources */,
 				BAA1167ABFAFD9CE43C2C2C7 /* CircularShuttle.swift in Sources */,
@@ -257,6 +313,8 @@
 				D6A967127FDF55C2285BBF86 /* Components.swift in Sources */,
 				95050154E215ADABB568BC2E /* DiningData.swift in Sources */,
 				779E06E3A38A5A81A408FE83 /* DiningView.swift in Sources */,
+				5B70E789048C47AF57D7A0D8 /* DirectionsURL.swift in Sources */,
+				0B0A7E3B4E7360563BAA3385 /* DirectionsView.swift in Sources */,
 				689967753C20DF3AF16687D3 /* HomeView.swift in Sources */,
 				8969D7A83AF52727A43AC987 /* KakaoMapView.swift in Sources */,
 				14E7AF195F738BD481C30EBA /* LandmarkAR.swift in Sources */,
@@ -276,9 +334,43 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		775DC8363B8A94C623AAEF06 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				90D822CA4C692BCAA59D8970 /* BuildingMapUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		F69FCF91F1AEF87AF997A0C4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 07F4424508D760E5ED271734 /* Chajajwo */;
+			targetProxy = 820D246EF4F1AA349BC599E9 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		1EEF09F47EBC9D1C27FF5983 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.chargajoe.chajajwo.building-map-tests";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = Chajajwo;
+			};
+			name = Debug;
+		};
 		474CCC09FE5ED9F69E4513A0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -296,6 +388,24 @@
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
+		};
+		55CE2D9D4D0EF269A2041138 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.chargajoe.chajajwo.building-map-tests";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = Chajajwo;
+			};
+			name = Release;
 		};
 		5A24CC3F1A575CA2FBAE6C02 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -437,6 +547,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		295693EC24ECC5A1CBC4658E /* Build configuration list for PBXNativeTarget "BuildingMapUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1EEF09F47EBC9D1C27FF5983 /* Debug */,
+				55CE2D9D4D0EF269A2041138 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		4EB2041409BFF8FEAD0CAE21 /* Build configuration list for PBXProject "Chajajwo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
