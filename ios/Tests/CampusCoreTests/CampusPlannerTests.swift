@@ -63,4 +63,14 @@ final class CampusPlannerTests: XCTestCase {
         XCTAssertFalse(CampusSpace.all.isEmpty)
         XCTAssertTrue(CampusSpace.all.allSatisfy { numbers.contains($0.building.id) })
     }
+    func testStudyRecommendationsExcludeLibraryATMsOfficesParkingAndAEDs() {
+        let names = Set(CampusSpace.all.map(\.name))
+        XCTAssertTrue(names.contains("중앙도서관 본관"))
+        XCTAssertTrue(names.contains("사회과학도서관"))
+        XCTAssertFalse(names.contains("중앙도서관 농협ATM"))
+        XCTAssertFalse(names.contains("중앙도서관 수서정리과 사무실"))
+        XCTAssertFalse(names.contains("62동 중앙도서관 본관: 3층 3A 열람실 출입구"))
+        XCTAssertFalse(names.contains("관정관: 2층 헤리티지 라운지"))
+        XCTAssertEqual(CampusSpace.all.filter { $0.name == "농학도서관" }.count, 1)
+    }
 }

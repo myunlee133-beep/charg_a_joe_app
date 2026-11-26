@@ -110,13 +110,14 @@ struct CampusSpace: Identifiable {
         let cafes = venues.map { CampusSpace(id: $0.id, name: $0.name, building: building, floor: $0.floor, kind: "카페") }
         let facilities = (building.details?.facilities ?? []).compactMap { facility -> CampusSpace? in
             if venues.contains(where: { $0.aliases.contains { facility.name.contains($0) } }) { return nil }
-            let name = facility.name
             let kind: String
-            if facility.category.contains("카페") || name.contains("카페") { kind = "카페" }
-            else if ["도서", "열람", "학습", "스터디"].contains(where: { name.contains($0) }) { kind = "도서·학습" }
-            else if name.contains("라운지") { kind = "라운지" }
+            // Locations such as "library ATM" and "reading-room entrance AED"
+            // are service installations, not places to spend a free period.
+            if facility.category == "카페" { kind = "카페" }
+            else if ["도서관", "열람실", "학습실", "스터디룸", "정보검색실"].contains(facility.category) { kind = "도서·학습" }
+            else if ["라운지", "휴게실", "휴게공간"].contains(facility.category) { kind = "라운지" }
             else { return nil }
-            return CampusSpace(id: facility.id, name: name, building: building, floor: PlaceDirectory.floorName(facility.floor), kind: kind)
+            return CampusSpace(id: facility.id, name: facility.name, building: building, floor: PlaceDirectory.floorName(facility.floor), kind: kind)
         }
         return cafes + facilities
     }
