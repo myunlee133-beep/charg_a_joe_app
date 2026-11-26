@@ -25,7 +25,7 @@ import SwiftUI
             // Only native map POIs are updated; the SwiftUI screen stays untouched.
             while !Task.isCancelled {
                 guard let self, self.generation == runID else { return }
-                self.positions = tracker.positions(at: ProcessInfo.processInfo.systemUptime)
+                self.positions = Self.moving(tracker, at: ProcessInfo.processInfo.systemUptime)
                 do { try await Task.sleep(for: .milliseconds(50)) } catch { return }
             }
         }
@@ -44,8 +44,8 @@ import SwiftUI
                 tracker.update(feed.vehicles, at: ProcessInfo.processInfo.systemUptime)
                 queriedAt = feed.queryDate
                 heldCount = tracker.heldCount
-                positions = tracker.positions(at: ProcessInfo.processInfo.systemUptime)
-                status = feed.vehicles.isEmpty ? "제공된 차량 위치가 없어요" : (positions.isEmpty ? "위치 신뢰도 확인 중" : "교내순환 · 실시간 기반 추정 위치")
+                positions = Self.moving(tracker, at: ProcessInfo.processInfo.systemUptime)
+                status = feed.vehicles.isEmpty ? "제공된 차량 위치가 없어요" : (positions.isEmpty ? "운행 중인 셔틀 확인 중" : "교내순환 · 실시간 기반 추정 위치")
             } catch {
                 guard !Task.isCancelled, generation == runID else { return }
                 tracker.clear(); positions = []; heldCount = 0
@@ -57,6 +57,11 @@ import SwiftUI
     }
 
     private static let pollInterval = 5.0
+
+    /// 앱을 켠 뒤 한 번이라도 움직인 차량만 보여준다. 오래 멈춘 차량은 tracker가 parkedAfter로 걸러낸다.
+    private static func moving(_ tracker: CircularShuttleTracker, at now: Double) -> [ShuttlePosition] {
+        tracker.positions(at: now).filter { $0.changes > 0 }
+    }
 
     func stop() {
         generation = UUID()

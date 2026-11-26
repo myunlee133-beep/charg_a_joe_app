@@ -90,6 +90,13 @@ final class CampusCoreTests: XCTestCase {
         t.update([.init(id: "100", x: 155, y: 200)], at: 5); XCTAssertTrue(t.positions(at: 5).isEmpty)
         t.update([bus(137)], at: 10); XCTAssertEqual(t.positions(at: 12).first?.changes, 1)
     }
+    func testParkedVehicleIsHidden() throws {
+        let t = try tracker(); t.update([bus(136)], at: 0)
+        for at in stride(from: 5.0, through: 175.0, by: 5.0) { t.update([bus(136)], at: at) }
+        XCTAssertFalse(t.positions(at: 175).isEmpty)
+        t.update([bus(136)], at: 180); XCTAssertTrue(t.positions(at: 180).isEmpty)
+        t.update([bus(137)], at: 185); XCTAssertEqual(t.positions(at: 185).first?.changes, 1)
+    }
     func testMissingAndStaleVehiclesAreRemoved() throws {
         let t = try tracker(); t.update([bus(136)], at: 0)
         XCTAssertTrue(t.positions(at: 20).isEmpty)

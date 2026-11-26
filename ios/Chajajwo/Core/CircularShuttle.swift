@@ -82,6 +82,8 @@ final class CircularShuttleTracker {
     static let interpolation = 5.0
     static let maximumInterpolation = 30.0
     static let staleAfter = 20.0
+    /// 이 시간 동안 도로 위 위치가 안 바뀐 차량은 주차·대기로 보고 숨긴다.
+    static let parkedAfter = 180.0
     private struct Bus {
         var id: String, x: Double, y: Double, diagram: Double, road: Double, fromRoad: Double
         var animationAt: Double, movedAt: Double, seenAt: Double
@@ -201,7 +203,7 @@ final class CircularShuttleTracker {
         buses = next
     }
     func positions(at now: Double) -> [ShuttlePosition] {
-        buses.values.filter { $0.visible && now - $0.seenAt < Self.staleAfter }.sorted { $0.id < $1.id }.map { bus in
+        buses.values.filter { $0.visible && now - $0.seenAt < Self.staleAfter && now - $0.movedAt < Self.parkedAfter }.sorted { $0.id < $1.id }.map { bus in
             let distance = bus.display(at: now), point = coordinate(at: distance)
             let (index, t) = segment(diagramDistance(atRoad: distance))
             return ShuttlePosition(id: bus.id, coordinate: point, bearingRadians: point.bearing(to: coordinate(at: distance + 5)),
