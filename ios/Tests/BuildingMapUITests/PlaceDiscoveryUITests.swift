@@ -17,11 +17,12 @@ final class PlaceDiscoveryUITests: XCTestCase {
         if largeText { app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"] }
         app.launch()
         let floors = app.buttons["building.floors"]
-        XCTAssertTrue(app.navigationBars["건물 둘러보기"].waitForExistence(timeout: 20))
+        XCTAssertTrue(app.buttons["building-explorer.close"].waitForExistence(timeout: 20))
         for _ in 0..<3 where !floors.exists || !floors.isHittable { app.swipeUp() }
         XCTAssertTrue(floors.exists)
         capture(app, largeText ? "large-01-building" : "01-building")
         floors.tap()
+        app.buttons["building.facility-search"].tap()
         let search = app.searchFields.firstMatch
         XCTAssertTrue(search.waitForExistence(timeout: 5))
         search.tap(); search.typeText("강유")
@@ -62,7 +63,6 @@ final class PlaceDiscoveryUITests: XCTestCase {
         capture(app, "06-menu-detail")
         app.navigationBars.buttons.firstMatch.tap()
         app.navigationBars.buttons.firstMatch.tap()
-        app.navigationBars.buttons.firstMatch.tap()
         app.buttons["building-explorer.close"].tap()
         app.buttons["main-tab-식당"].tap()
         XCTAssertTrue(app.buttons["전날 식단"].waitForExistence(timeout: 10))
@@ -79,5 +79,56 @@ final class PlaceDiscoveryUITests: XCTestCase {
     private func capture(_ app: XCUIApplication, _ name: String) {
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = name; attachment.lifetime = .keepAlways; add(attachment)
+    }
+
+    func testStudentHallReferenceHubAndHonestFacilityStatus() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-preview-place-building", "63"]
+        app.launch()
+        XCTAssertTrue(app.buttons["building.home"].waitForExistence(timeout: 20))
+        XCTAssertTrue(app.images["학생회관 공식 건물 사진"].exists)
+        capture(app, "reference-01-student-hall-home")
+        let favorite = app.buttons["building.favorite"]
+        let before = favorite.label; favorite.tap(); XCTAssertNotEqual(before, favorite.label)
+        let status = app.buttons["building.status"]
+        if !status.isHittable { app.swipeUp() }
+        status.tap()
+        XCTAssertTrue(app.staticTexts["실시간 정보 연결 전"].waitForExistence(timeout: 5))
+        capture(app, "reference-02-facility-status")
+        app.navigationBars.buttons.firstMatch.tap()
+        app.buttons["building.food"].tap()
+        capture(app, "reference-03-student-hall-food")
+        app.buttons["building.guide"].tap()
+        capture(app, "reference-04-guide")
+    }
+
+    func testTimetableAndTasksPersistAcrossLaunches() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-preview-place-building", "63"]
+        app.launch()
+        XCTAssertTrue(app.buttons["building.home"].waitForExistence(timeout: 20))
+        let timetable = app.buttons["building.timetable"]
+        for _ in 0..<4 where !timetable.isHittable { app.swipeUp() }
+        timetable.tap()
+        app.buttons["planner.add-class"].tap()
+        let name = app.textFields["class.title"]
+        XCTAssertTrue(name.waitForExistence(timeout: 5)); name.tap(); name.typeText("UI 검증 수업")
+        app.textFields["class.building"].tap(); app.textFields["class.building"].typeText("64")
+        app.buttons["class.save"].tap()
+        XCTAssertTrue(app.staticTexts["UI 검증 수업"].waitForExistence(timeout: 5))
+        capture(app, "reference-05-timetable")
+        app.buttons["방문 추천 시간"].tap()
+        capture(app, "reference-06-visit-time")
+        app.navigationBars.buttons.firstMatch.tap()
+        app.swipeDown()
+        let tasks = app.buttons["building.tasks"]
+        for _ in 0..<3 where !tasks.isHittable { app.swipeUp() }
+        tasks.tap(); app.buttons["planner.add-task"].tap()
+        app.textFields["task.title"].tap(); app.textFields["task.title"].typeText("UI 검증 방문")
+        app.buttons["task.save"].tap()
+        XCTAssertTrue(app.staticTexts["UI 검증 방문"].waitForExistence(timeout: 5))
+        capture(app, "reference-07-tasks")
+        app.terminate(); app.launch()
+        XCTAssertTrue(app.staticTexts["UI 검증 방문"].waitForExistence(timeout: 15))
     }
 }

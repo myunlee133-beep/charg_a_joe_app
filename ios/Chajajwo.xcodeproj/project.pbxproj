@@ -48,6 +48,14 @@
 		597C7537055860B5C6B41608 /* CafeViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDC617718AC3D0DBFF4C2F5B /* CafeViews.swift */; };
 		43290E1AB78545B9120BB024 /* research_labs.json in Resources */ = {isa = PBXBuildFile; fileRef = 0CDBE5BE52D7D7F177ED69CE /* research_labs.json */; };
 		2A1B115CF208D7702DF80D36 /* campus_venues.json in Resources */ = {isa = PBXBuildFile; fileRef = E5BA65961E964DCF34B06E7B /* campus_venues.json */; };
+		00472B16E1A276CCE3ABF627 /* CampusPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CEC351511B2779AE3EFD8F8 /* CampusPlanner.swift */; };
+		177591C9560B1812EB45C0C2 /* BuildingDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E04E8F319810DE608AF8B29 /* BuildingDesign.swift */; };
+		BC9ED70C4F0FDAA0D4002106 /* BuildingHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07DF46FD297C8DE2BE621FF /* BuildingHubView.swift */; };
+		FBB18E2AC150C609868991A6 /* BuildingServicesViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A6877864A3D51E7BFD9628 /* BuildingServicesViews.swift */; };
+		7D1388BDA2F11AA6089F178F /* CampusPlannerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E76DD25759839A0FE503CCCE /* CampusPlannerStore.swift */; };
+		E2A91E153109E68517383D03 /* CampusPlannerViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AFE23951606B307633CC0FA /* CampusPlannerViews.swift */; };
+		8AE67EDDBA65521DC399D803 /* building_photos.json in Resources */ = {isa = PBXBuildFile; fileRef = 9C8BAA60F95F9907EC65950D /* building_photos.json */; };
+		E26100000000000000000002 /* PlaceDiscoveryUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E26100000000000000000001 /* PlaceDiscoveryUITests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -104,6 +112,14 @@
 		CDC617718AC3D0DBFF4C2F5B /* CafeViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CafeViews.swift"; sourceTree = "<group>"; };
 		0CDBE5BE52D7D7F177ED69CE /* research_labs.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "Core/Resources/research_labs.json"; sourceTree = "<group>"; };
 		E5BA65961E964DCF34B06E7B /* campus_venues.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "Core/Resources/campus_venues.json"; sourceTree = "<group>"; };
+		6CEC351511B2779AE3EFD8F8 /* CampusPlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/CampusPlanner.swift"; sourceTree = "<group>"; };
+		7E04E8F319810DE608AF8B29 /* BuildingDesign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BuildingDesign.swift"; sourceTree = "<group>"; };
+		B07DF46FD297C8DE2BE621FF /* BuildingHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BuildingHubView.swift"; sourceTree = "<group>"; };
+		40A6877864A3D51E7BFD9628 /* BuildingServicesViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BuildingServicesViews.swift"; sourceTree = "<group>"; };
+		E76DD25759839A0FE503CCCE /* CampusPlannerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CampusPlannerStore.swift"; sourceTree = "<group>"; };
+		4AFE23951606B307633CC0FA /* CampusPlannerViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CampusPlannerViews.swift"; sourceTree = "<group>"; };
+		9C8BAA60F95F9907EC65950D /* building_photos.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "Core/Resources/building_photos.json"; sourceTree = "<group>"; };
+		E26100000000000000000001 /* PlaceDiscoveryUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceDiscoveryUITests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -155,6 +171,13 @@
 				CDABC54716A934B2299DB6E7 /* BuildingDirectionsView.swift */,
 				75AC97CC562074701E85E585 /* CampusBuildings.swift */,
 				C37F690BF5CA084C0DAD6C3B /* ChajajwoApp.swift */,
+				9C8BAA60F95F9907EC65950D /* building_photos.json */,
+				4AFE23951606B307633CC0FA /* CampusPlannerViews.swift */,
+				E76DD25759839A0FE503CCCE /* CampusPlannerStore.swift */,
+				40A6877864A3D51E7BFD9628 /* BuildingServicesViews.swift */,
+				B07DF46FD297C8DE2BE621FF /* BuildingHubView.swift */,
+				7E04E8F319810DE608AF8B29 /* BuildingDesign.swift */,
+				6CEC351511B2779AE3EFD8F8 /* CampusPlanner.swift */,
 				E5BA65961E964DCF34B06E7B /* campus_venues.json */,
 				0CDBE5BE52D7D7F177ED69CE /* research_labs.json */,
 				CDC617718AC3D0DBFF4C2F5B /* CafeViews.swift */,
@@ -211,6 +234,7 @@
 			isa = PBXGroup;
 			children = (
 				3AAC6BE907A7E34B54EC31C3 /* BuildingMapUITests.swift */,
+				E26100000000000000000001 /* PlaceDiscoveryUITests.swift */,
 			);
 			name = BuildingMapUITests;
 			path = Tests/BuildingMapUITests;
@@ -307,6 +331,7 @@
 				82B331E736DED85DC43F84AF /* campus_buildings.json in Resources */,
 				11A8BF0797516E5D961BD3D9 /* circular_route.json in Resources */,
 				8480E099E329F7E2735F8EC5 /* meals.json in Resources */,
+				8AE67EDDBA65521DC399D803 /* building_photos.json in Resources */,
 				2A1B115CF208D7702DF80D36 /* campus_venues.json in Resources */,
 				43290E1AB78545B9120BB024 /* research_labs.json in Resources */,
 			);
@@ -322,6 +347,12 @@
 				340F1BCA0E695A61B71BAE5E /* BuildingDirectionsView.swift in Sources */,
 				FB2CD538E92D73DC1BC2325E /* CampusBuildings.swift in Sources */,
 				F91F2A6C09D8B8C144B1BC8B /* ChajajwoApp.swift in Sources */,
+				E2A91E153109E68517383D03 /* CampusPlannerViews.swift in Sources */,
+				7D1388BDA2F11AA6089F178F /* CampusPlannerStore.swift in Sources */,
+				FBB18E2AC150C609868991A6 /* BuildingServicesViews.swift in Sources */,
+				BC9ED70C4F0FDAA0D4002106 /* BuildingHubView.swift in Sources */,
+				177591C9560B1812EB45C0C2 /* BuildingDesign.swift in Sources */,
+				00472B16E1A276CCE3ABF627 /* CampusPlanner.swift in Sources */,
 				597C7537055860B5C6B41608 /* CafeViews.swift in Sources */,
 				A0D9BF24DC4D3B10AA6194B8 /* BuildingExplorerViews.swift in Sources */,
 				9D876B748C7168EC88B025B1 /* PlaceDirectory.swift in Sources */,
@@ -359,6 +390,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				90D822CA4C692BCAA59D8970 /* BuildingMapUITests.swift in Sources */,
+				E26100000000000000000002 /* PlaceDiscoveryUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

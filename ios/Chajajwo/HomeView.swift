@@ -480,6 +480,7 @@ struct HomeView: View {
         }
         placeSheet = .normal
         focusedBuilding = building
+        exploredBuilding = building
         focusSerial += 1  // Repeat taps on the same building still recenter the camera.
         query = ""        // Close results so the map location is clearly visible.
     }

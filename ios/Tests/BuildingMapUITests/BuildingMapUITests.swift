@@ -16,13 +16,11 @@ final class BuildingMapUITests: XCTestCase {
         // This is a real SDK map touch at the unselected building's coordinate,
         // not a launch argument that opens the card for us.
         map.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
-        let close = app.buttons["close-building-details"]
+        let close = app.buttons["building-explorer.close"]
         XCTAssertTrue(close.waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["인문관1"].exists)
-        XCTAssertTrue(app.staticTexts["1동"].exists)
         attachScreenshot(app, name: "building-from-map")
 
-        app.buttons["expand-building-details"].tap()
         XCTAssertTrue(app.buttons["building.floors"].waitForExistence(timeout: 5))
         attachScreenshot(app, name: "building-overview")
         app.buttons["building-explorer.close"].tap()
@@ -30,8 +28,8 @@ final class BuildingMapUITests: XCTestCase {
         XCTAssertTrue(zoomIn.isHittable)
         XCTAssertGreaterThanOrEqual(zoomIn.frame.minY, searchControlsBottom(in: app))
         attachScreenshot(app, name: "building-summary")
-        close.tap()
-        XCTAssertFalse(close.exists)
+        app.buttons["close-building-details"].tap()
+        XCTAssertFalse(app.buttons["close-building-details"].exists)
     }
 
     func testSearchBuildingReplacesSelectedQuestCard() {
@@ -45,7 +43,7 @@ final class BuildingMapUITests: XCTestCase {
         let result = app.buttons["building-result-snu-1"]
         XCTAssertTrue(result.waitForExistence(timeout: 10))
         result.tap()
-        XCTAssertTrue(app.buttons["close-building-details"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["building-explorer.close"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["인문관1"].exists)
     }
 

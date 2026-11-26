@@ -1,0 +1,1650 @@
+[
+  {
+    "buildingID": "snu-1",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000001.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/1.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26",
+    "assetName": "BuildingPhoto-snu-1",
+    "sha256": "a309686c941f30c0232e5ac3ee1bfcf2b38cdbcb4596ef35096acef3f87e7a2e"
+  },
+  {
+    "buildingID": "snu-10",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000010.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/10.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-11",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000011.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/11.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-112",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000109.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/112.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-113",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000110.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/113.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-114",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000111.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/114.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-115",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000112.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/115.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-116",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000113.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/116.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-117",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000114.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/117.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26",
+    "assetName": "BuildingPhoto-snu-117",
+    "sha256": "37a777247dd20ec26d65216fd60a78b42625546eff109e972509e4ca1801b07a"
+  },
+  {
+    "buildingID": "snu-118",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000115.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/118.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-119",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000116.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/119.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-120",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000117.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/120.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-121",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000118.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/121.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-122",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000119.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/122.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-123",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000120.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/123.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-124",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000121.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/124.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-125",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000122.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/125.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-126",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000123.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/126.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-127",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000124.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/127.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26",
+    "assetName": "BuildingPhoto-snu-127",
+    "sha256": "7c559b7c11b712269b2483e4d0e57db3ea7f12bdbe9a62a744a05871201923a8"
+  },
+  {
+    "buildingID": "snu-12",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000012.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/12.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-128",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000125.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/128.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-129",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000126.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/129.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26",
+    "assetName": "BuildingPhoto-snu-129",
+    "sha256": "e93943083b5943a1558d8f125fbb96d8695bb43bfe92ab4b79e09a620877c9e5"
+  },
+  {
+    "buildingID": "snu-130",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000127.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/130.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-131",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000128.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/131.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-132",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000129.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/132.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-13",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000013.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/13.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-133",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000130.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/133.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-134",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000131.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/134.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-135",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000132.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/135.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-136",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000133.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/136.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-137",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000134.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/137.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-138",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000135.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/138.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-139",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000136.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/139.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-140",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000137.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/140.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-141",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000138.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/141.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-142",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000139.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/142.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-143",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000140.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/143.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-144",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000141.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/144.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-145",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000142.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/145.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-146",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000143.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/146.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-147",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000144.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/147.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-148",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000145.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/148.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-149",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000146.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/149.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-14",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000014.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/14.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-150",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000147.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/150.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-151",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000148.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/151.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-152",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000149.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/152.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-153",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000150.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/153.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-154",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000151.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/154.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-155",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000152.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/155.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-156",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000153.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/156.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26",
+    "assetName": "BuildingPhoto-snu-156",
+    "sha256": "ec3ee2a7f110e2a56b80a8a26dd885a24f323b3240345d8e8499224763ee6106"
+  },
+  {
+    "buildingID": "snu-157",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000154.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/157.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-158",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000155.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/158.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-159",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000156.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/159.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-160",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000157.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/160.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-15",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000015.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/15.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-161",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000158.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/161.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-162",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000159.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/162.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-163",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000160.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/163.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-164",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000161.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/164.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-165",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000162.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/165.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-166",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000163.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/166.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-167",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000164.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/167.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-168",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000165.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/168.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-16",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000016.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/16.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-17",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000017.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/17.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-169",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000166.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/169.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-170",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000167.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/170.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-171",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000168.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/171.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-172",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000169.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/172.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-173",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000170.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/173.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-18",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000018.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/18.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-19",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000019.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/19.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-20",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000020.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/20.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-21",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000021.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/21.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-22",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000022.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/22.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-2",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000002.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/2.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-23",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000023.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/23.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-174",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000171.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/174.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-175",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000172.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/175.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-176",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000173.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/176.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-177",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000174.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/177.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-24",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000024.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/24.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-25",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000025.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/25.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-26",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000026.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/26.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-178",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000175.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/178.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-179",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000176.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/179.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-180",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000177.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/180.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-27",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000027.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/27.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-28",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000028.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/28.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-29",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000029.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/29.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-30",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000030.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/30.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-31",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000031.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/31.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-32",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000032.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/32.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-33",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000033.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/33.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-34",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000034.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/34.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-3",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000003.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/3.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-35",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000035.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/35.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-36",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000036.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/36.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-37",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000037.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/37.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-187",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000178.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/187.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26",
+    "assetName": "BuildingPhoto-snu-187",
+    "sha256": "df88be949a66e19ebe2c2521a7f928c13a66bcb57dc7eb2dac6e4cbc308a1557"
+  },
+  {
+    "buildingID": "snu-188",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000179.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/188.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26",
+    "assetName": "BuildingPhoto-snu-188",
+    "sha256": "51a39e47de79d76b8cc4ea2e74d1c93321a5bf040674449f54d0f0aff6742c7b"
+  },
+  {
+    "buildingID": "snu-189",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000180.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/189.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-38",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000038.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/38.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-39",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000039.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/39.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-190",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000181.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/190.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-191",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000182.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/191.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-192",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000183.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/192.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-193",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000184.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/193.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-194",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000185.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/194.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-195",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000186.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/195.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-40",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000040.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/40.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-41",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000041.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/41.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-42",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000042.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/42.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-196",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000187.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/196.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-197",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000188.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/197.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-198",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000189.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/198.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-44",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000043.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/44.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-45",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000044.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/45.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-46",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000045.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/46.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-47",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000046.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/47.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-48",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000047.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/48.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-4",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000004.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/4.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-49",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000048.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/49.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-50",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000049.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/50.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-51",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000050.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/51.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-52",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000051.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/52.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-53",
+    "photoURL": "https://map.snu.ac.kr/api/upload/building/1abc4a06-b880-4b6a-ac9a-2736e9fcf502.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/53.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-54",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000053.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/54.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-55",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000054.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/55.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-56",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000055.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/56.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-57",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000056.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/57.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-58",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000057.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/58.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-59",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000058.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/59.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-60",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000059.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/60.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-61",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000060.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/61.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-62",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000061.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/62.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-5",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000005.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/5.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-63",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000062.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/63.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-199",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000190.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/199.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-200",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000191.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/200.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-64",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000063.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/64.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-65",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000064.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/65.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-67",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000065.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/67.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-68",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000066.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/68.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-69",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000067.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/69.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-70",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000068.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/70.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-71",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000069.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/71.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-259",
+    "photoURL": "https://map.snu.ac.kr/api/upload/building/30e5e582-1901-4151-b120-18fa2b749663.png",
+    "sourceURL": "https://map.snu.ac.kr/api/building/259.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-72",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000070.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/72.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-73",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000071.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/73.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-74",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000072.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/74.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26",
+    "assetName": "BuildingPhoto-snu-74",
+    "sha256": "28bc13bda49930f7ff8e6b1e6e6d972c7b5289bdda06458e08c0f356609cb07e"
+  },
+  {
+    "buildingID": "snu-75",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000073.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/75.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-251",
+    "photoURL": "https://map.snu.ac.kr/api/upload/building/7d6f94b9-b529-47ab-be57-899ad17c751e.png",
+    "sourceURL": "https://map.snu.ac.kr/api/building/251.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-6",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000006.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/6.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-76",
+    "photoURL": "https://map.snu.ac.kr/api/upload/building/415e399d-814f-44c2-973b-6fab7278676a.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/76.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-77",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000075.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/77.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-78",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000076.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/78.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26",
+    "assetName": "BuildingPhoto-snu-78",
+    "sha256": "41b7df2cfa194b146865026a52d09aee9bab13e0488ef0f922e944c2701c03a4"
+  },
+  {
+    "buildingID": "snu-79",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000077.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/79.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-80",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000078.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/80.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26",
+    "assetName": "BuildingPhoto-snu-80",
+    "sha256": "05d24456ca21a5df9aa78243886d59691e1b80019f6800888fbf9ab4323a4922"
+  },
+  {
+    "buildingID": "snu-81",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000079.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/81.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26",
+    "assetName": "BuildingPhoto-snu-81",
+    "sha256": "248075dcd18007a81ce243ad1818fa43cae38802aa2541522304cc5314d8081b"
+  },
+  {
+    "buildingID": "snu-82",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000080.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/82.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-83",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000081.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/83.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-84",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000082.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/84.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-85",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000083.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/85.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-86",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000084.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/86.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-87",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000085.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/87.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-7",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000007.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/7.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-89",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000086.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/89.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-90",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000087.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/90.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-91",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000088.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/91.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-92",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000089.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/92.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-93",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000090.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/93.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-94",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000091.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/94.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-95",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000092.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/95.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-96",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000093.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/96.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-97",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000094.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/97.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-98",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000095.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/98.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-8",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000008.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/8.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-99",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000096.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/99.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-100",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000097.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/100.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-101",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000098.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/101.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-102",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000099.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/102.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-103",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000100.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/103.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26",
+    "assetName": "BuildingPhoto-snu-103",
+    "sha256": "ccf9e1dd95f275b788ebd42c7a5030142ef694b211f9334cdf023c0489f10570"
+  },
+  {
+    "buildingID": "snu-104",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000101.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/104.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-105",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000102.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/105.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-106",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000103.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/106.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-107",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000104.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/107.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-9",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000009.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/9.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-201",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000192.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/201.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-203",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000194.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/203.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-204",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000195.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/204.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-205",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000196.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/205.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-206",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000197.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/206.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-207",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000198.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/207.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-248",
+    "photoURL": "https://map.snu.ac.kr/api/upload/building/92e72525-d47f-413b-a3bf-4e8b55c5fa4e.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/248.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-249",
+    "photoURL": "https://map.snu.ac.kr/api/upload/building/02d2e01f-f57e-4a74-a475-11be6bdc260e.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/249.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-250",
+    "photoURL": "https://map.snu.ac.kr/api/upload/building/5b81faad-a197-4bf1-85d1-be2b0757e265.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/250.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-208",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000199.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/208.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-209",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000200.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/209.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-210",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000201.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/210.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-211",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000202.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/211.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-212",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000203.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/212.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-213",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000204.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/213.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-214",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000205.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/214.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-215",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000206.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/215.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-216",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000207.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/216.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-217",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000208.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/217.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-218",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000209.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/218.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-219",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000210.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/219.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-220",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000211.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/220.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-221",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000212.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/221.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-222",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000213.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/222.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-223",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000214.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/223.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-224",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000215.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/224.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-225",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000216.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/225.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-226",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000217.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/226.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-227",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000218.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/227.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-228",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000219.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/228.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-229",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000220.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/229.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-230",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000221.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/230.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-108",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000105.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/108.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-109",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000106.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/109.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-110",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000107.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/110.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-111",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000108.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/111.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-238",
+    "photoURL": "https://map.snu.ac.kr/api/upload/building/eb818850-b5df-4023-a773-aec964e39d8c.JPG",
+    "sourceURL": "https://map.snu.ac.kr/api/building/238.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-237",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000227.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/237.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-232",
+    "photoURL": "https://map.snu.ac.kr/api/upload/building/706b6c37-abce-4cbd-b1b1-35576e99aac6.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/232.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-233",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000223.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/233.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-236",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000226.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/236.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-234",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000224.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/234.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  },
+  {
+    "buildingID": "snu-235",
+    "photoURL": "https://map.snu.ac.kr/api/upload/default/F_BUILD_0000225.jpg",
+    "sourceURL": "https://map.snu.ac.kr/api/building/235.action?convinType=Y",
+    "credit": "사진 · 서울대학교 공식 캠퍼스 지도",
+    "checkedAt": "2026-11-26"
+  }
+]
