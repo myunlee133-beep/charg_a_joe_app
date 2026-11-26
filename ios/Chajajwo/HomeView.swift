@@ -12,6 +12,7 @@ struct HomeView: View {
     @State private var query = ""
     @State private var focusedBuilding: CampusBuilding?
     @State private var exploredBuilding: CampusBuilding?
+    @State private var explorerHeight: CGFloat = 0
     @State private var pendingBuildingRoute: CampusBuilding?
     @State private var buildingDirectionsRequest: BuildingDirectionsRequest?
     @State private var focusSerial = 0
@@ -89,6 +90,7 @@ struct HomeView: View {
             BuildingDirectionsView(destination: request.destination)
         }
         .sheet(item: $exploredBuilding, onDismiss: {
+            explorerHeight = 0
             if let building = pendingBuildingRoute {
                 pendingBuildingRoute = nil
                 buildingDirectionsRequest = .init(destination: building)
@@ -101,7 +103,7 @@ struct HomeView: View {
             }, onDirections: {
                 pendingBuildingRoute = building
                 exploredBuilding = nil
-            })
+            }, onHeightChange: { explorerHeight = $0 })
         }
         .sheet(item: $selectedQuestGroup) { group in
             NavigationStack {
@@ -167,7 +169,7 @@ struct HomeView: View {
 
 
     private var mainMap: some View {
-        KakaoMapView(places: places, counts: counts, selected: store.open ? store.sel : "", bottomInset: bottomHeight,
+        KakaoMapView(places: places, counts: counts, selected: store.open ? store.sel : "", bottomInset: max(bottomHeight, exploredBuilding == nil ? 0 : explorerHeight + 32),
                      topObstruction: focusedBuilding == nil ? 0 : topBarBottom,
                      focusedBuilding: focusedBuilding, focusSerial: focusSerial,
                      userCoordinate: userLocation.coordinate,

@@ -4,9 +4,10 @@ struct BuildingExplorerSheet: View {
     let building: CampusBuilding
     var onRestaurant: (Place) -> Void
     var onDirections: () -> Void
+    var onHeightChange: (CGFloat) -> Void = { _ in }
     @Environment(\.dismiss) private var dismiss
     @StateObject private var planner = CampusPlannerStore.shared
-    @State private var detent: PresentationDetent = .fraction(0.78)
+    @State private var detent: PresentationDetent = .fraction(0.68)
 
     var body: some View {
         NavigationStack {
@@ -21,7 +22,9 @@ struct BuildingExplorerSheet: View {
         .environmentObject(planner).tint(BuildingDesign.green)
         .environment(\.calendar, CampusPlanning.calendar)
         .environment(\.timeZone, CampusPlanning.calendar.timeZone)
-        .presentationDetents([.fraction(0.78), .large], selection: $detent)
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { onHeightChange($0) }
+        .presentationDetents([.fraction(0.68), .large], selection: $detent)
+        .presentationBackgroundInteraction(.enabled(upThrough: .fraction(0.68)))
         .presentationDragIndicator(.visible).presentationCornerRadius(28)
         .onAppear {
             #if DEBUG
@@ -207,7 +210,7 @@ struct BuildingOverviewView: View {
             }.buttonStyle(.plain)
             if let photo = CampusBuildingPhoto.photo(for: building) {
                 VStack(alignment: .leading, spacing: 3) {
-                    PlaceSourceLink(title: photo.credit, value: photo.sourceURL)
+                    PlaceSourceLink(title: photo.credit, value: photo.photoURL)
                     Text("사진 자료 확인 · \(photo.checkedAt)").font(.caption).foregroundStyle(.secondary)
                 }
             }

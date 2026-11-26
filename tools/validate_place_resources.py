@@ -49,6 +49,16 @@ def main():
     print(f"Validated {len(buildings)} buildings, 646 facilities, 32 labs, 7 venues, {len(photo_paths)} official photos.")
     for photo in sorted(photo_paths):
         print(f"{photo.name}: {hashlib.sha256(photo.read_bytes()).hexdigest()}")
+    building_photos = read("building_photos")
+    ids = {b["id"] for b in buildings}
+    assert len(building_photos) > 200
+    for record in building_photos:
+        assert record["buildingID"] in ids
+        assert record["photoURL"].startswith("https://map.snu.ac.kr/api/upload/")
+        if record.get("assetName"):
+            photo = ASSETS / (record["assetName"] + ".imageset") / "photo.jpg"
+            assert hashlib.sha256(photo.read_bytes()).hexdigest() == record["sha256"]
+    print(f"Validated {len(building_photos)} official building photo mappings and their bundled image hashes.")
 
 
 if __name__ == "__main__":

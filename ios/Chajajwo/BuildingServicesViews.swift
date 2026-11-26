@@ -63,7 +63,7 @@ struct BuildingFacilityStatusView: View {
             VStack(spacing: 18) {
                 BuildingSurface {
                     VStack(alignment: .leading, spacing: 10) {
-                        Label("실시간 정보 연결 전", systemImage: "person.2.slash").font(.headline)
+                        Label("실시간 정보 연결 전", systemImage: "person.2").font(.headline)
                         Text("좌석 수나 혼잡도를 제공하는 데이터가 아직 없어요. 아래에는 공식 등록 운영시간을 안내해요.").font(.subheadline).foregroundStyle(.secondary)
                     }
                 }

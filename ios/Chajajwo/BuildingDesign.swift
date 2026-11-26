@@ -38,6 +38,7 @@ struct BuildingHeroPhoto: View {
         }
         .frame(height: height).clipShape(RoundedRectangle(cornerRadius: 20))
         .accessibilityElement(children: .ignore).accessibilityLabel(building.name + (photo == nil ? " 사진 미등록" : " 공식 건물 사진"))
+        .accessibilityAddTraits(.isImage)
     }
     private var placeholder: some View {
         ZStack {

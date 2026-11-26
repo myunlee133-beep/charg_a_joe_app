@@ -80,7 +80,7 @@ struct CampusTaskEditorView: View {
     var body: some View {
         Form {
             Section("무엇을 할까요?") {
-                TextField("예: 학생회관 식당에서 점심 먹기", text: $title, axis: .vertical).accessibilityIdentifier("task.title")
+                TextField("예: 학생회관 식당에서 점심 먹기", text: $title).accessibilityIdentifier("task.title")
                 Text(building.displayTitle).font(.subheadline).foregroundStyle(.secondary)
                 TextField("층·공간 이름 (선택)", text: $location).accessibilityIdentifier("task.location")
                 DatePicker("방문 시간", selection: $due, displayedComponents: [.date, .hourAndMinute])
