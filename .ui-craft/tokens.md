@@ -1,6 +1,6 @@
 # 건물 화면 토큰
 
-- Canvas: systemGroupedBackground / 흰색 카드
+- Canvas: #F8FAF9 / 흰색 카드·사진 헤더
 - Ink: primary, secondary
 - Accent: #00866B, Accent soft: #E5F5EF
 - Space: 4, 8, 12, 16, 20, 24, 32

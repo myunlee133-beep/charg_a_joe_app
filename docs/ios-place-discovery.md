@@ -28,7 +28,7 @@
 
 ## 실행과 검증
 
-최신 main 6b47aa2의 AR·지도 기능과 앱 내 길찾기를 보존했습니다. Swift 모델 테스트는 swift test, 자료·사진 검사는 python3 tools/validate_place_resources.py로 실행합니다. iOS 프로젝트는 xcodegen generate --spec ios/project.yml로 생성할 수 있으며 체크인된 Xcode 프로젝트에도 새 소스와 자료를 연결했습니다.
+main 212bebb의 AR·지도 기능, 정차 차량을 숨기는 셔틀 수정과 앱 내 길찾기를 보존했습니다. Swift 모델 테스트는 swift test, 자료·사진 검사는 python3 tools/validate_place_resources.py로 실행합니다. iOS 프로젝트는 xcodegen generate --spec ios/project.yml로 생성할 수 있으며 체크인된 Xcode 프로젝트에도 새 소스와 자료를 연결했습니다.
 
 Windows에서는 Xcode를 실행할 수 없어 기존 macOS CI에서 모델 검사, iOS Simulator 빌드와 XCUITest를 실행합니다. 네이티브 테스트는 실제 지도 탭·검색 진입, 연구실 접기·펼치기, 카페 메뉴 사진, 기존 식당 컨트롤, 레퍼런스 건물 홈·탭·시설 상태, 시간표·할 일 저장과 재실행 보존, 접근성 큰 글자를 검증하고 캡처를 남깁니다. 알림의 실제 배너 표시·소리·잠금 화면 전달은 권한을 허용한 실제 기기에서 추가 확인이 필요합니다.
 
