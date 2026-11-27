@@ -112,8 +112,15 @@ enum CampusBuildingCatalog {
         return buildings.filter { building in
             let number = building.number ?? ""
             let facilityNames = includeFacilityNames ? (building.details?.facilities.map(\.name) ?? []) : []
-            let fields = ([number, number + "동", building.name, building.details?.englishName ?? ""] + facilityNames).map(compact)
-            return terms.allSatisfy { term in fields.contains { $0.contains(term) } }
+            let fields = ([number, number + "동", building.name] + facilityNames).map(compact)
+            let english = building.details?.englishName ?? ""
+            let englishWords = english.split(whereSeparator: { !$0.isLetter }).map { compact(String($0)) }
+            return terms.allSatisfy { term in
+                if fields.contains(where: { $0.contains(term) }) { return true }
+                // A short brand such as CU must not match moleCUlar, faCUlty or seCUrity.
+                let shortLatin = term.count <= 2 && term.unicodeScalars.allSatisfy { (97...122).contains(Int($0.value)) }
+                return shortLatin ? englishWords.contains(term) : compact(english).contains(term)
+            }
         }.sorted { lhs, rhs in
             let queryKey = compact(query)
             let lhsExact = lhs.number.map { compact($0) == queryKey || compact($0 + "동") == queryKey } ?? false

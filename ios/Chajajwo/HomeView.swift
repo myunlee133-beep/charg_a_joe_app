@@ -15,6 +15,7 @@ struct HomeView: View {
     @State private var focusedAmenity: CampusAmenity?
     @State private var browsingAmenities = false
     @State private var amenityKind: CampusAmenityKind?
+    @State private var buildingAmenityKind: CampusAmenityKind?
     @State private var explorerHeight: CGFloat = 0
     @State private var openVisitTasks = false
     @State private var pendingBuildingRoute: CampusBuilding?
@@ -103,6 +104,7 @@ struct HomeView: View {
         .sheet(item: $exploredBuilding, onDismiss: {
             explorerHeight = 0
             openVisitTasks = false
+            focusedAmenity = nil
             if let building = pendingBuildingRoute {
                 pendingBuildingRoute = nil
                 buildingDirectionsRequest = .init(destination: building)
@@ -116,7 +118,7 @@ struct HomeView: View {
                 pendingBuildingRoute = building
                 exploredBuilding = nil
             }, onHeightChange: { explorerHeight = $0 }, showTasksOnOpen: openVisitTasks,
-               initialKind: amenityKind, initialAmenity: focusedAmenity)
+               initialKind: buildingAmenityKind, initialAmenity: focusedAmenity)
         }
         .sheet(item: $selectedQuestGroup) { group in
             NavigationStack {
@@ -512,6 +514,7 @@ struct HomeView: View {
     private func openAmenity(_ amenity: CampusAmenity) {
         focus(on: amenity.building, preserveFilter: true)
         focusedAmenity = amenity
+        buildingAmenityKind = amenity.kind
         exploredBuilding = amenity.building
     }
 
@@ -576,6 +579,7 @@ struct HomeView: View {
         placeSheet = .normal
         focusedBuilding = building
         focusedAmenity = nil
+        buildingAmenityKind = browsingAmenities ? amenityKind : nil
         focusSerial += 1  // Repeat taps on the same building still recenter the camera.
         query = ""        // Close results so the map location is clearly visible.
     }
@@ -607,7 +611,7 @@ struct HomeView: View {
                 .accessibilityIdentifier("close-building-details")
             }
         } content: {
-            BuildingAmenityBadges(building: building) { kind in amenityKind = kind; exploredBuilding = building }
+            BuildingAmenityBadges(building: building) { kind in buildingAmenityKind = kind; exploredBuilding = building }
             HStack(spacing: 10) {
                 Button { exploredBuilding = building } label: {
                     Label("건물 상세", systemImage: "square.3.layers.3d")

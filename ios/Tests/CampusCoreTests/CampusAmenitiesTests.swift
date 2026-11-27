@@ -26,9 +26,8 @@ final class CampusAmenitiesTests: XCTestCase {
         let results = CampusAmenities.search("ＣＵ")
         XCTAssertFalse(results.isEmpty)
         XCTAssertTrue(results.allSatisfy { $0.facility.name == "CU" })
-        XCTAssertTrue(CampusBuildingCatalog.search("CU", includeFacilityNames: false).allSatisfy {
-            PlaceDirectory.matches("CU", fields: [$0.name, $0.details?.englishName ?? ""])
-        })
+        XCTAssertTrue(CampusBuildingCatalog.search("CU", includeFacilityNames: false).isEmpty)
+        XCTAssertTrue(CampusBuildingCatalog.search("CU").allSatisfy { $0.details!.facilities.contains { $0.name == "CU" } })
         XCTAssertEqual(CampusAmenities.search("63 약국").map(\.id), ["snu-amenity-196"])
         XCTAssertTrue(CampusAmenities.search("없는시설908abc").isEmpty)
         XCTAssertTrue(CampusAmenities.search("   ").isEmpty)
