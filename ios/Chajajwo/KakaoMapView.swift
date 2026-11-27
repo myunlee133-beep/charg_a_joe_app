@@ -19,6 +19,8 @@ struct KakaoMapView: UIViewRepresentable {
     let lostFocusSerial: Int
     var quests: [Quest] = []
     var shuttle: CircularShuttleService? = nil  // 셔틀 핀은 SwiftUI를 거치지 않고 위치가 바뀔 때 바로 옮긴다
+    var treasures: [Landmark] = []          // 반경 안에 있는 미발견 보물. 그 자리에 여우가 돌아다닌다
+    var onTreasureSelect: ((String) -> Void)? = nil
     var selectedQuestID: String? = nil
     var zoomRequest = 0
     var amenityGroups: [CampusAmenityMapGroup] = []
@@ -87,6 +89,10 @@ struct KakaoMapView: UIViewRepresentable {
         private var questLeaderPois: [String: Poi] = [:]
         private var questLeaderOffsets: [String: CGPoint] = [:]
         private var shuttlePois: [String: Poi] = [:]
+        private let treasureLayerID = "treasure-fox"
+        private var treasurePois: [String: Poi] = [:]
+        private var treasureTapHandlers: [String: DisposableEventHandler] = [:]
+        private var foxWanderTimer: Timer?
         private var questGroups: [QuestMapGroup] = []
         private var lastZoomRequest = 0
         private var lastQuestFocusID: String?
@@ -132,6 +138,9 @@ struct KakaoMapView: UIViewRepresentable {
             buildingTapHandlers.removeAll()
             amenityTapHandlers.values.forEach { $0.dispose() }
             amenityTapHandlers.removeAll(); amenityPois.removeAll(); amenityStyles.removeAll()
+            treasureTapHandlers.values.forEach { $0.dispose() }
+            treasureTapHandlers.removeAll()
+            foxWanderTimer?.invalidate(); foxWanderTimer = nil
             // The six-tab container removes the home view when changing tabs.
             // Release this engine before a later home view creates another one.
             controller?.pauseEngine()
@@ -139,7 +148,7 @@ struct KakaoMapView: UIViewRepresentable {
             (controller?.getView(viewName) as? KakaoMap)?.eventDelegate = nil
             controller?.resetEngine()
             controller = nil
-            pois.removeAll(); buildingPois.removeAll(); questPois.removeAll(); shuttlePois.removeAll()
+            pois.removeAll(); buildingPois.removeAll(); questPois.removeAll(); shuttlePois.removeAll(); treasurePois.removeAll()
             questLeaderPois.removeAll(); questLeaderOffsets.removeAll(); questOffsets.removeAll()
             userDot = nil; userDirection = nil
         }
@@ -193,6 +202,10 @@ struct KakaoMapView: UIViewRepresentable {
             lostPois.removeAll()
             userDot = nil
             userDirection = nil
+            treasurePois.removeAll()
+            _ = manager.addLabelLayer(option: LabelLayerOptions(layerID: treasureLayerID, competitionType: .none,
+                competitionUnit: .symbolFirst, orderType: .rank, zOrder: 26000))
+            manager.getLabelLayer(layerID: treasureLayerID)?.setClickable(true)
             for (id, zOrder) in [(questLayerID, 22000), (shuttleLayerID, 24000)] {
                 _ = manager.addLabelLayer(option: LabelLayerOptions(layerID: id, competitionType: .none,
                     competitionUnit: .symbolFirst, orderType: .rank, zOrder: zOrder))
@@ -230,6 +243,7 @@ struct KakaoMapView: UIViewRepresentable {
             refreshQuests(on: map, manager: manager)
             refreshShuttles(on: map, manager: manager)
             refreshAmenities(on: map, manager: manager)
+            refreshTreasureFoxes(manager: manager)
             if parent.selectedQuestID != lastQuestFocusID {
                 lastQuestFocusID = parent.selectedQuestID
                 if let quest = parent.quests.first(where: { $0.id == parent.selectedQuestID }) {
@@ -526,7 +540,7 @@ struct KakaoMapView: UIViewRepresentable {
         func poiDidTapped(kakaoMap: KakaoMap, layerID: String, poiID: String, position: MapPoint) {
             // Custom layers have their own precise handlers/hit areas. Only
             // resolve SDK base-map POIs against our offline campus catalog here.
-            guard ![self.layerID, questLayerID, questLeaderLayerID, lostLayerID, userLayerID, shuttleLayerID].contains(layerID) else { return }
+            guard ![self.layerID, questLayerID, questLeaderLayerID, lostLayerID, userLayerID, shuttleLayerID, treasureLayerID].contains(layerID) else { return }
             let geo = position.wgsCoord
             let coordinate = CampusCoordinate(latitude: geo.latitude, longitude: geo.longitude)
             guard coordinate.isValid,
@@ -592,6 +606,59 @@ struct KakaoMapView: UIViewRepresentable {
                 shuttlePois[bus.id]?.orientation = bus.bearingRadians
                 shuttlePois[bus.id]?.show()
             }
+        }
+
+        // MARK: 보물 여우 — 반경 안 미발견 보물 자리에서 여우가 어슬렁거린다. 탭하면 AR.
+        private func refreshTreasureFoxes(manager: LabelManager) {
+            guard let layer = manager.getLabelLayer(layerID: treasureLayerID) else { return }
+            let ids = Set(parent.treasures.map(\.id))
+            for id in Array(treasurePois.keys) where !ids.contains(id) {
+                layer.removePoi(poiID: "fox-\(id)"); treasurePois.removeValue(forKey: id)
+                treasureTapHandlers.removeValue(forKey: id)?.dispose()
+            }
+            let styleID = "treasure-fox"
+            if !addedStyles.contains(styleID) {
+                let size = CGSize(width: 64, height: 76)
+                let image = UIGraphicsImageRenderer(size: size).image { _ in
+                    UIImage(named: "ARFox")?.draw(in: CGRect(origin: .zero, size: size))
+                }
+                let icon = PoiIconStyle(symbol: image, anchorPoint: CGPoint(x: 0.5, y: 1.0))
+                manager.addPoiStyle(PoiStyle(styleID: styleID, styles: [PerLevelPoiStyle(iconStyle: icon, level: 0)]))
+                addedStyles.insert(styleID)
+            }
+            for treasure in parent.treasures where treasurePois[treasure.id] == nil {
+                let option = PoiOptions(styleID: styleID, poiID: "fox-\(treasure.id)")
+                option.rank = 600; option.clickable = true
+                let point = MapPoint(longitude: treasure.coordinate.longitude, latitude: treasure.coordinate.latitude)
+                guard let poi = layer.addPoi(option: option, at: point) else { continue }
+                treasureTapHandlers[treasure.id] = poi.addPoiTappedEventHandler(target: self, handler: Coordinator.foxTapped)
+                poi.show()
+                treasurePois[treasure.id] = poi
+            }
+            if treasurePois.isEmpty {
+                foxWanderTimer?.invalidate(); foxWanderTimer = nil
+            } else if foxWanderTimer == nil {
+                foxWanderTimer = Timer.scheduledTimer(withTimeInterval: 2.6, repeats: true) { [weak self] _ in
+                    MainActor.assumeIsolated { self?.wanderFoxes() }
+                }
+            }
+        }
+
+        /// 보물 좌표 주변 약 12m 안의 아무 점으로 천천히 걸어간다.
+        private func wanderFoxes() {
+            for treasure in parent.treasures {
+                guard let poi = treasurePois[treasure.id] else { continue }
+                let meters = Double.random(in: 3...12), angle = Double.random(in: 0..<(2 * .pi))
+                let lat = treasure.coordinate.latitude + meters * cos(angle) / 111_000
+                let lon = treasure.coordinate.longitude + meters * sin(angle) / (111_000 * cos(treasure.coordinate.latitude * .pi / 180))
+                poi.moveAt(MapPoint(longitude: lon, latitude: lat), duration: 2400)
+            }
+        }
+
+        private func foxTapped(_ param: PoiInteractionEventParam) {
+            let id = String(param.poiItem.itemID.dropFirst("fox-".count))
+            dismissKeyboard()
+            parent.onTreasureSelect?(id)
         }
 
         // MARK: 현재 위치 / 기기가 바라보는 방향
