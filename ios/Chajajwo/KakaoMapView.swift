@@ -21,6 +21,8 @@ struct KakaoMapView: UIViewRepresentable {
     var shuttle: CircularShuttleService? = nil  // 셔틀 핀은 SwiftUI를 거치지 않고 위치가 바뀔 때 바로 옮긴다
     var selectedQuestID: String? = nil
     var zoomRequest = 0
+    var amenityGroups: [CampusAmenityMapGroup] = []
+    var onSelectAmenityBuilding: ((CampusBuilding) -> Void)? = nil
     var onQuestSelect: ((String) -> Void)? = nil
     var onQuestGroupSelect: (([String]) -> Void)? = nil
     var onDeselect: (() -> Void)? = nil
@@ -69,6 +71,9 @@ struct KakaoMapView: UIViewRepresentable {
         private var buildingPois: [String: Poi] = [:]
         private var buildingTapHandlers: [String: DisposableEventHandler] = [:]
         private var lastBuildingID: String?
+        private var amenityPois: [String: Poi] = [:]
+        private var amenityStyles: [String: String] = [:]
+        private var amenityTapHandlers: [String: DisposableEventHandler] = [:]
         private var lastFocusSerial = -1
         private let layerID = "places"
         private let userLayerID = "user-location"
@@ -125,6 +130,8 @@ struct KakaoMapView: UIViewRepresentable {
             placeTapHandlers.removeAll()
             buildingTapHandlers.values.forEach { $0.dispose() }
             buildingTapHandlers.removeAll()
+            amenityTapHandlers.values.forEach { $0.dispose() }
+            amenityTapHandlers.removeAll(); amenityPois.removeAll(); amenityStyles.removeAll()
             // The six-tab container removes the home view when changing tabs.
             // Release this engine before a later home view creates another one.
             controller?.pauseEngine()
@@ -222,6 +229,7 @@ struct KakaoMapView: UIViewRepresentable {
             refreshLostPins(on: map, manager: manager)
             refreshQuests(on: map, manager: manager)
             refreshShuttles(on: map, manager: manager)
+            refreshAmenities(on: map, manager: manager)
             if parent.selectedQuestID != lastQuestFocusID {
                 lastQuestFocusID = parent.selectedQuestID
                 if let quest = parent.quests.first(where: { $0.id == parent.selectedQuestID }) {
@@ -304,6 +312,42 @@ struct KakaoMapView: UIViewRepresentable {
                 }
                 lastSelected = parent.selected
             }
+        }
+
+        private func refreshAmenities(on map: KakaoMap, manager: LabelManager) {
+            guard let layer = manager.getLabelLayer(layerID: layerID) else { return }
+            let ids = Set(parent.amenityGroups.map(\.id))
+            for (id, poi) in amenityPois where !ids.contains(id) || map.zoomLevel < Self.minPinLevel { poi.hide() }
+            guard map.zoomLevel >= Self.minPinLevel else { return }
+            for group in parent.amenityGroups {
+                guard let first = group.amenities.first else { continue }
+                let detailed = map.zoomLevel >= 17
+                let style = "amenity-\(group.id)-\(first.kind.rawValue)-\(group.amenities.count)-\(detailed)"
+                if !addedStyles.contains(style) {
+                    let pin = CampusAmenityMapPin(kind: first.kind, count: group.amenities.count,
+                        name: detailed ? (group.amenities.count == 1 ? first.name : group.building.name) : nil)
+                    let icon = PoiIconStyle(symbol: Self.render(pin), anchorPoint: CGPoint(x: 0.5, y: 0.5))
+                    manager.addPoiStyle(PoiStyle(styleID: style, styles: [PerLevelPoiStyle(iconStyle: icon, level: 0)]))
+                    addedStyles.insert(style)
+                }
+                if amenityPois[group.id] == nil {
+                    let options = PoiOptions(styleID: style, poiID: "amenity-building-\(group.id)")
+                    options.rank = 150; options.clickable = true
+                    amenityPois[group.id] = layer.addPoi(option: options, at: MapPoint(longitude: group.building.longitude, latitude: group.building.latitude))
+                    amenityTapHandlers[group.id] = amenityPois[group.id]?.addPoiTappedEventHandler(target: self, handler: Coordinator.amenityPoiTapped)
+                } else if amenityStyles[group.id] != style {
+                    amenityPois[group.id]?.changeTextAndStyle(texts: [], styleID: style)
+                }
+                amenityStyles[group.id] = style
+                amenityPois[group.id]?.show()
+            }
+        }
+
+        private func amenityPoiTapped(_ event: PoiInteractionEventParam) {
+            guard let group = parent.amenityGroups.first(where: { "amenity-building-\($0.id)" == event.poiItem.itemID }) else { return }
+            lastBuildingTapAt = ProcessInfo.processInfo.systemUptime
+            dismissKeyboard()
+            parent.onSelectAmenityBuilding?(group.building)
         }
 
         // MARK: 검증된 분실물센터와 회원 신고 위치. Existing Kakao map is reused.

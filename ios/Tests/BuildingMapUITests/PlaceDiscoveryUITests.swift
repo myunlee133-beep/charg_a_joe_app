@@ -3,6 +3,53 @@ import XCTest
 final class PlaceDiscoveryUITests: XCTestCase {
     override func setUpWithError() throws { continueAfterFailure = false }
 
+    func testBuildingPreviewAndPharmacyDetail() { exercisePharmacy(largeText: false) }
+    func testPharmacyAtAccessibilityTextSize() { exercisePharmacy(largeText: true) }
+
+    private func exercisePharmacy(largeText: Bool) {
+        let app = XCUIApplication()
+        if largeText { app.launchArguments = ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"] }
+        app.launch()
+        let search = app.textFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 20)); search.tap(); search.typeText("63")
+        let hall = app.buttons["building-result-snu-80"]
+        XCTAssertTrue(hall.waitForExistence(timeout: 10)); hall.tap()
+        XCTAssertTrue(app.buttons["expand-building-details"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["building.kind.pharmacy"].exists)
+        capture(app, largeText ? "amenity-large-01-preview" : "amenity-01-building-preview")
+        app.buttons["building.kind.pharmacy"].tap()
+        let pharmacy = app.buttons["amenity.snu-amenity-196"]
+        XCTAssertTrue(app.buttons["building-explorer.close"].waitForExistence(timeout: 10))
+        for _ in 0..<7 where !pharmacy.isHittable { app.swipeUp() }
+        XCTAssertTrue(pharmacy.exists)
+        capture(app, largeText ? "amenity-large-02-floor" : "amenity-02-pharmacy-floor")
+        pharmacy.tap()
+        XCTAssertTrue(app.navigationBars["시설 상세"].waitForExistence(timeout: 5))
+        if largeText { app.swipeUp() }
+        XCTAssertTrue(app.staticTexts["09:00–18:10"].exists)
+        capture(app, largeText ? "amenity-large-03-detail" : "amenity-03-pharmacy-detail")
+    }
+
+    func testConvenienceFilterAndFacilitySearch() {
+        let app = XCUIApplication(); app.launch()
+        let amenities = app.buttons["map.amenities"]
+        XCTAssertTrue(amenities.waitForExistence(timeout: 20)); amenities.tap()
+        app.buttons["map-amenity-filter.pharmacy"].tap()
+        let pharmacy = app.buttons["amenity-browse-snu-amenity-196"]
+        XCTAssertTrue(pharmacy.waitForExistence(timeout: 5))
+        capture(app, "amenity-04-map-filter")
+        let search = app.textFields.firstMatch
+        search.tap(); search.typeText("CU")
+        let convenience = app.buttons["amenity-result-snu-amenity-111"]
+        XCTAssertTrue(convenience.waitForExistence(timeout: 5))
+        capture(app, "amenity-05-cu-search")
+        convenience.tap()
+        XCTAssertTrue(app.navigationBars["시설 상세"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["CU"].exists)
+        XCTAssertTrue(app.staticTexts["24시간 · 유인 08:00–22:00"].exists)
+        capture(app, "amenity-06-convenience-detail")
+    }
+
     func testLabSummaryDisclosureAndReturnPreserveSearch() {
         exerciseLab(largeText: false)
     }

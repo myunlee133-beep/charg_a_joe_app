@@ -16,11 +16,12 @@ final class BuildingMapUITests: XCTestCase {
         // This is a real SDK map touch at the unselected building's coordinate,
         // not a launch argument that opens the card for us.
         map.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
-        let close = app.buttons["building-explorer.close"]
-        XCTAssertTrue(close.waitForExistence(timeout: 10))
+        let expand = app.buttons["expand-building-details"]
+        XCTAssertTrue(expand.waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["인문관1"].exists)
         attachScreenshot(app, name: "building-from-map")
-
+        expand.tap()
+        XCTAssertTrue(app.buttons["building-explorer.close"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["building.floors"].waitForExistence(timeout: 5))
         attachScreenshot(app, name: "building-overview")
         app.buttons["building-explorer.close"].tap()
@@ -43,6 +44,8 @@ final class BuildingMapUITests: XCTestCase {
         let result = app.buttons["building-result-snu-1"]
         XCTAssertTrue(result.waitForExistence(timeout: 10))
         result.tap()
+        XCTAssertTrue(app.buttons["expand-building-details"].waitForExistence(timeout: 5))
+        app.buttons["expand-building-details"].tap()
         XCTAssertTrue(app.buttons["building-explorer.close"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["인문관1"].exists)
     }

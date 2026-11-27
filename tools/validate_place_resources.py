@@ -59,6 +59,15 @@ def main():
             photo = ASSETS / (record["assetName"] + ".imageset") / "photo.jpg"
             assert hashlib.sha256(photo.read_bytes()).hexdigest() == record["sha256"]
     print(f"Validated {len(building_photos)} official building photo mappings and their bundled image hashes.")
+    supplements = read("campus_amenity_details")["facilities"]
+    facilities = {f["id"]: (b, f) for b in buildings for f in b["details"]["facilities"]}
+    assert len(supplements) == len({s["facilityID"] for s in supplements}) == 10
+    for supplement in supplements:
+        building, facility = facilities[supplement["facilityID"]]
+        assert building["number"] == supplement["buildingNumber"]
+        assert supplement["sourceURL"].startswith(("https://snuco.snu.ac.kr/", "https://www.snu.ac.kr/"))
+        assert supplement["checkedAt"] and supplement["phone"] and supplement["weekdayHours"]
+    print("Validated 10 officially sourced amenity contact/hour supplements.")
 
 
 if __name__ == "__main__":

@@ -12,6 +12,9 @@ struct HomeView: View {
     @State private var query = ""
     @State private var focusedBuilding: CampusBuilding?
     @State private var exploredBuilding: CampusBuilding?
+    @State private var focusedAmenity: CampusAmenity?
+    @State private var browsingAmenities = false
+    @State private var amenityKind: CampusAmenityKind?
     @State private var explorerHeight: CGFloat = 0
     @State private var openVisitTasks = false
     @State private var pendingBuildingRoute: CampusBuilding?
@@ -31,12 +34,19 @@ struct HomeView: View {
     @State private var arLandmark: Landmark?
     @State private var showDex = false
 
-    private var searchResults: [CampusBuilding] { CampusBuildingCatalog.search(query) }
+    private var searchResults: [CampusBuilding] { CampusBuildingCatalog.search(query, includeFacilityNames: false) }
+    private var amenityResults: [CampusAmenity] {
+        let key = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        return key.allSatisfy({ $0.isNumber || $0 == "-" || $0 == "동" }) ? [] : CampusAmenities.search(query)
+    }
+    private var browsedAmenities: [CampusAmenity] {
+        CampusAmenities.mapGroups(kind: amenityKind).flatMap(\.amenities)
+    }
     private var hasSearchText: Bool { !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
 
     // The three pre-existing example hubs are NOT official centers: do not render them.
     private var places: [Place] {
-        if store.lostMapOnly { return [] }
+        if store.lostMapOnly || browsingAmenities { return [] }
         return Place.all.filter {
             switch store.homeFilter {
             case .all: $0.type != .hub
@@ -105,7 +115,8 @@ struct HomeView: View {
             }, onDirections: {
                 pendingBuildingRoute = building
                 exploredBuilding = nil
-            }, onHeightChange: { explorerHeight = $0 }, showTasksOnOpen: openVisitTasks)
+            }, onHeightChange: { explorerHeight = $0 }, showTasksOnOpen: openVisitTasks,
+               initialKind: amenityKind, initialAmenity: focusedAmenity)
         }
         .sheet(item: $selectedQuestGroup) { group in
             NavigationStack {
@@ -183,6 +194,8 @@ struct HomeView: View {
                      lostFocusSerial: store.lostFocusSerial,
                      quests: quests, shuttle: shuttle,
                      selectedQuestID: selectedMapQuest?.id, zoomRequest: zoomRequest,
+                     amenityGroups: browsingAmenities ? CampusAmenities.mapGroups(kind: amenityKind) : [],
+                     onSelectAmenityBuilding: { building in focus(on: building, preserveFilter: true) },
                      onQuestSelect: { id in
                          searchFocused = false
                          focusedBuilding = nil; selectedLostPinID = nil; store.closeSheet()
@@ -216,6 +229,8 @@ struct HomeView: View {
             MapQuestPreview(quest: quest, onClose: { selectedMapQuest = nil }).padding(12)
         } else if let building = focusedBuilding {
             buildingCard(building)
+        } else if browsingAmenities {
+            amenityBrowser
         } else if let id = selectedLostPinID, let pin = lf.pins.first(where: { $0.id == id }) {
             lostPinCard(pin)
         } else if store.open, let place = Place.byID[store.sel], place.type == .stop {
@@ -344,7 +359,7 @@ struct HomeView: View {
 
             HStack(spacing: 10) {
                 Image(systemName: "magnifyingglass").foregroundStyle(.primary)
-                TextField("건물을 검색하세요", text: $query)
+                TextField("건물·카페·편의점·약국 검색", text: $query)
                     .submitLabel(.search)
                     .focused($searchFocused)
                     .onSubmit(search)
@@ -369,6 +384,16 @@ struct HomeView: View {
                 HStack(spacing: 8) {
                     chip("전체", symbol: "square.grid.2x2.fill", filter: .all)
                     chip("식당", symbol: "fork.knife", filter: .food)
+                    Button {
+                        browsingAmenities.toggle(); amenityKind = nil
+                        focusedBuilding = nil; focusedAmenity = nil; query = ""; searchFocused = false
+                        store.closeSheet(); store.lostMapOnly = false; store.homeFilter = .all
+                    } label: {
+                        Label("편의시설", systemImage: "basket.fill").font(.subheadline.weight(.medium))
+                            .padding(.horizontal, 16).frame(minHeight: 44)
+                            .foregroundStyle(browsingAmenities ? Color.white : .primary)
+                            .background(browsingAmenities ? Color.cjTeal : Color.cjSurface, in: Capsule()).shadow(radius: 3, y: 2)
+                    }.accessibilityIdentifier("map.amenities")
                     chip("셔틀", symbol: "bus.fill", filter: .shuttle)
                 }
                 .padding(.vertical, 4)
@@ -378,8 +403,9 @@ struct HomeView: View {
     }
 
     private func chip(_ title: String, symbol: String, filter: Store.HomeFilter) -> some View {
-        let on = !store.lostMapOnly && store.homeFilter == filter
+        let on = !browsingAmenities && !store.lostMapOnly && store.homeFilter == filter
         return Button {
+            browsingAmenities = false; amenityKind = nil; focusedAmenity = nil
             store.lostMapOnly = false
             selectedLostPinID = nil
             store.homeFilter = filter
@@ -389,7 +415,7 @@ struct HomeView: View {
             Label(title, systemImage: symbol)
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(on ? Color.white : Color.primary)
-                .padding(.horizontal, 16).frame(height: 38)
+                .padding(.horizontal, 16).frame(minHeight: 44)
                 .background(on ? Color.cjTeal : Color.cjSurface, in: Capsule()).shadow(radius: 4, y: 2)
         }
     }
@@ -409,18 +435,18 @@ struct HomeView: View {
     private var searchResultsPanel: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Text("건물·장소 검색 결과 \(searchResults.count)개")
+                Text("검색 결과 \(searchResults.count + amenityResults.count)개")
                     .font(.caption.weight(.bold))
                     .foregroundStyle(SearchResultColors.secondary)
                 Spacer()
-                Text("결과 선택 시 지도 이동")
+                Text("시설·건물 상세 보기")
                     .font(.caption2)
                     .foregroundStyle(SearchResultColors.secondary)
             }
             .padding(.horizontal, 14).padding(.vertical, 10)
 
             Rectangle().fill(SearchResultColors.separator).frame(height: 1)
-            if searchResults.isEmpty {
+            if searchResults.isEmpty && amenityResults.isEmpty {
                 Text(CampusBuildingCatalog.all.isEmpty ? "건물 데이터를 불러오지 못했어요" : "일치하는 건물이나 장소가 없어요")
                     .font(.subheadline)
                     .foregroundStyle(SearchResultColors.secondary)
@@ -428,6 +454,15 @@ struct HomeView: View {
             } else {
                 ScrollView {
                     LazyVStack(spacing: 0) {
+                        if !amenityResults.isEmpty {
+                            searchSectionTitle("시설", count: amenityResults.count)
+                            ForEach(amenityResults) { amenity in
+                                Button { openAmenity(amenity) } label: { CampusAmenityRow(amenity: amenity, showBuilding: true) }
+                                    .buttonStyle(.plain).accessibilityIdentifier("amenity-result-\(amenity.id)")
+                                Divider().padding(.leading, 66)
+                            }
+                        }
+                        if !searchResults.isEmpty { searchSectionTitle("건물", count: searchResults.count) }
                         ForEach(searchResults) { building in
                             Button { focus(on: building) } label: {
                                 HStack(spacing: 10) {
@@ -452,7 +487,7 @@ struct HomeView: View {
                             }
                             .accessibilityIdentifier("building-result-\(building.id)")
                             .buttonStyle(.plain)
-                            .accessibilityLabel("\(building.displayTitle), 지도에서 보기")
+                            .accessibilityLabel("\(building.displayTitle), 건물 정보 보기")
                             Rectangle().fill(SearchResultColors.separator)
                                 .frame(height: 1)
                                 .padding(.leading, 48)
@@ -464,12 +499,65 @@ struct HomeView: View {
             }
         }
         .background(SearchResultColors.background, in: RoundedRectangle(cornerRadius: 14))
+        .environment(\.colorScheme, .light)
         .shadow(radius: 5, y: 3)
+    }
+
+    private func searchSectionTitle(_ name: String, count: Int) -> some View {
+        HStack { Text(name).font(.caption.weight(.bold)); Text("\(count)").font(.caption); Spacer() }
+            .foregroundStyle(SearchResultColors.secondary).padding(.horizontal, 14).padding(.vertical, 9)
+            .background(Color(hex: 0xf5f8f6))
+    }
+
+    private func openAmenity(_ amenity: CampusAmenity) {
+        focus(on: amenity.building, preserveFilter: true)
+        focusedAmenity = amenity
+        exploredBuilding = amenity.building
+    }
+
+    private var amenityBrowser: some View {
+        SwipeSheet(detent: $placeSheet) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("캠퍼스 편의시설").font(.headline)
+                    Text("건물과 층까지 한눈에").font(.caption).foregroundStyle(.secondary)
+                }
+                Spacer()
+                Button { browsingAmenities = false } label: { Image(systemName: "xmark").frame(width: 44, height: 44) }
+                    .accessibilityLabel("편의시설 목록 닫기")
+            }
+        } content: {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    amenityFilter(nil)
+                    ForEach(CampusAmenityKind.everyday, id: \.self) { amenityFilter($0) }
+                }
+            }
+            ScrollView {
+                LazyVStack(spacing: 0) {
+                    ForEach(browsedAmenities) { amenity in
+                        Button { openAmenity(amenity) } label: { CampusAmenityRow(amenity: amenity, showBuilding: true) }
+                            .buttonStyle(.plain).accessibilityIdentifier("amenity-browse-\(amenity.id)")
+                        Divider().padding(.leading, 66)
+                    }
+                }
+            }.frame(height: placeSheet == .expanded ? 380 : 190)
+            Text("\(browsedAmenities.count)곳 · 지도 표시는 시설이 있는 건물 위치예요").font(.caption).foregroundStyle(.secondary)
+        }
+    }
+
+    private func amenityFilter(_ item: CampusAmenityKind?) -> some View {
+        Button { amenityKind = item } label: {
+            Text(item?.title ?? "전체").font(.subheadline.weight(.semibold)).padding(.horizontal, 15).frame(minHeight: 44)
+                .foregroundStyle(amenityKind == item ? Color.white : .primary)
+                .background(amenityKind == item ? BuildingDesign.green : Color.cjInset, in: Capsule())
+        }.buttonStyle(.plain).accessibilityIdentifier("map-amenity-filter.\(item?.rawValue ?? "all")")
     }
 
     private func clearMapSelection() {
         selectedMapQuest = nil
         focusedBuilding = nil
+        focusedAmenity = nil
         selectedLostPinID = nil
         store.closeSheet()
     }
@@ -487,7 +575,7 @@ struct HomeView: View {
         }
         placeSheet = .normal
         focusedBuilding = building
-        exploredBuilding = building
+        focusedAmenity = nil
         focusSerial += 1  // Repeat taps on the same building still recenter the camera.
         query = ""        // Close results so the map location is clearly visible.
     }
@@ -498,17 +586,17 @@ struct HomeView: View {
         UserDefaults.standard.removeObject(forKey: CampusVisitNotifications.pendingKey)
         store.tab = .home; store.showDining = false
         focus(on: building, preserveFilter: true)
+        exploredBuilding = building
         openVisitTasks = true
     }
 
     private func buildingCard(_ building: CampusBuilding) -> some View {
         SwipeSheet(detent: $placeSheet) {
             HStack(alignment: .top, spacing: 10) {
-                Image(systemName: "building.2.crop.circle.fill")
-                    .font(.title2).foregroundStyle(Color.cjTeal)
                 VStack(alignment: .leading, spacing: 5) {
+                    Text(building.buildingNumberLabel).font(.caption.weight(.bold)).foregroundStyle(BuildingDesign.green)
                     Text(building.name).font(.headline).accessibilityAddTraits(.isHeader)
-                    Text(building.buildingNumberLabel).font(.subheadline).foregroundStyle(Color.cjSub)
+                    if let english = building.details?.englishName { Text(english).font(.caption).foregroundStyle(Color.cjSub) }
                 }
                 Spacer()
                 Button { focusedBuilding = nil } label: {
@@ -519,12 +607,10 @@ struct HomeView: View {
                 .accessibilityIdentifier("close-building-details")
             }
         } content: {
-            Text("층별 공간과 연구실, 식당·카페를 찾아보세요.")
-                .font(.subheadline).foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            BuildingAmenityBadges(building: building) { kind in amenityKind = kind; exploredBuilding = building }
             HStack(spacing: 10) {
                 Button { exploredBuilding = building } label: {
-                    Label("건물 둘러보기", systemImage: "square.3.layers.3d")
+                    Label("건물 상세", systemImage: "square.3.layers.3d")
                         .frame(maxWidth: .infinity, minHeight: 48)
                         .background(Color.cjTeal, in: RoundedRectangle(cornerRadius: 12))
                         .foregroundStyle(.white)
@@ -571,7 +657,11 @@ struct HomeView: View {
         searchFocused = false
         guard !q.isEmpty else { return }
         let buildings = searchResults
-        if buildings.count == 1, let onlyBuilding = buildings.first {
+        if amenityResults.count == 1, buildings.isEmpty, let amenity = amenityResults.first {
+            openAmenity(amenity)
+        } else if !amenityResults.isEmpty {
+            return
+        } else if buildings.count == 1, let onlyBuilding = buildings.first {
             focus(on: onlyBuilding)
         } else if !buildings.isEmpty {
             // Never arbitrarily discard other matches or jump to only the first one.

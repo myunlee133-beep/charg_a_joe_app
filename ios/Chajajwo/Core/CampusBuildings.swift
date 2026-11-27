@@ -106,12 +106,12 @@ enum CampusBuildingCatalog {
 
     /// AND semantics over all space-delimited terms, matching numbers and names.
     /// No prefix or result-count limit is applied; return *every* matching building.
-    static func search(_ query: String, among buildings: [CampusBuilding] = all) -> [CampusBuilding] {
+    static func search(_ query: String, among buildings: [CampusBuilding] = all, includeFacilityNames: Bool = true) -> [CampusBuilding] {
         let terms = query.split(whereSeparator: { $0.isWhitespace }).map { compact(String($0)) }.filter { !$0.isEmpty }
         guard !terms.isEmpty else { return [] }
         return buildings.filter { building in
             let number = building.number ?? ""
-            let facilityNames = building.details?.facilities.map(\.name) ?? []
+            let facilityNames = includeFacilityNames ? (building.details?.facilities.map(\.name) ?? []) : []
             let fields = ([number, number + "동", building.name, building.details?.englishName ?? ""] + facilityNames).map(compact)
             return terms.allSatisfy { term in fields.contains { $0.contains(term) } }
         }.sorted { lhs, rhs in

@@ -6,15 +6,21 @@ struct BuildingExplorerSheet: View {
     var onDirections: () -> Void
     var onHeightChange: (CGFloat) -> Void = { _ in }
     var showTasksOnOpen = false
+    var initialKind: CampusAmenityKind? = nil
+    var initialAmenity: CampusAmenity? = nil
     @Environment(\.dismiss) private var dismiss
     @StateObject private var planner = CampusPlannerStore.shared
     @State private var detent: PresentationDetent = .fraction(0.68)
     @State private var showingTasks = false
+    @State private var showingAmenity = false
 
     var body: some View {
         NavigationStack {
-            BuildingOverviewView(building: building, onRestaurant: onRestaurant, onDirections: onDirections)
+            BuildingOverviewView(building: building, onRestaurant: onRestaurant, onDirections: onDirections, initialKind: initialKind)
                 .navigationDestination(isPresented: $showingTasks) { CampusTaskListView(building: building) }
+                .navigationDestination(isPresented: $showingAmenity) {
+                    if let initialAmenity { CampusAmenityDetailView(amenity: initialAmenity) }
+                }
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button { dismiss() } label: { Image(systemName: "xmark").font(.subheadline.weight(.semibold)).frame(width: 44, height: 44) }
@@ -31,6 +37,8 @@ struct BuildingExplorerSheet: View {
         .presentationDragIndicator(.visible).presentationCornerRadius(28)
         .onAppear {
             showingTasks = showTasksOnOpen
+            showingAmenity = initialAmenity != nil
+            if initialAmenity != nil { detent = .large }
             #if DEBUG
             if ProcessInfo.processInfo.arguments.contains("-preview-place-building") { detent = .large }
             #endif
@@ -55,6 +63,13 @@ struct BuildingOverviewView: View {
     @EnvironmentObject private var planner: CampusPlannerStore
     @Environment(\.dynamicTypeSize) private var typeSize
     @State private var tab = BuildingHubTab.home
+    @State private var amenityKind: CampusAmenityKind?
+
+    init(building: CampusBuilding, onRestaurant: @escaping (Place) -> Void, onDirections: @escaping () -> Void, initialKind: CampusAmenityKind? = nil) {
+        self.building = building; self.onRestaurant = onRestaurant; self.onDirections = onDirections
+        _amenityKind = State(initialValue: initialKind)
+        _tab = State(initialValue: initialKind == nil ? .home : .facilities)
+    }
 
     var body: some View {
         ScrollView {
@@ -68,7 +83,7 @@ struct BuildingOverviewView: View {
                     VStack(spacing: 18) {
                         switch tab {
                         case .home: home
-                        case .facilities: BuildingFacilityTab(building: building)
+                        case .facilities: BuildingFacilityTab(building: building, kind: $amenityKind)
                         case .food: BuildingFoodCards(building: building, onRestaurant: onRestaurant)
                         case .guide: guide
                         }
@@ -87,6 +102,7 @@ struct BuildingOverviewView: View {
                 Text(building.name).font(.title2.bold()).accessibilityAddTraits(.isHeader)
                 Text(building.buildingNumberLabel + " · " + (building.details?.category ?? "캠퍼스 공간"))
                     .font(.subheadline).foregroundStyle(.secondary)
+                if let english = building.details?.englishName { Text(english).font(.caption).foregroundStyle(.secondary) }
             }
             Spacer(minLength: 0)
             Button { planner.toggleFavorite(building) } label: {
@@ -122,6 +138,18 @@ struct BuildingOverviewView: View {
 
     private var home: some View {
         VStack(alignment: .leading, spacing: 18) {
+            if !CampusAmenities.inBuilding(building).isEmpty {
+                BuildingSurface {
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack { Text("이 건물에서 찾을 수 있어요").font(.headline); Spacer() }
+                        BuildingAmenityBadges(building: building) { kind in amenityKind = kind; tab = .facilities }
+                        Button { amenityKind = nil; tab = .facilities } label: {
+                            HStack { Text("층별 시설 \(CampusAmenities.inBuilding(building).count)곳 모두 보기"); Spacer(); Image(systemName: "arrow.right") }
+                                .font(.subheadline.weight(.semibold)).frame(minHeight: 44)
+                        }.accessibilityIdentifier("building.all-facilities")
+                    }
+                }
+            }
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: typeSize.isAccessibilitySize ? 1 : 2), spacing: 12) {
                 NavigationLink { CampusTaskListView(building: building) } label: {
                     feature("할 일 & 알림", subtitle: "일정 관리, 방문 알림", symbol: "checklist")
@@ -150,17 +178,6 @@ struct BuildingOverviewView: View {
                     }
                 }
             }.buttonStyle(.plain).accessibilityIdentifier("building.timetable")
-            if !(building.details?.facilities.isEmpty ?? true) {
-                BuildingSurface {
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack { Text("주요 시설").font(.headline); Spacer(); Text("총 \(building.details?.facilities.count ?? 0)곳").font(.caption).foregroundStyle(.secondary) }
-                        ForEach(Array((building.details?.facilities ?? []).prefix(3))) { facility in
-                            HStack { Image(systemName: "building.2").foregroundStyle(BuildingDesign.green); Text(facility.name).font(.subheadline); Spacer(); Text(PlaceDirectory.floorName(facility.floor)).font(.caption).foregroundStyle(.secondary) }
-                        }
-                        Button("시설정보 모두 보기") { tab = .facilities }.font(.subheadline.weight(.semibold)).frame(minHeight: 44)
-                    }
-                }
-            }
         }
     }
 
@@ -225,8 +242,7 @@ struct BuildingOverviewView: View {
 
 struct BuildingFacilityTab: View {
     let building: CampusBuilding
-    @State private var floor = ""
-    private var selected: String { floor.isEmpty ? (PlaceDirectory.floors(in: building).first ?? "층 정보 미등록") : floor }
+    @Binding var kind: CampusAmenityKind?
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             NavigationLink { BuildingFloorView(building: building) } label: {
@@ -234,38 +250,7 @@ struct BuildingFacilityTab: View {
                     .foregroundStyle(.secondary).frame(maxWidth: .infinity, minHeight: 48, alignment: .leading).padding(.horizontal, 14)
                     .background(.white, in: RoundedRectangle(cornerRadius: 12))
             }.accessibilityIdentifier("building.facility-search")
-            ScrollView(.horizontal) {
-                HStack(spacing: 8) {
-                    ForEach(PlaceDirectory.floors(in: building), id: \.self) { value in
-                        Button { floor = value } label: {
-                            Text(value.replacingOccurrences(of: "지상", with: "")).font(.subheadline.weight(.semibold)).padding(.horizontal, 16).frame(minHeight: 44)
-                                .background(selected == value ? BuildingDesign.green : .white, in: Capsule()).foregroundStyle(selected == value ? Color.white : .primary)
-                        }.buttonStyle(.plain).accessibilityAddTraits(selected == value ? .isSelected : []).accessibilityIdentifier("hub-floor.\(value)")
-                    }
-                }
-            }.scrollIndicators(.hidden)
-            let labs = PlaceDirectory.labs(in: building).filter { $0.floor == selected }
-            let facilities = (building.details?.facilities ?? []).filter { PlaceDirectory.floorName($0.floor) == selected }
-            ForEach(labs) { lab in
-                NavigationLink { ResearchLabView(lab: lab) } label: {
-                    BuildingSurface {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(lab.name).font(.headline).foregroundStyle(.primary)
-                            Text("지도교수 \(lab.professor) · \(lab.field)").font(.subheadline).foregroundStyle(.secondary)
-                        }
-                    }
-                }.buttonStyle(.plain)
-            }
-            ForEach(facilities) { facility in
-                BuildingSurface {
-                    HStack(spacing: 12) {
-                        Image(systemName: "building.2").foregroundStyle(BuildingDesign.green)
-                        VStack(alignment: .leading, spacing: 5) { Text(facility.name).font(.headline); Text(facility.category).font(.caption).foregroundStyle(.secondary) }
-                    }
-                }
-            }
-            if labs.isEmpty && facilities.isEmpty { BuildingEmptyCard(symbol: "building.2", title: "등록된 공간이 없어요", text: "다른 층을 선택하거나 검색해 보세요.") }
-            Text("공식 자료에 등록된 공간을 안내해요. 연구실 정보는 현재 컴퓨터공학부 자료를 수록했어요.").font(.caption).foregroundStyle(.secondary)
+            BuildingAmenityDirectory(building: building, kind: $kind)
         }
     }
 }

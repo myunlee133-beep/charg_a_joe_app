@@ -16,10 +16,10 @@ struct BuildingFloorView: View {
             (searching || $0.floor == floor) && PlaceDirectory.matches(query, fields: $0.searchFields)
         }
     }
-    private var facilities: [CampusBuildingFacility] {
-        (building.details?.facilities ?? []).filter {
-            (searching || PlaceDirectory.floorName($0.floor) == floor)
-                && PlaceDirectory.matches(query, fields: [$0.name, $0.category])
+    private var facilities: [CampusAmenity] {
+        CampusAmenities.inBuilding(building).filter {
+            (searching || $0.floor == floor)
+                && PlaceDirectory.matches(query, fields: $0.searchFields)
         }
     }
 
@@ -64,11 +64,8 @@ struct BuildingFloorView: View {
                 if !facilities.isEmpty {
                     Section("등록 시설 · \(facilities.count)곳") {
                         ForEach(facilities) { facility in
-                            VStack(alignment: .leading, spacing: 5) {
-                                Text(facility.name)
-                                Text(searching ? PlaceDirectory.floorName(facility.floor) : facility.category)
-                                    .font(.caption).foregroundStyle(.secondary)
-                            }.padding(.vertical, 5)
+                            NavigationLink { CampusAmenityDetailView(amenity: facility) } label: { CampusAmenityRow(amenity: facility) }
+                                .accessibilityIdentifier("amenity.\(facility.id)")
                         }
                     }
                 }
