@@ -147,10 +147,6 @@ struct LandmarkARView: View {
             ARReticleBrackets(color: found ? Self.gold : Self.cream)
                 .frame(width: 250, height: 250)
                 .scaleEffect(pulse ? 1.03 : 0.98)
-            Image(systemName: found ? "mappin.circle.fill" : "magnifyingglass.circle.fill")
-                .font(.system(size: 36))
-                .foregroundStyle(.white, found ? Self.coral : Self.forest)
-                .offset(y: -150 + (pulse ? -4 : 0))
         }
         .allowsHitTesting(false)
     }
@@ -176,36 +172,23 @@ struct LandmarkARView: View {
         .accessibilityLabel(label)
     }
 
+    /// 목업(ar인게임.png)에서 떼어낸 배지 그림 위에 제목을 얹는다.
     private var titleBadge: some View {
         let found = phase == .found
-        return Text(found ? "보물 발견!" : "보물이 근처에 있어요")
-            .font(.system(size: found ? 44 : 30, weight: .black, design: .rounded))
-            .foregroundStyle(Self.forest)
-            .padding(.horizontal, found ? 38 : 28)
-            .padding(.top, 18)
-            .padding(.bottom, 12)
-            .background(Self.cream, in: RoundedRectangle(cornerRadius: 34, style: .continuous))
-            .overlay(alignment: .leading) { leaf.scaleEffect(x: -1).offset(x: -18) }
-            .overlay(alignment: .trailing) { leaf.offset(x: 18) }
-            .overlay(alignment: .top) {
-                ZStack(alignment: .bottom) {
-                    Image(systemName: "mountain.2.fill").font(.title2).foregroundStyle(Color(hex: 0x6fae5a))
-                    Image(systemName: "mappin.circle.fill").font(.title2)
-                        .foregroundStyle(.white, Self.coral).offset(y: -12)
-                }
-                .offset(y: -22)
-            }
-            .shadow(color: .black.opacity(0.18), radius: 8, y: 3)
-            .padding(.top, 4)
-            .animation(.spring(response: 0.4, dampingFraction: 0.7), value: found)
-            .accessibilityAddTraits(.isHeader)
-    }
-
-    private var leaf: some View {
-        Image(systemName: "leaf.fill")
-            .font(.title)
-            .foregroundStyle(Color(hex: 0x4f8f3c))
-            .rotationEffect(.degrees(35))
+        return ZStack {
+            Image("ARTitleBadge").resizable().scaledToFit().frame(width: 340)
+            Text(found ? "보물 발견!" : "보물이 근처에 있어요")
+                .font(.system(size: found ? 46 : 28, weight: .heavy))
+                .foregroundStyle(Self.forest)
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
+                .frame(width: 250)
+                .offset(y: 27)
+        }
+        .shadow(color: .black.opacity(0.15), radius: 6, y: 3)
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: found)
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isHeader)
     }
 
     private var clueCapsule: some View {
@@ -214,9 +197,9 @@ struct LandmarkARView: View {
             .multilineTextAlignment(.center)
             .lineSpacing(2)
             .padding(.horizontal, 22).padding(.vertical, 10)
-            .frame(maxWidth: 320)
             .background(Self.forest, in: RoundedRectangle(cornerRadius: 26, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 26, style: .continuous).strokeBorder(Self.cream, lineWidth: 2.5))
+            .frame(maxWidth: 320)
             .accessibilityLabel("단서: \(landmark.clue)")
     }
 
@@ -577,14 +560,14 @@ struct LandmarkDexView: View {
                 .foregroundStyle(Self.ink)
                 .lineLimit(1)
             if !done {
-                Text(treasure.hint).font(.system(size: 14)).foregroundStyle(Self.gray).lineLimit(1)
+                Text(treasure.clue).font(.system(size: 14)).foregroundStyle(Self.gray).lineLimit(2).multilineTextAlignment(.center)
             }
             Text(treasure.grade.rawValue)
                 .font(.system(size: 15, weight: treasure.grade == .common ? .regular : .semibold))
                 .foregroundStyle(treasure.grade.color)
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(done ? "\(treasure.name), \(treasure.grade.rawValue)" : "미발견 \(treasure.grade.rawValue) 보물, 단서 \(treasure.hint)")
+        .accessibilityLabel(done ? "\(treasure.name), \(treasure.grade.rawValue)" : "미발견 \(treasure.grade.rawValue) 보물, 단서 \(treasure.clue)")
     }
 }
 

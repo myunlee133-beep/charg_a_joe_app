@@ -15,8 +15,7 @@ struct Landmark: Identifiable, Hashable {
     let grade: TreasureGrade
     let art: String           // 보물 일러스트 에셋 이름 (Treasure-*)
     let coordinate: CampusCoordinate
-    let clue: String          // 미발견일 때 보여주는 단서 (도감 칸에는 짧은 `hint`)
-    let hint: String
+    let clue: String          // 미발견일 때 보여주는 단서 (도감·AR)
     let blurb: String         // 발견 후 설명
 
     /// AR Resource Group `TreasureTargets` 안의 대상 사진 이름. 보물 id와 같다.
@@ -25,38 +24,44 @@ struct Landmark: Identifiable, Hashable {
     /// GPS 오차(도심·건물 옆 10~30m)를 감안한 반경. 이 안에 들어오면 지도에 여우가 나타난다.
     static let collectRadius: Double = 50
 
-    // ponytail: 좌표·단서는 지도에서 대략 잡은 값. 현장에서 대상 사진을 찍으며 함께 맞춘다.
+    // ponytail: 좌표는 건물 데이터/지도에서 잡은 값. 블루포트=915동, 기숙사 라커=900동.
     static let all: [Landmark] = [
-        .init(id: "gate", name: "첫걸음의 문", place: "정문", grade: .common, art: "Treasure-gate",
+        .init(id: "fox", name: "탐험 여우", place: "정문", grade: .common, art: "Treasure-fox",
               coordinate: .init(latitude: 37.46630, longitude: 126.94835),
-              clue: "모든 탐험은 여기서 시작돼요. ㄱ·ㅅ·ㄷ이 숨은 조형물을 정면에서 비춰보세요.",
-              hint: "정문 어딘가",
-              blurb: "'국립서울대학교'의 초성 ㄱ·ㅅ·ㄷ을 본뜬 정문에서 얻은 첫 보물."),
-        .init(id: "jahayeon", name: "탐험 여우", place: "자하연", grade: .common, art: "Treasure-fox",
+              clue: "한 번쯤 사진을 찍지 않았을까?",
+              blurb: "서울대의 첫인상, 정문 앞을 지키던 탐험 여우. 이제 함께 캠퍼스를 누벼요."),
+        .init(id: "key", name: "숨겨진 열쇠", place: "자하연", grade: .common, art: "Treasure-key",
               coordinate: .init(latitude: 37.46109, longitude: 126.95380),
-              clue: "인문대와 학생회관 사이 연못. 연못 이름이 적힌 안내판을 찾아보세요.",
-              hint: "연못가",
-              blurb: "자하연 연못가에서 졸고 있던 탐험 여우. 이제 함께 캠퍼스를 누벼요."),
-        .init(id: "library", name: "비밀 책갈피", place: "중앙도서관", grade: .rare, art: "Treasure-bookmark",
-              coordinate: .init(latitude: 37.45982, longitude: 126.95205),
-              clue: "책이 가장 많은 건물. 창가 쪽 오래된 현판에 책갈피가 끼워져 있대요.",
-              hint: "도서관 창가",
-              blurb: "중앙도서관 창가 현판 뒤에 숨어 있던 책갈피."),
-        .init(id: "democracy", name: "숨겨진 열쇠", place: "민주화 동상", grade: .rare, art: "Treasure-key",
-              coordinate: .init(latitude: 37.46005, longitude: 126.95100),
-              clue: "광장 어딘가, 이름들이 새겨진 돌판 아래 열쇠가 있어요.",
-              hint: "광장 어딘가",
-              blurb: "민주화를 위해 싸운 학생들을 기리는 동상 곁에서 찾은 열쇠."),
-        .init(id: "waterfall", name: "숲의 도토리", place: "폭포", grade: .common, art: "Treasure-acorn",
-              coordinate: .init(latitude: 37.45020, longitude: 126.95250),
-              clue: "물소리를 따라 관악산 쪽으로. 폭포 앞 안내판을 비춰보세요.",
-              hint: "물소리 나는 곳",
-              blurb: "관악산 자락 폭포 옆 숲에서 굴러온 도토리."),
-        .init(id: "observatory", name: "황금 잎사귀", place: "전망대", grade: .legendary, art: "Treasure-leaf",
-              coordinate: .init(latitude: 37.44890, longitude: 126.95270),
-              clue: "캠퍼스에서 가장 높은 곳, 서울이 내려다보이는 자리의 낡은 표지판.",
-              hint: "오래된 나무 아래",
-              blurb: "캠퍼스와 서울 시내가 한눈에 보이는 전망대에서만 얻을 수 있는 전설의 잎사귀."),
+              clue: "꽥꽥꽥",
+              blurb: "자하연 오리가 물고 있던 열쇠. 무엇을 여는 열쇠일까요?"),
+        .init(id: "doraji", name: "도라지", place: "중앙도서관", grade: .rare, art: "Treasure-doraji",
+              coordinate: .init(latitude: 37.45940, longitude: 126.95199),
+              clue: "도라지",
+              blurb: "중앙도서관 어딘가에서 자라난 도라지. 책 냄새를 좋아해요."),
+        .init(id: "ghost", name: "공학 유령", place: "붉은 광장", grade: .common, art: "Treasure-ghost",
+              coordinate: .init(latitude: 37.45587, longitude: 126.95123),
+              clue: "하나의 유령이 공대를 배회하고 있다.",
+              blurb: "아랫공대 붉은 광장을 떠도는 유령. 생각보다 친절해요."),
+        .init(id: "reed", name: "갈댓닢", place: "하늘 정원", grade: .rare, art: "Treasure-reed",
+              coordinate: .init(latitude: 37.45903, longitude: 126.95247),
+              clue: "슬슬 추워지는 거 같아",
+              blurb: "하늘 정원 바람에 흔들리던 갈댓잎 한 장."),
+        .init(id: "sombrero", name: "하얀 솜브레로", place: "셔틀 승차장", grade: .rare, art: "Treasure-sombrero",
+              coordinate: .init(latitude: 37.46590, longitude: 126.94890),
+              clue: "¡vamos todos! 출발할 시간이야",
+              blurb: "셔틀 승차장에 누가 두고 간 하얀 솜브레로."),
+        .init(id: "teapot", name: "파란 주전자", place: "블루포트", grade: .legendary, art: "Treasure-teapot",
+              coordinate: .init(latitude: 37.465012, longitude: 126.957503),
+              clue: "커피를 디자인하다",
+              blurb: "블루포트의 파란 주전자. 커피 향이 아직 남아 있어요."),
+        .init(id: "bear", name: "공대곰돌이", place: "39동", grade: .legendary, art: "Treasure-bear",
+              coordinate: .init(latitude: 37.45465, longitude: 126.95157),
+              clue: "문 좀 닫아줘…",
+              blurb: "39동 문 앞을 지키는 공대곰돌이. 문은 꼭 닫아 주세요."),
+        .init(id: "trophy", name: "마이너 트로피", place: "기숙사 라커", grade: .legendary, art: "Treasure-trophy",
+              coordinate: .init(latitude: 37.46149, longitude: 126.95810),
+              clue: "어쩌다 관악사는 강팀이 되었는가",
+              blurb: "기숙사 라커에 잠들어 있던 관악사의 트로피."),
     ]
 
     /// `collected`에 없는 보물 중 반경 안에 있는 것들(가까운 순).
