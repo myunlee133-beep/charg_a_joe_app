@@ -38,7 +38,7 @@ struct BuildingExplorerSheet: View {
         .onAppear {
             showingTasks = showTasksOnOpen
             showingAmenity = initialAmenity != nil
-            if initialAmenity != nil { detent = .large }
+            if initialAmenity != nil || initialKind != nil { detent = .large }
             #if DEBUG
             if ProcessInfo.processInfo.arguments.contains("-preview-place-building") { detent = .large }
             #endif
@@ -76,7 +76,7 @@ struct BuildingOverviewView: View {
             LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
                 VStack(alignment: .leading, spacing: 15) {
                     header
-                    BuildingHeroPhoto(building: building)
+                    BuildingHeroPhoto(building: building, height: tab == .facilities ? 120 : 168)
                     BuildingDirectionsBanner(building: building)
                 }.padding(.horizontal, 18).padding(.bottom, 12).background(Color(uiColor: .systemBackground))
                 Section {

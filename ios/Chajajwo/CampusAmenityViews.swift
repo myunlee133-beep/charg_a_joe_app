@@ -15,7 +15,7 @@ struct CampusAmenityMapPin: View {
                         .padding(3).background(.white, in: Circle()).offset(x: 5, y: -4)
                 }
             }
-            if let name { Text(name).font(.system(size: 12, weight: .semibold)).foregroundStyle(.black).lineLimit(1).padding(.trailing, 9) }
+            if let name { Text(name).font(.system(size: 12, weight: .semibold)).foregroundStyle(.black).lineLimit(1).frame(maxWidth: 140, alignment: .leading).padding(.trailing, 9) }
         }.padding(3).background(.white, in: Capsule()).shadow(color: .black.opacity(0.15), radius: 3, y: 2).padding(5)
     }
 }
@@ -26,7 +26,7 @@ extension CampusAmenityKind {
         case .pharmacy, .health: Color(hex: 0xa43f5b)
         case .convenience: Color(hex: 0x32699c)
         case .cafe: Color(hex: 0x89613a)
-        default: BuildingDesign.green
+        default: Color(hex: 0x006f58)
         }
     }
     var wash: Color { ink.opacity(0.09) }

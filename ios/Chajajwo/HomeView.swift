@@ -112,6 +112,7 @@ struct HomeView: View {
         }) { building in
             BuildingExplorerSheet(building: building, onRestaurant: { place in
                 exploredBuilding = nil
+                browsingAmenities = false
                 clearMapSelection()
                 store.select(place.id)
             }, onDirections: {
@@ -496,7 +497,7 @@ struct HomeView: View {
                         }
                     }
                 }
-                .frame(maxHeight: 320)
+                .frame(height: min(320, CGFloat(amenityResults.count) * 100 + CGFloat(searchResults.count) * 66 + CGFloat((amenityResults.isEmpty ? 0 : 1) + (searchResults.isEmpty ? 0 : 1)) * 38))
                 .scrollDismissesKeyboard(.interactively)
             }
         }

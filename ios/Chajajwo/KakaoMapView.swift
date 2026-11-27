@@ -326,7 +326,9 @@ struct KakaoMapView: UIViewRepresentable {
                 if !addedStyles.contains(style) {
                     let pin = CampusAmenityMapPin(kind: first.kind, count: group.amenities.count,
                         name: detailed ? (group.amenities.count == 1 ? first.name : group.building.name) : nil)
-                    let icon = PoiIconStyle(symbol: Self.render(pin), anchorPoint: CGPoint(x: 0.5, y: 0.5))
+                    let image = Self.render(pin)
+                    // The round icon, rather than the centre of its name label, anchors the building.
+                    let icon = PoiIconStyle(symbol: image, anchorPoint: CGPoint(x: min(1, 25 / max(1, image.size.width)), y: 0.5))
                     manager.addPoiStyle(PoiStyle(styleID: style, styles: [PerLevelPoiStyle(iconStyle: icon, level: 0)]))
                     addedStyles.insert(style)
                 }
