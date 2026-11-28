@@ -15,7 +15,7 @@ shot() {
   adb shell am force-stop $PKG
   adb logcat -c || true
   adb shell am start -n $PKG/.MainActivity "$@"
-  sleep 14
+  sleep 16
   adb exec-out screencap -p > "$OUT/$name.png"
   adb logcat -d > "$OUT/$name.log" || true
 }
@@ -26,6 +26,7 @@ shot building-explore --es preview "building:63:explore"
 shot amenities --es preview amenities
 shot directions --es preview directions
 shot dining --es preview dining
+shot route --es preview route
 {
   echo "--- home: SDK init / crash context"
   grep -A12 -E "카카오맵 초기화 실패|FATAL EXCEPTION|카카오맵 오류" "$OUT/home.log" | head -80

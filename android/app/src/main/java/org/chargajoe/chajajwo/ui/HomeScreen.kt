@@ -109,6 +109,7 @@ fun HomeScreen() {
     var bottomHeightPx by remember { mutableIntStateOf(0) }
     var topBarBottomPx by remember { mutableIntStateOf(0) }
     var mapHeightPx by remember { mutableIntStateOf(0) }
+    var previewRoute by remember { mutableStateOf(false) }
     val searchFocus = remember { FocusRequester() }
     val userLocation = remember { UserLocationService(context.applicationContext) }
     val landmarkIDs = app.landmarks.ids
@@ -227,8 +228,10 @@ fun HomeScreen() {
                 CampusBuildingCatalog.search("학생회관").firstOrNull(), CampusBuildingCatalog.search("중앙도서관").firstOrNull())
             "amenities" -> browsingAmenities = true
             "food" -> store.homeFilter = Store.HomeFilter.FOOD
+            "route" -> previewRoute = true
             else -> if (arg.startsWith("building:")) {
-                CampusBuildingCatalog.all.firstOrNull { it.number == arg.removePrefix("building:") }?.let {
+                val number = arg.removePrefix("building:").substringBefore(":")
+                CampusBuildingCatalog.all.firstOrNull { it.number == number }?.let {
                     focus(it, preserveFilter = true)
                     if (arg.endsWith(":explore")) exploredBuilding = it
                 }
@@ -410,6 +413,15 @@ fun HomeScreen() {
     buildingDirections?.let { request ->
         FullScreenDialog(onDismiss = { buildingDirections = null }) {
             BuildingDirectionsScreen(request.origin, request.destination, onClose = { buildingDirections = null })
+        }
+    }
+
+    if (previewRoute) {
+        val start = CampusBuildingCatalog.search("학생회관").firstOrNull()
+        val end = CampusBuildingCatalog.search("중앙도서관").firstOrNull()
+        val url = if (start != null && end != null) org.chargajoe.chajajwo.data.DirectionsURL.route(start.directionsEndpoint, end.directionsEndpoint) else null
+        if (url != null) FullScreenDialog(onDismiss = { previewRoute = false }) {
+            DirectionsScreen(url, "학생회관 → 중앙도서관", onClose = { previewRoute = false })
         }
     }
 
