@@ -153,7 +153,7 @@ class PinBitmaps(private val context: Context, private val painters: PinPainters
             canvas.drawText(label, px(bx) - badge.measureText(label) / 2, px(by) - (fm.ascent + fm.descent) / 2, badge)
         }
         if (name != null && text != null) {
-            var shown = name
+            var shown: String = name
             while (text.measureText(shown) / d > 140 && shown.length > 1) shown = shown.dropLast(1)
             if (shown != name) shown = shown.dropLast(1) + "…"
             val fm = text.fontMetrics

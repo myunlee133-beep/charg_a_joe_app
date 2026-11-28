@@ -32,6 +32,7 @@ import com.kakao.vectormap.label.LabelLayerOptions
 import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelStyles
+import com.kakao.vectormap.label.LabelTextBuilder
 import com.kakao.vectormap.label.LabelTextStyle
 import com.kakao.vectormap.label.OrderingType
 import com.kakao.vectormap.label.TransformMethod
@@ -277,13 +278,13 @@ class CampusMapController(private val context: Context, private val shuttle: Cir
             val existing = placeLabels[p.id]
             if (existing == null) {
                 val options = LabelOptions.from(p.id, LatLng.from(p.lat, p.lng)).setStyles(labelStyles).setRank(if (isSel) 100L else 0L).setClickable(true)
-                if (isSel && p.type != PlaceType.FOOD) options.setTexts(p.name)
+                if (isSel && p.type != PlaceType.FOOD) options.setTexts(LabelTextBuilder().setTexts(p.name))
                 val label = places.addLabel(options) ?: continue
                 placeLabels[p.id] = label
                 placeStyle[p.id] = key
             } else if (placeStyle[p.id] != key) {
                 if (p.type == PlaceType.FOOD) existing.changeStyles(labelStyles)
-                else existing.changeStylesAndText(labelStyles, if (isSel) p.name else "")
+                else existing.changeStylesAndText(labelStyles, LabelTextBuilder().setTexts(if (isSel) p.name else ""))
                 existing.setRank(if (isSel) 100L else 0L)
                 placeStyle[p.id] = key
             }

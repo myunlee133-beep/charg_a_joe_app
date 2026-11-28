@@ -40,38 +40,38 @@ object Sym {
     val basket: ImageVector = Icons.Filled.ShoppingBasket
     val bus: ImageVector = Icons.Filled.DirectionsBus
     val building: ImageVector = Icons.Filled.Apartment
-    val buildingOutline: ImageVector = OApartment
+    val buildingOutline: ImageVector = Icons.Outlined.OApartment
     val locationFill: ImageVector = Icons.Filled.NearMe
-    val location: ImageVector = ONearMe
+    val location: ImageVector = Icons.Outlined.ONearMe
     val plus: ImageVector = Icons.Filled.Add
     val minus: ImageVector = Icons.Filled.Remove
-    val layers: ImageVector = OLayers
+    val layers: ImageVector = Icons.Outlined.OLayers
     val crossCase: ImageVector = Icons.Filled.MedicalServices
     val cup: ImageVector = Icons.Filled.LocalCafe
-    val cupOutline: ImageVector = OLocalCafe
+    val cupOutline: ImageVector = Icons.Outlined.OLocalCafe
     val card: ImageVector = Icons.Filled.CreditCard
     val books: ImageVector = Icons.AutoMirrored.Filled.MenuBook
     val booksOutline: ImageVector = Icons.AutoMirrored.Outlined.MenuBook
     val heartText: ImageVector = Icons.Filled.MonitorHeart
-    val star: ImageVector = StarBorder
+    val star: ImageVector = Icons.Outlined.StarBorder
     val starFill: ImageVector = Icons.Filled.Star
-    val map: ImageVector = OMap
+    val map: ImageVector = Icons.Outlined.OMap
     val chevronLeft: ImageVector = Icons.Filled.ChevronLeft
     val chevronRight: ImageVector = Icons.Filled.ChevronRight
     val chevronDown: ImageVector = Icons.Filled.ExpandMore
-    val clock: ImageVector = OSchedule
+    val clock: ImageVector = Icons.Outlined.OSchedule
     val circleFill: ImageVector = Icons.Filled.Circle
     val home: ImageVector = Icons.Filled.Home
     val checklist: ImageVector = Icons.Filled.Checklist
     val sparkles: ImageVector = Icons.Filled.AutoAwesome
     val pinEllipse: ImageVector = Icons.Filled.PinDrop
     val chart: ImageVector = Icons.Filled.BarChart
-    val calendar: ImageVector = OCalendarMonth
-    val bell: ImageVector = ONotifications
+    val calendar: ImageVector = Icons.Outlined.OCalendarMonth
+    val bell: ImageVector = Icons.Outlined.ONotifications
     val bellBadge: ImageVector = Icons.Filled.NotificationsActive
-    val phone: ImageVector = OPhone
+    val phone: ImageVector = Icons.Outlined.OPhone
     val phoneFill: ImageVector = Icons.Filled.Phone
-    val info: ImageVector = OInfo
+    val info: ImageVector = Icons.Outlined.OInfo
     val calendarClock: ImageVector = Icons.Filled.EventAvailable
     val calendarPlus: ImageVector = Icons.Filled.EditCalendar
     val route: ImageVector = Icons.Filled.Route
@@ -88,14 +88,14 @@ object Sym {
     val walk: ImageVector = Icons.AutoMirrored.Filled.DirectionsWalk
     val checkSquare: ImageVector = Icons.Filled.CheckBox
     val square: ImageVector = Icons.Filled.CheckBoxOutlineBlank
-    val people: ImageVector = OPeople
+    val people: ImageVector = Icons.Outlined.OPeople
     val clockQuestion: ImageVector = Icons.Filled.HelpOutline
     val mapPin: ImageVector = Icons.Filled.LocationOn
 
     fun meal(meal: DiningMeal): ImageVector = when (meal) {
-        DiningMeal.BREAKFAST -> OWbTwilight
-        DiningMeal.LUNCH -> OWbSunny
-        DiningMeal.DINNER -> ODarkMode
+        DiningMeal.BREAKFAST -> Icons.Outlined.OWbTwilight
+        DiningMeal.LUNCH -> Icons.Outlined.OWbSunny
+        DiningMeal.DINNER -> Icons.Outlined.ODarkMode
     }
 
     fun place(type: PlaceType): ImageVector = when (type) {

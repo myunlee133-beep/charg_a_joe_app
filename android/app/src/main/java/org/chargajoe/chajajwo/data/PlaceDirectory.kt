@@ -20,7 +20,7 @@ data class ResearchLab(
     val field: String = "",
     val summary: String = "",
 ) {
-    val searchFields: List<String> get() = listOf(name, professor, field, summary, room) + topics
+    val searchFields: List<String> get() = listOf(name, professor, this.field, summary, room) + topics
 }
 
 @Serializable
