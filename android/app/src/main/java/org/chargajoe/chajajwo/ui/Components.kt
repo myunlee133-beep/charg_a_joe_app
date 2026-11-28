@@ -42,6 +42,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -389,31 +390,58 @@ fun GroupRow(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null, showD
     }
 }
 
-/** fullScreenCover 대응. */
+/** 앱 메인 창 위에 띄우는 전체 화면들. 메인 창은 상태 표시줄 뒤까지 그려진다. */
+class OverlayHost {
+    class Entry(val edgeToEdge: Boolean, val onDismiss: State<() -> Unit>, val content: State<@Composable () -> Unit>)
+    val entries = mutableStateListOf<Entry>()
+}
+
+val LocalOverlayHost = staticCompositionLocalOf<OverlayHost?> { null }
+
+/** ContentView 맨 위에서 overlay들을 그린다. */
+@Composable
+fun OverlayLayer(host: OverlayHost) {
+    host.entries.forEach { entry ->
+        androidx.compose.runtime.key(entry) {
+            Box(
+                Modifier.fillMaxSize().background(Color.White)
+                    .pointerInput(Unit) { awaitPointerEventScope { while (true) awaitPointerEvent() } }
+                    .then(if (entry.edgeToEdge) Modifier else Modifier.windowInsetsPadding(WindowInsets.statusBars).windowInsetsPadding(WindowInsets.navigationBars)),
+            ) {
+                BackHandler { entry.onDismiss.value() }
+                entry.content.value()
+            }
+        }
+    }
+}
+
+/** fullScreenCover 대응. 메인 창에서는 overlay로, 바텀시트 같은 별도 창 안에서는 Dialog로 띄운다. */
 @Composable
 fun FullScreenDialog(onDismiss: () -> Unit, edgeToEdge: Boolean = false, content: @Composable () -> Unit) {
+    val host = LocalOverlayHost.current
+    if (host != null) {
+        val dismiss = androidx.compose.runtime.rememberUpdatedState(onDismiss)
+        val body = androidx.compose.runtime.rememberUpdatedState(content)
+        androidx.compose.runtime.DisposableEffect(host) {
+            val entry = OverlayHost.Entry(edgeToEdge, dismiss, body)
+            host.entries.add(entry)
+            onDispose { host.entries.remove(entry) }
+        }
+        return
+    }
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)) {
         val view = androidx.compose.ui.platform.LocalView.current
         androidx.compose.runtime.SideEffect {
             (view.parent as? androidx.compose.ui.window.DialogWindowProvider)?.window?.let { window ->
                 window.setLayout(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.MATCH_PARENT)
                 window.setDimAmount(0f)
-                // 다이얼로그도 상태 표시줄 뒤까지 그려서 뒤의 지도가 비치지 않게 한다.
-                androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
-                window.addFlags(android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-                @Suppress("DEPRECATION")
-                window.statusBarColor = android.graphics.Color.TRANSPARENT
-                window.attributes = window.attributes.apply {
-                    layoutInDisplayCutoutMode = android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-                }
                 androidx.core.view.WindowCompat.getInsetsController(window, view).apply {
                     isAppearanceLightStatusBars = true
                     isAppearanceLightNavigationBars = true
                 }
             }
         }
-        Box(Modifier.fillMaxSize().background(Color.White)
-            .then(if (edgeToEdge) Modifier else Modifier.windowInsetsPadding(WindowInsets.statusBars).windowInsetsPadding(WindowInsets.navigationBars))) {
+        Box(Modifier.fillMaxSize().background(Color.White).windowInsetsPadding(WindowInsets.statusBars).windowInsetsPadding(WindowInsets.navigationBars)) {
             content()
         }
     }

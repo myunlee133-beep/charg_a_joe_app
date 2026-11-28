@@ -56,6 +56,8 @@ fun ContentView() {
     LaunchedEffect(shouldTrackShuttle) { if (shouldTrackShuttle) app.shuttle.run() }
     LaunchedEffect(active) { if (active) store.refreshDining() }
 
+    val overlayHost = remember { OverlayHost() }
+    androidx.compose.runtime.CompositionLocalProvider(LocalOverlayHost provides overlayHost) {
     Box(Modifier.fillMaxSize().background(Color.White)) {
         Column(Modifier.fillMaxSize()) {
             Box(Modifier.weight(1f).fillMaxWidth()) {
@@ -87,6 +89,8 @@ fun ContentView() {
             Text(last, style = Type.subheadline, color = Color.White,
                 modifier = Modifier.background(hex(0x1b2328).copy(alpha = 0.92f), RoundedCornerShape(12.dp)).padding(horizontal = 16.dp, vertical = 10.dp))
         }
+        Box(Modifier.fillMaxSize().zIndex(20f)) { OverlayLayer(overlayHost) }
+    }
     }
 }
 

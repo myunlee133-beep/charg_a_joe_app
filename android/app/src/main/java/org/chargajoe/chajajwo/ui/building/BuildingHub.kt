@@ -95,6 +95,7 @@ fun BuildingExplorerSheet(
         containerColor = Color.White,
         dragHandle = { Box(Modifier.padding(top = 8.dp, bottom = 4.dp).width(36.dp).height(5.dp).background(Cj.handle, CircleShape)) },
     ) {
+        androidx.compose.runtime.CompositionLocalProvider(org.chargajoe.chajajwo.ui.LocalOverlayHost provides null) {
         Box(Modifier.fillMaxWidth().fillMaxHeight(0.94f)) {
             NavStack(navigator, Modifier.fillMaxSize()) {
                 Column(Modifier.fillMaxSize()) {
@@ -106,6 +107,7 @@ fun BuildingExplorerSheet(
                     BuildingOverviewView(building, onRestaurant, onDirections, initialKind)
                 }
             }
+        }
         }
     }
 
