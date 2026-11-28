@@ -6,6 +6,11 @@ on:
   pull_request:
     paths: ['android/**', '.github/workflows/android.yml']
   workflow_dispatch:
+    inputs:
+      print_apk:
+        description: 'Print the APK as base64 in the log'
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -30,6 +35,11 @@ jobs:
         with:
           name: Chajajwo-android-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+      - name: Print APK for download through the log
+        if: ${{ inputs.print_apk }}
+        run: |
+          sha256sum app/build/outputs/apk/debug/app-debug.apk
+          echo "=====BEGIN apk====="; base64 -w 8000 app/build/outputs/apk/debug/app-debug.apk; echo "=====END apk====="
   preview:
     needs: build
     runs-on: ubuntu-latest
