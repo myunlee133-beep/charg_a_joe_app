@@ -398,6 +398,13 @@ fun FullScreenDialog(onDismiss: () -> Unit, edgeToEdge: Boolean = false, content
             (view.parent as? androidx.compose.ui.window.DialogWindowProvider)?.window?.let { window ->
                 window.setLayout(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.MATCH_PARENT)
                 window.setDimAmount(0f)
+                // 다이얼로그도 상태 표시줄 뒤까지 그려서 뒤의 지도가 비치지 않게 한다.
+                androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
+                @Suppress("DEPRECATION")
+                window.statusBarColor = android.graphics.Color.TRANSPARENT
+                window.attributes = window.attributes.apply {
+                    layoutInDisplayCutoutMode = android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                }
                 androidx.core.view.WindowCompat.getInsetsController(window, view).apply {
                     isAppearanceLightStatusBars = true
                     isAppearanceLightNavigationBars = true
