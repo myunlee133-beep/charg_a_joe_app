@@ -400,6 +400,7 @@ fun FullScreenDialog(onDismiss: () -> Unit, edgeToEdge: Boolean = false, content
                 window.setDimAmount(0f)
                 // 다이얼로그도 상태 표시줄 뒤까지 그려서 뒤의 지도가 비치지 않게 한다.
                 androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
+                window.addFlags(android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
                 @Suppress("DEPRECATION")
                 window.statusBarColor = android.graphics.Color.TRANSPARENT
                 window.attributes = window.attributes.apply {
