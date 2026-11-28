@@ -26,4 +26,9 @@ shot building-explore --es preview "building:63:explore"
 shot amenities --es preview amenities
 shot directions --es preview directions
 shot dining --es preview dining
-grep -h -i -E "kakao|CampusMap|AndroidRuntime|FATAL" "$OUT"/*.log | sort | uniq | head -200 > "$OUT/summary.txt" || true
+{
+  echo "--- home: SDK init / crash context"
+  grep -A12 -E "카카오맵 초기화 실패|FATAL EXCEPTION|카카오맵 오류" "$OUT/home.log" | head -80
+  echo "--- all screens: errors"
+  grep -h -E " E (ChajajwoApp|CampusMap|AndroidRuntime|K3fAApi)" "$OUT"/*.log | cut -c 33- | sort | uniq -c | sort -rn | head -40
+} > "$OUT/summary.txt" 2>&1 || true
