@@ -6,6 +6,10 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- AR 보물찾기는 선택 기능: ARCore가 없는 기기에도 설치된다. -->
+    <uses-feature android:name="android.hardware.camera.ar" android:required="false" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <application
         android:name=".ChajajwoApp"
@@ -15,6 +19,10 @@
         android:label="찾아줘"
         android:supportsRtl="false"
         android:theme="@style/Theme.Chajajwo">
+
+        <meta-data
+            android:name="com.google.ar.core"
+            android:value="optional" />
 
         <meta-data
             android:name="org.chargajoe.chajajwo.KAKAO_APP_KEY"

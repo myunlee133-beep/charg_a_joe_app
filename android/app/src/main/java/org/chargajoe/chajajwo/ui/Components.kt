@@ -391,7 +391,7 @@ fun GroupRow(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null, showD
 
 /** fullScreenCover 대응. */
 @Composable
-fun FullScreenDialog(onDismiss: () -> Unit, content: @Composable () -> Unit) {
+fun FullScreenDialog(onDismiss: () -> Unit, edgeToEdge: Boolean = false, content: @Composable () -> Unit) {
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)) {
         val view = androidx.compose.ui.platform.LocalView.current
         androidx.compose.runtime.SideEffect {
@@ -404,7 +404,8 @@ fun FullScreenDialog(onDismiss: () -> Unit, content: @Composable () -> Unit) {
                 }
             }
         }
-        Box(Modifier.fillMaxSize().background(Color.White).windowInsetsPadding(WindowInsets.statusBars).windowInsetsPadding(WindowInsets.navigationBars)) {
+        Box(Modifier.fillMaxSize().background(Color.White)
+            .then(if (edgeToEdge) Modifier else Modifier.windowInsetsPadding(WindowInsets.statusBars).windowInsetsPadding(WindowInsets.navigationBars))) {
             content()
         }
     }

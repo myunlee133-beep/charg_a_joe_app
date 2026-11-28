@@ -65,4 +65,5 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
     implementation("io.coil-kt:coil-compose:2.7.0")
     implementation("com.kakao.maps.open:android:2.12.8")
+    implementation("com.google.ar:core:1.45.0")
 }

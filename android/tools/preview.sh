@@ -9,6 +9,7 @@ adb install -r "$APK"
 adb shell pm grant $PKG android.permission.ACCESS_FINE_LOCATION || true
 adb shell pm grant $PKG android.permission.ACCESS_COARSE_LOCATION || true
 adb shell pm grant $PKG android.permission.POST_NOTIFICATIONS || true
+adb shell pm grant $PKG android.permission.CAMERA || true
 adb emu geo fix 126.9506 37.4593 || true
 shot() {
   local name="$1"; shift
@@ -27,6 +28,8 @@ shot amenities --es preview amenities
 shot directions --es preview directions
 shot dining --es preview dining
 shot route --es preview route
+shot dex --es preview dex
+shot ar --es preview ar
 {
   echo "--- home: SDK init / crash context"
   grep -A12 -E "카카오맵 초기화 실패|FATAL EXCEPTION|카카오맵 오류" "$OUT/home.log" | head -80

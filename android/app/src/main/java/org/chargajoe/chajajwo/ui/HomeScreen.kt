@@ -110,6 +110,8 @@ fun HomeScreen() {
     var topBarBottomPx by remember { mutableIntStateOf(0) }
     var mapHeightPx by remember { mutableIntStateOf(0) }
     var previewRoute by remember { mutableStateOf(false) }
+    var showDex by remember { mutableStateOf(false) }
+    var arLandmark by remember { mutableStateOf<Landmark?>(null) }
     val searchFocus = remember { FocusRequester() }
     val userLocation = remember { UserLocationService(context.applicationContext) }
     val landmarkIDs = app.landmarks.ids
@@ -229,6 +231,8 @@ fun HomeScreen() {
             "amenities" -> browsingAmenities = true
             "food" -> store.homeFilter = Store.HomeFilter.FOOD
             "route" -> previewRoute = true
+            "dex" -> showDex = true
+            "ar" -> arLandmark = Landmark.all.first()
             else -> if (arg.startsWith("building:")) {
                 val number = arg.removePrefix("building:").substringBefore(":")
                 CampusBuildingCatalog.all.firstOrNull { it.number == number }?.let {
@@ -256,7 +260,7 @@ fun HomeScreen() {
     )
     val callbacks = remember {
         CampusMapCallbacks(
-            onTreasureSelect = { store.toast("AR 보물찾기는 다음 업데이트에서 연결돼요") },
+            onTreasureSelect = { id -> focusManager.clearFocus(); arLandmark = Landmark.all.firstOrNull { it.id == id } },
             onSelectAmenityBuilding = { focus(it, preserveFilter = true) },
             onDeselect = { clearMapSelection() },
             onSelectBuilding = { focus(it, preserveFilter = true) },
@@ -287,7 +291,7 @@ fun HomeScreen() {
                 Spacer(Modifier.weight(1f))
                 Row(
                     Modifier.height(42.dp).background(Cj.surface.copy(alpha = 0.95f), RoundedCornerShape(14.dp))
-                        .tap { store.toast("보물 도감과 AR 보물찾기는 다음 업데이트에서 연결돼요") }.padding(horizontal = 12.dp),
+                        .tap { focusManager.clearFocus(); showDex = true }.padding(horizontal = 12.dp),
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     SymbolIcon(Sym.box, Cj.tealText, 17.dp)
@@ -415,6 +419,11 @@ fun HomeScreen() {
             BuildingDirectionsScreen(request.origin, request.destination, onClose = { buildingDirections = null })
         }
     }
+
+    org.chargajoe.chajajwo.ui.treasure.TreasureScreens(
+        app.landmarks, hereCoordinate, showDex, arLandmark,
+        onCloseDex = { showDex = false }, onOpenAR = { arLandmark = it }, onCloseAR = { arLandmark = null },
+    )
 
     if (previewRoute) {
         val start = CampusBuildingCatalog.search("학생회관").firstOrNull()
