@@ -58,10 +58,12 @@ jobs:
         if: always()
         run: |
           OUT="$RUNNER_TEMP/android-preview"
+          python3 -m pip install --quiet --break-system-packages pillow || python3 -m pip install --quiet pillow || true
           echo "::group::summary"; cat "$OUT/summary.txt" || true; echo "::endgroup::"
           for f in "$OUT"/*.png; do
             n=$(basename "$f" .png)
-            echo "=====BEGIN $n====="; base64 -w0 "$f"; echo; echo "=====END $n====="
+            python3 -c "from PIL import Image; im=Image.open('$f').convert('RGB'); im=im.resize((im.width*2//5, im.height*2//5)); im.save('$OUT/$n.jpg', quality=72)" || cp "$f" "$OUT/$n.jpg"
+            echo "=====BEGIN $n====="; base64 -w 8000 "$OUT/$n.jpg"; echo "=====END $n====="
           done
       - uses: actions/upload-artifact@v4
         if: always()

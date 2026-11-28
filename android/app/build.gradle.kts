@@ -17,7 +17,8 @@ android {
         versionName = "0.1.0"
         // iOS project.yml과 같은 카카오 앱 키. 카카오 개발자 콘솔에 Android 플랫폼(패키지명 + 키 해시)을 등록해야 지도가 열린다.
         manifestPlaceholders["KAKAO_APP_KEY"] = "633176f4920468978f1c055f77f9ef5f"
-        ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64") }
+        // 카카오맵 SDK는 ARM 네이티브 라이브러리만 제공한다. x86 에뮬레이터는 ARM 번역으로 실행한다.
+        ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
     }
 
     signingConfigs {
