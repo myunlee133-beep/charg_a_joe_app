@@ -54,6 +54,16 @@ jobs:
           profile: pixel_6
           disable-animations: true
           script: bash android/tools/preview.sh apk/app-debug.apk "$RUNNER_TEMP/android-preview"
+      - name: Print preview summary and screenshots
+        if: always()
+        run: |
+          OUT="$RUNNER_TEMP/android-preview"
+          echo "::group::summary"; cat "$OUT/summary.txt" || true; echo "::endgroup::"
+          for f in "$OUT"/*.png; do
+            n=$(basename "$f" .png)
+            convert "$f" -resize 40% -quality 70 "$OUT/$n.jpg" || continue
+            echo "=====BEGIN $n====="; base64 -w0 "$OUT/$n.jpg"; echo; echo "=====END $n====="
+          done
       - uses: actions/upload-artifact@v4
         if: always()
         with:
