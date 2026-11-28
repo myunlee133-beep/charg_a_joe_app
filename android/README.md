@@ -14,7 +14,7 @@ AR 보물찾기·도감은 다음 단계에서 연결합니다(지금은 상단 
 
 ## 카카오맵 키 설정
 
-iOS와 같은 카카오 앱 키를 씁니다. 카카오 개발자 콘솔의 해당 앱에 Android 플랫폼을 등록해야 지도가 열립니다.
+안드로이드 전용 카카오 앱 키(`app/build.gradle.kts`의 `KAKAO_APP_KEY`)를 씁니다. 카카오 개발자 콘솔의 그 앱에 Android 플랫폼을 등록해야 지도가 열립니다.
 
 - 패키지명: `org.chargajoe.chajajwo`
 - 키 해시: `15Nt2C7JekJYJvK5nXUHUfyqRZw=` (저장소에 포함된 `app/debug.keystore` 기준)
